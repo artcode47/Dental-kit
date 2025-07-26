@@ -1,8 +1,132 @@
 {
-    "Consent required": "Consent required",
-    "Invalid or missing CAPTCHA": "Invalid or missing CAPTCHA",
-    "Email already registered": "Email already registered",
-    "Verify your email": "Verify your email",
-    "Registration successful, please check your email to verify your account.": "Registration successful, please check your email to verify your account.",
-    "Server error": "Server error"
+  "auth": {
+    "consent_required": "Consent required",
+    "email_already_registered": "Email already registered",
+    "verify_email": "Verify your email",
+    "registration_successful": "Registration successful, please check your email to verify your account.",
+    "server_error": "Server error",
+    "no_token_provided": "No token provided",
+    "user_not_found": "User not found",
+    "invalid_token": "Invalid token",
+    "current_password_incorrect": "Current password incorrect",
+    "password_updated": "Password updated successfully",
+    "password_incorrect": "Password incorrect",
+    "account_deleted": "Account deleted successfully",
+    "email_updated": "Email updated. Please verify your new email.",
+    "oauth_not_implemented": "OAuth not implemented yet"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "password_length": "Password must be at least 8 characters long",
+    "password_match": "Passwords do not match",
+    "invalid_id": "Invalid ID format",
+    "file_too_large": "File too large. Maximum size is 5MB.",
+    "too_many_files": "Too many files. Maximum is 10 files.",
+    "unexpected_file_field": "Unexpected file field.",
+    "message_too_long": "Message must be less than 500 characters",
+    "validation_failed": "Validation failed",
+    "invalid_language": "Invalid language"
+  },
+  "products": {
+    "not_found": "Product not found",
+    "error_fetching": "Error fetching products",
+    "error_fetching_single": "Error fetching product",
+    "error_creating": "Error creating product",
+    "error_updating": "Error updating product",
+    "category_not_found": "Category not found",
+    "vendor_not_found": "Vendor not found",
+    "search_query_required": "Search query is required",
+    "error_searching": "Error searching products"
+  },
+  "cart": {
+    "error_fetching": "Error fetching cart",
+    "product_not_found": "Product not found",
+    "product_not_available": "Product is not available",
+    "insufficient_stock": "Insufficient stock",
+    "error_adding": "Error adding item to cart",
+    "valid_quantity_required": "Valid quantity is required",
+    "cart_not_found": "Cart not found",
+    "item_not_found": "Item not found in cart",
+    "error_updating": "Error updating cart item",
+    "error_removing": "Error removing item from cart",
+    "cleared_successfully": "Cart cleared successfully",
+    "error_clearing": "Error clearing cart",
+    "cart_empty": "Cart is empty",
+    "items_unavailable": "Some items in your cart are no longer available",
+    "error_summary": "Error getting cart summary"
+  },
+  "orders": {
+    "not_found": "Order not found",
+    "error_fetching": "Error fetching orders",
+    "error_creating": "Error creating order",
+    "error_updating": "Error updating order",
+    "error_status_update": "Error updating order status",
+    "error_processing": "Error processing new order"
+  },
+  "gift_cards": {
+    "valid_amount_required": "Valid amount is required",
+    "created_successfully": "Gift card created successfully",
+    "error_creating": "Error creating gift card",
+    "not_found": "Gift card not found",
+    "error_fetching": "Error fetching gift card",
+    "code_amount_order_required": "Code, amount, and order ID are required",
+    "used_successfully": "Gift card used successfully",
+    "error_fetching_user": "Error fetching gift cards",
+    "access_denied": "Access denied",
+    "error_fetching_history": "Error fetching gift card history",
+    "only_issuer_can_cancel": "Only the issuer can cancel this gift card",
+    "cannot_be_cancelled": "Gift card cannot be cancelled",
+    "cancelled_successfully": "Gift card cancelled successfully",
+    "error_cancelling": "Error cancelling gift card",
+    "error_fetching_all": "Error fetching gift cards",
+    "error_fetching_stats": "Error fetching gift card statistics"
+  },
+  "admin": {
+    "error_dashboard_stats": "Error fetching dashboard stats",
+    "error_fetching_users": "Error fetching users",
+    "operation_ids_required": "Operation and user IDs array are required",
+    "invalid_operation": "Invalid operation",
+    "bulk_operation_success": "Bulk operation completed successfully",
+    "error_bulk_operation": "Error performing bulk operation",
+    "error_fetching_products": "Error fetching products",
+    "data_required_for_update": "Data is required for update operation",
+    "error_fetching_orders": "Error fetching orders",
+    "error_fetching_analytics": "Error fetching analytics",
+    "error_system_health": "Error checking system health"
+  },
+  "security": {
+    "access_denied": "Access denied",
+    "invalid_api_key": "Invalid API key",
+    "request_too_large": "Request entity too large",
+    "invalid_request_params": "Invalid request parameters",
+    "invalid_request_body": "Invalid request body",
+    "invalid_url_params": "Invalid URL parameters",
+    "too_many_requests": "Too many requests, please try again later."
+  },
+  "socket": {
+    "order_not_found": "Order not found",
+    "error_updating_order": "Error updating order status",
+    "product_not_found": "Product not found",
+    "error_updating_inventory": "Error updating inventory",
+    "error_processing_order": "Error processing new order",
+    "error_sending_message": "Error sending message"
+  },
+  "common": {
+    "success": "Success",
+    "error": "Error",
+    "not_found": "Not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "bad_request": "Bad request",
+    "internal_server_error": "Internal server error",
+    "something_went_wrong": "Something went wrong!"
+  },
+  "email": {
+    "order_status_updated": "Your order status has been updated.",
+    "order_confirmed": "Your order has been confirmed.",
+    "order_shipped": "Your order has been shipped.",
+    "order_delivered": "Your order has been delivered.",
+    "order_cancelled": "Your order has been cancelled."
   }
+}

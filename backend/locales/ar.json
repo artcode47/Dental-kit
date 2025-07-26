@@ -1,8 +1,132 @@
 {
-    "Consent required": "موافقة مطلوبة",
-    "Invalid or missing CAPTCHA": "رمز التحقق غير صالح أو مفقود",
-    "Email already registered": "البريد الإلكتروني مسجل بالفعل",
-    "Verify your email": "تحقق من بريدك الإلكتروني",
-    "Registration successful, please check your email to verify your account.": "تم التسجيل بنجاح، يرجى التحقق من بريدك الإلكتروني.",
-    "Server error": "خطأ في الخادم"
+  "auth": {
+    "consent_required": "الموافقة مطلوبة",
+    "email_already_registered": "البريد الإلكتروني مسجل بالفعل",
+    "verify_email": "تحقق من بريدك الإلكتروني",
+    "registration_successful": "تم التسجيل بنجاح، يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك.",
+    "server_error": "خطأ في الخادم",
+    "no_token_provided": "لم يتم توفير رمز الوصول",
+    "user_not_found": "المستخدم غير موجود",
+    "invalid_token": "رمز الوصول غير صالح",
+    "current_password_incorrect": "كلمة المرور الحالية غير صحيحة",
+    "password_updated": "تم تحديث كلمة المرور بنجاح",
+    "password_incorrect": "كلمة المرور غير صحيحة",
+    "account_deleted": "تم حذف الحساب بنجاح",
+    "email_updated": "تم تحديث البريد الإلكتروني. يرجى التحقق من بريدك الإلكتروني الجديد.",
+    "oauth_not_implemented": "لم يتم تنفيذ تسجيل الدخول الاجتماعي بعد"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "email": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+    "password_length": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "password_match": "كلمات المرور غير متطابقة",
+    "invalid_id": "تنسيق المعرف غير صحيح",
+    "file_too_large": "الملف كبير جداً. الحد الأقصى للحجم هو 5 ميجابايت.",
+    "too_many_files": "ملفات كثيرة جداً. الحد الأقصى هو 10 ملفات.",
+    "unexpected_file_field": "حقل ملف غير متوقع.",
+    "message_too_long": "يجب أن تكون الرسالة أقل من 500 حرف",
+    "validation_failed": "فشل في التحقق من صحة البيانات",
+    "invalid_language": "لغة غير صحيحة"
+  },
+  "products": {
+    "not_found": "المنتج غير موجود",
+    "error_fetching": "خطأ في جلب المنتجات",
+    "error_fetching_single": "خطأ في جلب المنتج",
+    "error_creating": "خطأ في إنشاء المنتج",
+    "error_updating": "خطأ في تحديث المنتج",
+    "category_not_found": "الفئة غير موجودة",
+    "vendor_not_found": "البائع غير موجود",
+    "search_query_required": "استعلام البحث مطلوب",
+    "error_searching": "خطأ في البحث عن المنتجات"
+  },
+  "cart": {
+    "error_fetching": "خطأ في جلب سلة التسوق",
+    "product_not_found": "المنتج غير موجود",
+    "product_not_available": "المنتج غير متاح",
+    "insufficient_stock": "المخزون غير كافي",
+    "error_adding": "خطأ في إضافة العنصر إلى سلة التسوق",
+    "valid_quantity_required": "الكمية الصحيحة مطلوبة",
+    "cart_not_found": "سلة التسوق غير موجودة",
+    "item_not_found": "العنصر غير موجود في سلة التسوق",
+    "error_updating": "خطأ في تحديث عنصر سلة التسوق",
+    "error_removing": "خطأ في إزالة العنصر من سلة التسوق",
+    "cleared_successfully": "تم مسح سلة التسوق بنجاح",
+    "error_clearing": "خطأ في مسح سلة التسوق",
+    "cart_empty": "سلة التسوق فارغة",
+    "items_unavailable": "بعض العناصر في سلة التسوق لم تعد متاحة",
+    "error_summary": "خطأ في الحصول على ملخص سلة التسوق"
+  },
+  "orders": {
+    "not_found": "الطلب غير موجود",
+    "error_fetching": "خطأ في جلب الطلبات",
+    "error_creating": "خطأ في إنشاء الطلب",
+    "error_updating": "خطأ في تحديث الطلب",
+    "error_status_update": "خطأ في تحديث حالة الطلب",
+    "error_processing": "خطأ في معالجة الطلب الجديد"
+  },
+  "gift_cards": {
+    "valid_amount_required": "المبلغ الصحيح مطلوب",
+    "created_successfully": "تم إنشاء بطاقة الهدية بنجاح",
+    "error_creating": "خطأ في إنشاء بطاقة الهدية",
+    "not_found": "بطاقة الهدية غير موجودة",
+    "error_fetching": "خطأ في جلب بطاقة الهدية",
+    "code_amount_order_required": "الرمز والمبلغ ومعرف الطلب مطلوبة",
+    "used_successfully": "تم استخدام بطاقة الهدية بنجاح",
+    "error_fetching_user": "خطأ في جلب بطاقات الهدية",
+    "access_denied": "تم رفض الوصول",
+    "error_fetching_history": "خطأ في جلب تاريخ بطاقة الهدية",
+    "only_issuer_can_cancel": "فقط المصدر يمكنه إلغاء بطاقة الهدية هذه",
+    "cannot_be_cancelled": "لا يمكن إلغاء بطاقة الهدية",
+    "cancelled_successfully": "تم إلغاء بطاقة الهدية بنجاح",
+    "error_cancelling": "خطأ في إلغاء بطاقة الهدية",
+    "error_fetching_all": "خطأ في جلب بطاقات الهدية",
+    "error_fetching_stats": "خطأ في جلب إحصائيات بطاقة الهدية"
+  },
+  "admin": {
+    "error_dashboard_stats": "خطأ في جلب إحصائيات لوحة التحكم",
+    "error_fetching_users": "خطأ في جلب المستخدمين",
+    "operation_ids_required": "العملية ومصفوفة معرفات المستخدمين مطلوبة",
+    "invalid_operation": "عملية غير صحيحة",
+    "bulk_operation_success": "تم إكمال العملية المجمعة بنجاح",
+    "error_bulk_operation": "خطأ في تنفيذ العملية المجمعة",
+    "error_fetching_products": "خطأ في جلب المنتجات",
+    "data_required_for_update": "البيانات مطلوبة لعملية التحديث",
+    "error_fetching_orders": "خطأ في جلب الطلبات",
+    "error_fetching_analytics": "خطأ في جلب التحليلات",
+    "error_system_health": "خطأ في فحص صحة النظام"
+  },
+  "security": {
+    "access_denied": "تم رفض الوصول",
+    "invalid_api_key": "مفتاح API غير صحيح",
+    "request_too_large": "الطلب كبير جداً",
+    "invalid_request_params": "معاملات الطلب غير صحيحة",
+    "invalid_request_body": "جسم الطلب غير صحيح",
+    "invalid_url_params": "معاملات URL غير صحيحة",
+    "too_many_requests": "طلبات كثيرة جداً، يرجى المحاولة لاحقاً."
+  },
+  "socket": {
+    "order_not_found": "الطلب غير موجود",
+    "error_updating_order": "خطأ في تحديث حالة الطلب",
+    "product_not_found": "المنتج غير موجود",
+    "error_updating_inventory": "خطأ في تحديث المخزون",
+    "error_processing_order": "خطأ في معالجة الطلب الجديد",
+    "error_sending_message": "خطأ في إرسال الرسالة"
+  },
+  "common": {
+    "success": "نجح",
+    "error": "خطأ",
+    "not_found": "غير موجود",
+    "unauthorized": "غير مصرح",
+    "forbidden": "محظور",
+    "bad_request": "طلب سيء",
+    "internal_server_error": "خطأ داخلي في الخادم",
+    "something_went_wrong": "حدث خطأ ما!"
+  },
+  "email": {
+    "order_status_updated": "تم تحديث حالة طلبك.",
+    "order_confirmed": "تم تأكيد طلبك.",
+    "order_shipped": "تم شحن طلبك.",
+    "order_delivered": "تم تسليم طلبك.",
+    "order_cancelled": "تم إلغاء طلبك."
   }
+}

@@ -61,21 +61,21 @@ exports.anonymizeAccount = async (req, res) => {
 exports.register = async (req, res) => {
   const { email, password, consentGiven, language } = req.body;
   try {
-    if (!consentGiven) return res.status(400).json({ message: i18n.__({ phrase: 'Consent required', locale: language || 'en' }) });
+    if (!consentGiven) return res.status(400).json({ message: req.__('auth.consent_required') });
     let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: i18n.__({ phrase: 'Email already registered', locale: language || 'en' }) });
+    if (user) return res.status(400).json({ message: req.__('auth.email_already_registered') });
     const verificationToken = generateRandomToken();
     user = await User.create({ email, password, verificationToken, consentGiven: true, consentTimestamp: new Date(), language: language || 'en' });
     const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}&email=${email}`;
     await sendEmail({
       to: email,
-      subject: i18n.__({ phrase: 'Verify your email', locale: language || 'en' }),
+      subject: req.__('auth.verify_email'),
       template: 'verify-email',
       context: { email, verifyUrl, year: new Date().getFullYear() },
     });
-    res.status(201).json({ message: i18n.__({ phrase: 'Registration successful, please check your email to verify your account.', locale: language || 'en' }) });
+    res.status(201).json({ message: req.__('auth.registration_successful') });
   } catch (err) {
-    res.status(500).json({ message: i18n.__({ phrase: 'Server error', locale: language || 'en' }) });
+    res.status(500).json({ message: req.__('auth.server_error') });
   }
 };
 

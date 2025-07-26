@@ -31,7 +31,9 @@ const couponRoutes = require('./routes/coupons');
 const giftCardRoutes = require('./routes/giftCards');
 const comparisonRoutes = require('./routes/comparisons');
 const adminRoutes = require('./routes/admin');
+const languageRoutes = require('./routes/language');
 const i18n = require('i18n');
+const { languageDetection, rtlSupport } = require('./middleware/language');
 require('dotenv').config();
 
 const app = express();
@@ -59,6 +61,8 @@ app.use(sessionSecurity);
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(i18n.init);
+app.use(languageDetection);
+app.use(rtlSupport);
 
 // Apply rate limiting
 app.use('/api/', apiLimiter);
@@ -80,6 +84,7 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/gift-cards', giftCardRoutes);
 app.use('/api/comparisons', comparisonRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/language', languageRoutes);
 
 // Health check endpoint for monitoring
 app.get('/api/health', (req, res) => {
