@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>New Device Login Detected - Dental Kit Store</title>
+  </head>
+  <body role="main">
+    <h1>New Device Login Detected</h1>
+    <p>Hello {{email}},</p>
+    <p>A login to your account was detected from a new device or location:</p>
+    <ul aria-label="Login details">
+      <li><strong>Device:</strong> {{userAgent}}</li>
+      <li><strong>IP Address:</strong> {{ip}}</li>
+      <li><strong>Date/Time:</strong> {{date}}</li>
+    </ul>
+    <p>If this was you, you can safely ignore this email. If not, please reset your password immediately.</p>
+    <hr>
+    <p>&copy; {{year}} Dental Kit Store</p>
+  </body>
+</html> 

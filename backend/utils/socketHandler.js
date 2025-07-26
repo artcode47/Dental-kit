@@ -1,0 +1,280 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const Order = require('../models/Order');
+const Product = require('../models/Product');
+
+// Store connected users
+const connectedUsers = new Map();
+const adminUsers = new Set();
+
+// Socket authentication middleware
+const authenticateSocket = async (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return next(new Error('Authentication error'));
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+    
+    if (!user) {
+      return next(new Error('User not found'));
+    }
+
+    socket.user = user;
+    next();
+  } catch (error) {
+    next(new Error('Authentication error'));
+  }
+};
+
+// Socket handler
+const socketHandler = (io) => {
+  // Apply authentication middleware
+  io.use(authenticateSocket);
+
+  io.on('connection', (socket) => {
+    console.log(`User connected: ${socket.user.email}`);
+    
+    // Store connected user
+    connectedUsers.set(socket.user._id.toString(), {
+      socketId: socket.id,
+      user: socket.user,
+      connectedAt: new Date()
+    });
+
+    // Join user to their personal room
+    socket.join(`user_${socket.user._id}`);
+    
+    // Join admin room if user is admin
+    if (socket.user.role === 'admin') {
+      socket.join('admin_room');
+      adminUsers.add(socket.user._id.toString());
+    }
+
+    // Handle order status updates
+    socket.on('order_status_update', async (data) => {
+      try {
+        const { orderId, status, trackingNumber, trackingUrl } = data;
+        
+        const order = await Order.findById(orderId).populate('user', 'email firstName lastName');
+        if (!order) {
+          socket.emit('error', { message: 'Order not found' });
+          return;
+        }
+
+        // Update order status
+        order.status = status;
+        if (trackingNumber) order.trackingNumber = trackingNumber;
+        if (trackingUrl) order.trackingUrl = trackingUrl;
+        
+        if (status === 'shipped') {
+          order.shippedAt = new Date();
+        } else if (status === 'delivered') {
+          order.deliveredAt = new Date();
+        }
+
+        await order.save();
+
+        // Emit to specific user
+        io.to(`user_${order.user._id}`).emit('order_updated', {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          status,
+          trackingNumber,
+          trackingUrl,
+          updatedAt: new Date()
+        });
+
+        // Emit to admin room
+        io.to('admin_room').emit('order_status_changed', {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          customerName: `${order.user.firstName} ${order.user.lastName}`,
+          status,
+          updatedAt: new Date()
+        });
+
+      } catch (error) {
+        socket.emit('error', { message: 'Error updating order status' });
+      }
+    });
+
+    // Handle inventory updates
+    socket.on('inventory_update', async (data) => {
+      try {
+        const { productId, stock } = data;
+        
+        const product = await Product.findById(productId);
+        if (!product) {
+          socket.emit('error', { message: 'Product not found' });
+          return;
+        }
+
+        const oldStock = product.stock;
+        product.stock = stock;
+        await product.save();
+
+        // Emit to all connected users
+        io.emit('inventory_updated', {
+          productId: product._id,
+          productName: product.name,
+          oldStock,
+          newStock: stock,
+          isLowStock: stock <= 10,
+          isOutOfStock: stock === 0
+        });
+
+      } catch (error) {
+        socket.emit('error', { message: 'Error updating inventory' });
+      }
+    });
+
+    // Handle new order notifications
+    socket.on('new_order', async (data) => {
+      try {
+        const { orderId } = data;
+        
+        const order = await Order.findById(orderId)
+          .populate('user', 'email firstName lastName')
+          .populate('items.product', 'name');
+
+        if (!order) {
+          socket.emit('error', { message: 'Order not found' });
+          return;
+        }
+
+        // Emit to admin room
+        io.to('admin_room').emit('new_order_received', {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          customerName: `${order.user.firstName} ${order.user.lastName}`,
+          customerEmail: order.user.email,
+          total: order.total,
+          items: order.items.map(item => ({
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          createdAt: order.createdAt
+        });
+
+      } catch (error) {
+        socket.emit('error', { message: 'Error processing new order' });
+      }
+    });
+
+    // Handle chat messages
+    socket.on('send_message', async (data) => {
+      try {
+        const { recipientId, message, type = 'text' } = data;
+        
+        const messageData = {
+          senderId: socket.user._id,
+          senderName: `${socket.user.firstName} ${socket.user.lastName}`,
+          recipientId,
+          message,
+          type,
+          timestamp: new Date()
+        };
+
+        // Send to recipient if online
+        const recipientSocket = connectedUsers.get(recipientId);
+        if (recipientSocket) {
+          io.to(recipientSocket.socketId).emit('new_message', messageData);
+        }
+
+        // Send back to sender for confirmation
+        socket.emit('message_sent', messageData);
+
+        // If recipient is admin, also send to admin room
+        if (adminUsers.has(recipientId)) {
+          io.to('admin_room').emit('customer_message', messageData);
+        }
+
+      } catch (error) {
+        socket.emit('error', { message: 'Error sending message' });
+      }
+    });
+
+    // Handle user typing
+    socket.on('typing', (data) => {
+      const { recipientId, isTyping } = data;
+      const recipientSocket = connectedUsers.get(recipientId);
+      if (recipientSocket) {
+        io.to(recipientSocket.socketId).emit('user_typing', {
+          userId: socket.user._id,
+          userName: `${socket.user.firstName} ${socket.user.lastName}`,
+          isTyping
+        });
+      }
+    });
+
+    // Handle product view tracking
+    socket.on('product_viewed', async (data) => {
+      try {
+        const { productId } = data;
+        
+        // Update product view count
+        await Product.findByIdAndUpdate(productId, {
+          $inc: { views: 1 }
+        });
+
+        // Update user's recently viewed
+        await User.findByIdAndUpdate(socket.user._id, {
+          $push: {
+            recentlyViewed: {
+              $each: [{ product: productId, viewedAt: new Date() }],
+              $slice: -20 // Keep only last 20
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error('Error tracking product view:', error);
+      }
+    });
+
+    // Handle disconnect
+    socket.on('disconnect', () => {
+      console.log(`User disconnected: ${socket.user.email}`);
+      connectedUsers.delete(socket.user._id.toString());
+      adminUsers.delete(socket.user._id.toString());
+    });
+  });
+
+  // Export functions for use in other parts of the application
+  return {
+    // Send notification to specific user
+    sendToUser: (userId, event, data) => {
+      const userSocket = connectedUsers.get(userId);
+      if (userSocket) {
+        io.to(userSocket.socketId).emit(event, data);
+      }
+    },
+
+    // Send notification to all connected users
+    sendToAll: (event, data) => {
+      io.emit(event, data);
+    },
+
+    // Send notification to admin users
+    sendToAdmins: (event, data) => {
+      io.to('admin_room').emit(event, data);
+    },
+
+    // Get connected users count
+    getConnectedUsersCount: () => {
+      return connectedUsers.size;
+    },
+
+    // Get connected users list
+    getConnectedUsers: () => {
+      return Array.from(connectedUsers.values());
+    }
+  };
+};
+
+module.exports = socketHandler; 
