@@ -137,7 +137,7 @@ async function generateUniqueCode() {
 }
 
 // Index for efficient queries
-giftCardSchema.index({ code: 1 });
+// Code field already has unique: true which creates an index
 giftCardSchema.index({ status: 1 });
 giftCardSchema.index({ issuedBy: 1 });
 giftCardSchema.index({ issuedTo: 1 });

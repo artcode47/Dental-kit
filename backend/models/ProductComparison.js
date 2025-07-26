@@ -126,7 +126,7 @@ async function generateShareToken() {
 
 // Index for efficient queries
 productComparisonSchema.index({ user: 1 });
-productComparisonSchema.index({ shareToken: 1 });
+// ShareToken field already has unique: true which creates an index
 productComparisonSchema.index({ isPublic: 1 });
 productComparisonSchema.index({ lastViewed: -1 });
 

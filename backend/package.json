@@ -8,7 +8,8 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --watchAll=false",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "create-admin": "node scripts/create-it-admin.js"
   },
   "keywords": [],
   "author": "",
