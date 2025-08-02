@@ -103,6 +103,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Root health check endpoint for Fly.io
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // IT Dashboard route
 app.get('/it-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'it-dashboard.html'));

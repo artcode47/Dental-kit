@@ -4,13 +4,15 @@ A comprehensive, production-ready Node.js backend for a dental equipment e-comme
 
 ## 🚀 Quick Start
 
+### Local Development
+
 1. **Install dependencies**
    ```bash
    npm install
    ```
 
 2. **Set up environment variables**
-   Create a `.env` file:
+   Create a `.env` file (see `env.example` for all available options):
    ```env
    MONGODB_URI=mongodb://localhost:27017/dental-website
    JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -31,6 +33,19 @@ A comprehensive, production-ready Node.js backend for a dental equipment e-comme
    # or for development
    npm run dev
    ```
+
+### 🚀 Production Deployment (Fly.io)
+
+For production deployment to Fly.io, see the [Fly.io Deployment Guide](FLY_DEPLOYMENT.md).
+
+**Quick deployment:**
+```bash
+# Windows (PowerShell)
+.\deploy.ps1
+
+# Linux/macOS
+./deploy.sh
+```
 
 ## 🔧 IT Monitoring Dashboard
 

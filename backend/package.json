@@ -9,7 +9,8 @@
     "test:ci": "jest --ci --coverage --watchAll=false",
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "create-admin": "node scripts/create-it-admin.js"
+    "create-admin": "node scripts/create-it-admin.js",
+    "migrate": "echo 'No migrations needed'"
   },
   "keywords": [],
   "author": "",
