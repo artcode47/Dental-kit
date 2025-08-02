@@ -20,6 +20,12 @@ exports.updateProfile = async (req, res) => {
       firstName,
       lastName,
       phone,
+      company,
+      university,
+      country,
+      governorate,
+      timezone,
+      language,
       dateOfBirth,
       gender
     } = req.body;
@@ -28,6 +34,12 @@ exports.updateProfile = async (req, res) => {
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (phone !== undefined) updateData.phone = phone;
+    if (company !== undefined) updateData.company = company;
+    if (university !== undefined) updateData.university = university;
+    if (country !== undefined) updateData.country = country;
+    if (governorate !== undefined) updateData.governorate = governorate;
+    if (timezone !== undefined) updateData.timezone = timezone;
+    if (language !== undefined) updateData.language = language;
     if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
     if (gender !== undefined) updateData.gender = gender;
 

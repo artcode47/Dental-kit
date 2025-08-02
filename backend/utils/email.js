@@ -3,12 +3,28 @@ const fs = require('fs');
 const path = require('path');
 const handlebars = require('handlebars');
 
+// Debug email configuration
+console.log('Email Configuration:');
+console.log('Service:', process.env.EMAIL_SERVICE);
+console.log('User:', process.env.EMAIL_USER);
+console.log('From:', process.env.EMAIL_FROM);
+console.log('Pass configured:', !!process.env.EMAIL_PASS);
+
 const transporter = nodemailer.createTransport({
   service: process.env.EMAIL_SERVICE,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+// Verify transporter configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('Email transporter verification failed:', error);
+  } else {
+    console.log('Email server is ready to send messages');
+  }
 });
 
 function renderTemplate(templateName, context) {
@@ -19,14 +35,31 @@ function renderTemplate(templateName, context) {
 }
 
 async function sendEmail({ to, subject, template, context }) {
-  const html = renderTemplate(template, context);
-  const mailOptions = {
-    from: process.env.EMAIL_FROM,
-    to,
-    subject,
-    html,
-  };
-  await transporter.sendMail(mailOptions);
+  try {
+    console.log('Attempting to send email to:', to);
+    console.log('Email subject:', subject);
+    console.log('Email template:', template);
+    
+    const html = renderTemplate(template, context);
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to,
+      subject,
+      html,
+    };
+    
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', result.messageId);
+    return result;
+  } catch (error) {
+    console.error('Email sending failed with details:', {
+      code: error.code,
+      response: error.response,
+      responseCode: error.responseCode,
+      command: error.command
+    });
+    throw error;
+  }
 }
 
 module.exports = sendEmail; 

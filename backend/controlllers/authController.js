@@ -59,22 +59,79 @@ exports.anonymizeAccount = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-  const { email, password, consentGiven, language } = req.body;
+  const { 
+    email, 
+    password, 
+    firstName,
+    lastName,
+    phone,
+    company,
+    university,
+    country,
+    governorate,
+    consentGiven, 
+    language 
+  } = req.body;
+  
+  // Debug logging
+  console.log('Registration data received:', {
+    email,
+    firstName,
+    lastName,
+    phone,
+    company,
+    university,
+    country,
+    governorate,
+    consentGiven,
+    language
+  });
+  
   try {
     if (!consentGiven) return res.status(400).json({ message: req.__('auth.consent_required') });
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: req.__('auth.email_already_registered') });
+    
     const verificationToken = generateRandomToken();
-    user = await User.create({ email, password, verificationToken, consentGiven: true, consentTimestamp: new Date(), language: language || 'en' });
-    const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}&email=${email}`;
-    await sendEmail({
-      to: email,
-      subject: req.__('auth.verify_email'),
-      template: 'verify-email',
-      context: { email, verifyUrl, year: new Date().getFullYear() },
-    });
+    const userData = { 
+      email, 
+      password, 
+      firstName,
+      lastName,
+      phone,
+      company,
+      university,
+      country,
+      governorate,
+      verificationToken, 
+      consentGiven: true, 
+      consentTimestamp: new Date(), 
+      language: language || 'en' 
+    };
+    
+    // Debug logging
+    console.log('Creating user with data:', userData);
+    
+    user = await User.create(userData);
+    
+    // Try to send verification email, but don't fail if email sending fails
+    try {
+      const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}&email=${email}`;
+      await sendEmail({
+        to: email,
+        subject: req.__('auth.verify_email'),
+        template: 'verify-email',
+        context: { email, verifyUrl, year: new Date().getFullYear() },
+      });
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+      // Continue with registration even if email fails
+      // User can request email verification later
+    }
+    
     res.status(201).json({ message: req.__('auth.registration_successful') });
   } catch (err) {
+    console.error('Registration error:', err);
     res.status(500).json({ message: req.__('auth.server_error') });
   }
 };
@@ -82,12 +139,60 @@ exports.register = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   const { token, email } = req.query;
   try {
-    const user = await User.findOne({ email, verificationToken: token });
-    if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+    
+    // If user is already verified, return success
+    if (user.isVerified) {
+      return res.json({ message: 'Email already verified successfully' });
+    }
+    
+    // Check if token matches
+    if (user.verificationToken !== token) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+    
+    // Verify the user
     user.isVerified = true;
     user.verificationToken = undefined;
     await user.save();
+    
     res.json({ message: 'Email verified successfully' });
+  } catch (err) {
+    console.error('Email verification error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.resendVerification = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(200).json({ message: 'If that email is registered, a verification email has been sent.' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email is already verified' });
+    }
+
+    // Generate new verification token
+    const verificationToken = generateRandomToken();
+    user.verificationToken = verificationToken;
+    await user.save();
+
+    const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}&email=${email}`;
+    await sendEmail({
+      to: email,
+      subject: req.__('auth.verify_email'),
+      template: 'verify-email',
+      context: { email, verifyUrl, year: new Date().getFullYear() },
+    });
+
+    res.json({ message: 'If that email is registered, a verification email has been sent.' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -251,7 +356,21 @@ exports.login = async (req, res) => {
         context: { email: user.email, userAgent, ip, date: now.toLocaleString(), year: now.getFullYear() },
       });
     }
-    res.json({ accessToken });
+    
+    // Return user information along with access token
+    const userInfo = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      permissions: user.permissions || []
+    };
+    
+    res.json({ 
+      accessToken,
+      user: userInfo
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -420,4 +539,105 @@ exports.setLanguage = async (req, res) => {
   user.language = language;
   await user.save();
   res.json({ language: user.language });
+}; 
+
+// Profile methods
+exports.getProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    
+
+    
+    const profile = {
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      phone: user.phone || '',
+      company: user.company || '',
+      university: user.university || '',
+      country: user.country || 'EG',
+      governorate: user.governorate || '',
+      timezone: user.timezone || 'EET',
+      language: user.language || 'en',
+      role: user.role || 'user',
+      permissions: user.permissions || [],
+      isVerified: user.isVerified,
+      profileImage: user.profileImage,
+      notificationPreferences: user.notificationPreferences,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin
+    };
+    
+
+    
+    res.json({ profile });
+  } catch (err) {
+    console.error('Get profile error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    const updateFields = ['firstName', 'lastName', 'phone', 'company', 'university', 'country', 'governorate', 'timezone', 'language', 'notificationPreferences'];
+    
+    updateFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
+      }
+    });
+    
+    await user.save();
+    logActivity(user._id, 'profile_updated');
+    res.json({ message: 'Profile updated successfully', profile: user });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+    
+    // Here you would typically upload to cloud storage (Cloudinary, AWS S3, etc.)
+    // For now, we'll just store the file path
+    user.profileImage = req.file.path;
+    await user.save();
+    
+    logActivity(user._id, 'profile_image_uploaded');
+    res.json({ message: 'Profile image uploaded successfully', profileImage: user.profileImage });
+  } catch (err) {
+    console.error('Upload profile image error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  try {
+    const user = req.user;
+    const { password } = req.body;
+    
+    // Verify password before deletion
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Incorrect password' });
+    }
+    
+    // Log the deletion
+    logActivity(user._id, 'account_deleted');
+    
+    // Delete the user
+    await User.findByIdAndDelete(user._id);
+    
+    res.json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 }; 

@@ -13,7 +13,10 @@
     "password_incorrect": "Password incorrect",
     "account_deleted": "Account deleted successfully",
     "email_updated": "Email updated. Please verify your new email.",
-    "oauth_not_implemented": "OAuth not implemented yet"
+    "oauth_not_implemented": "OAuth not implemented yet",
+    "profile_updated": "Profile updated successfully",
+    "profile_image_updated": "Profile image updated successfully",
+    "no_image_provided": "No image file provided"
   },
   "validation": {
     "required": "This field is required",

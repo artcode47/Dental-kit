@@ -92,4 +92,5 @@ module.exports = {
   uploadMultiple,
   handleUploadError,
   cleanupUploads,
+  upload, // Export the main upload instance
 }; 

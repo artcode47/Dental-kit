@@ -4,6 +4,7 @@ const authController = require('../controlllers/authController');
 const validate = require('../middleware/validate');
 const auth = require('../middleware/auth');
 const authRateLimiter = require('../middleware/rateLimit');
+const { uploadSingle } = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -19,6 +20,14 @@ router.post(
       .matches(/[A-Z]/).withMessage('must contain an uppercase letter')
       .matches(/[0-9]/).withMessage('must contain a number')
       .matches(/[^A-Za-z0-9]/).withMessage('must contain a symbol'),
+    body('firstName').optional().trim().isLength({ min: 2, max: 50 }),
+    body('lastName').optional().trim().isLength({ min: 2, max: 50 }),
+    body('phone').optional().trim().isLength({ min: 1, max: 20 }),
+    body('company').optional().trim().isLength({ min: 1, max: 100 }),
+    body('university').optional().trim().isLength({ min: 1, max: 100 }),
+    body('country').optional().isIn(['EG', 'SA']),
+    body('governorate').optional().trim().isLength({ min: 1 }),
+    body('consentGiven').optional().isBoolean(),
   ],
   validate,
   authController.register
@@ -33,6 +42,15 @@ router.get(
   ],
   validate,
   authController.verifyEmail
+);
+
+// Resend Verification Email
+router.post(
+  '/resend-verification',
+  authRateLimiter,
+  [body('email').isEmail().normalizeEmail()],
+  validate,
+  authController.resendVerification
 );
 
 // Login
@@ -78,6 +96,43 @@ router.post('/refresh-token', authController.refreshToken);
 
 // Logout
 router.post('/logout', authController.logout);
+
+// Profile routes
+router.get('/profile', auth, authController.getProfile);
+router.put('/profile', auth, [
+  body('firstName').optional().trim().isLength({ min: 1, max: 50 }),
+  body('lastName').optional().trim().isLength({ min: 1, max: 50 }),
+  body('phone').optional().trim().isLength({ min: 1, max: 20 }),
+  body('company').optional().trim().isLength({ min: 1, max: 100 }),
+  body('university').optional().trim().isLength({ min: 1, max: 100 }),
+  body('country').optional().isIn(['EG', 'SA']),
+  body('governorate').optional().trim().isLength({ min: 1, max: 50 }),
+  body('timezone').optional().trim().isLength({ min: 1, max: 50 }),
+  body('language').optional().isIn(['en', 'ar', 'fr', 'es', 'de', 'ja']),
+  body('notificationPreferences.email').optional().isBoolean(),
+  body('notificationPreferences.sms').optional().isBoolean(),
+  body('notificationPreferences.promotional').optional().isBoolean(),
+], validate, authController.updateProfile);
+
+// Profile image upload
+router.post('/profile/image', auth, uploadSingle, [
+  body('image').custom((value, { req }) => {
+    if (!req.file) {
+      throw new Error('Image file is required');
+    }
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      throw new Error('Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed');
+    }
+    if (req.file.size > 5 * 1024 * 1024) { // 5MB limit
+      throw new Error('Image file is too large. Maximum size is 5MB');
+    }
+    return true;
+  })
+], validate, authController.uploadProfileImage);
+
+// Delete account
+router.delete('/account', auth, authController.deleteAccount);
 
 // Update Email
 router.put(

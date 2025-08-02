@@ -447,6 +447,52 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
+// Bulk order operations
+exports.bulkOrderOperations = async (req, res) => {
+  try {
+    const { operation, orderIds, data } = req.body;
+
+    if (!operation || !orderIds || !Array.isArray(orderIds)) {
+      return res.status(400).json({ message: 'Operation and order IDs array are required' });
+    }
+
+    let result;
+    switch (operation) {
+      case 'updateStatus':
+        if (!data || !data.status) {
+          return res.status(400).json({ message: 'Status is required for updateStatus operation' });
+        }
+        result = await Order.updateMany(
+          { _id: { $in: orderIds } },
+          { status: data.status }
+        );
+        break;
+      case 'updatePaymentStatus':
+        if (!data || !data.paymentStatus) {
+          return res.status(400).json({ message: 'Payment status is required for updatePaymentStatus operation' });
+        }
+        result = await Order.updateMany(
+          { _id: { $in: orderIds } },
+          { paymentStatus: data.paymentStatus }
+        );
+        break;
+      case 'delete':
+        result = await Order.deleteMany({ _id: { $in: orderIds } });
+        break;
+      default:
+        return res.status(400).json({ message: 'Invalid operation' });
+    }
+
+    res.json({
+      message: `Bulk operation '${operation}' completed successfully`,
+      affectedCount: result.modifiedCount || result.deletedCount
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error performing bulk operation', error: error.message });
+  }
+};
+
 // Analytics and reports
 exports.getAnalytics = async (req, res) => {
   try {

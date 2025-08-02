@@ -60,6 +60,13 @@ router.get('/orders', [
   query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
 ], validate, adminController.getAllOrders);
 
+// Bulk order operations
+router.post('/orders/bulk', [
+  body('operation').isIn(['updateStatus', 'updatePaymentStatus', 'delete']).withMessage('Valid operation is required'),
+  body('orderIds').isArray({ min: 1 }).withMessage('Order IDs array is required'),
+  body('data').optional().isObject().withMessage('Data must be an object'),
+], validate, adminController.bulkOrderOperations);
+
 // Analytics and reports
 router.get('/analytics', [
   query('period').optional().isIn(['7d', '30d', '90d', '1y']).withMessage('Valid period is required'),

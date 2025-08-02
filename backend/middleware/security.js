@@ -82,9 +82,46 @@ const corsOptions = {
     'Content-Type',
     'Accept',
     'Authorization',
-    'X-API-Key'
+    'X-API-Key',
+    'Accept-Language',
+    'User-Agent',
+    'x-device-info',
+    'x-client-version',
+    'x-platform',
+    'x-browser',
+    'x-os',
+    'x-screen-resolution',
+    'x-timezone',
+    'x-language',
+    'x-currency',
+    'x-request-timestamp',
+    'X-Request-Timestamp',
+    'X-Device-Info',
+    'X-Client-Version',
+    'X-Platform',
+    'X-Browser',
+    'X-OS',
+    'X-Screen-Resolution',
+    'X-Timezone',
+    'X-Language',
+    'X-Currency',
+    'X-Request-ID',
+    'x-request-id',
+    'X-CSRF-Token',
+    'x-csrf-token'
   ],
-  exposedHeaders: ['X-Total-Count', 'X-Page-Count']
+  exposedHeaders: [
+    'X-Total-Count',
+    'X-Page-Count',
+    'X-Current-Page',
+    'X-Per-Page',
+    'X-RateLimit-Limit',
+    'X-RateLimit-Remaining',
+    'X-RateLimit-Reset',
+    'X-CSRF-Token',
+    'x-csrf-token'
+  ],
+  maxAge: 86400 // 24 hours
 };
 
 // Enhanced Helmet configuration

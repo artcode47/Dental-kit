@@ -51,12 +51,7 @@ const userSchema = new mongoose.Schema({
   consentGiven: { type: Boolean, default: false },
   consentTimestamp: Date,
   anonymized: { type: Boolean, default: false },
-  emailPreferences: {
-    marketing: { type: Boolean, default: true },
-    security: { type: Boolean, default: true },
-    updates: { type: Boolean, default: true },
-  },
-  language: { type: String, default: 'en' },
+  
   // Profile Information
   firstName: {
     type: String,
@@ -70,11 +65,57 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  company: {
+    type: String,
+    trim: true,
+  },
+  university: {
+    type: String,
+    trim: true,
+  },
+  country: {
+    type: String,
+    enum: ['EG', 'SA'],
+    default: 'EG',
+  },
+  governorate: {
+    type: String,
+    trim: true,
+  },
+  timezone: {
+    type: String,
+    default: 'EET',
+  },
+  language: { 
+    type: String, 
+    default: 'en',
+    enum: ['en', 'ar', 'fr', 'es', 'de', 'ja']
+  },
   dateOfBirth: Date,
   gender: {
     type: String,
     enum: ['male', 'female', 'other', 'prefer-not-to-say'],
   },
+  
+  // Profile Image
+  profileImage: {
+    type: String,
+  },
+  
+  // Notification Preferences
+  notificationPreferences: {
+    email: { type: Boolean, default: true },
+    sms: { type: Boolean, default: false },
+    promotional: { type: Boolean, default: true },
+  },
+  
+  // Email Preferences (legacy - keeping for backward compatibility)
+  emailPreferences: {
+    marketing: { type: Boolean, default: true },
+    security: { type: Boolean, default: true },
+    updates: { type: Boolean, default: true },
+  },
+  
   // Addresses
   addresses: [{
     type: {
@@ -97,6 +138,7 @@ const userSchema = new mongoose.Schema({
       default: false,
     },
   }],
+  
   // Preferences
   preferences: {
     newsletter: { type: Boolean, default: true },
@@ -104,10 +146,12 @@ const userSchema = new mongoose.Schema({
     orderUpdates: { type: Boolean, default: true },
     productRecommendations: { type: Boolean, default: true },
   },
+  
   // E-commerce specific
   totalOrders: { type: Number, default: 0 },
   totalSpent: { type: Number, default: 0 },
   lastOrderDate: Date,
+  
   // Recently viewed products
   recentlyViewed: [{
     product: {
@@ -119,6 +163,7 @@ const userSchema = new mongoose.Schema({
       default: Date.now,
     },
   }],
+  
   // Search history
   searchHistory: [{
     query: String,
@@ -127,6 +172,7 @@ const userSchema = new mongoose.Schema({
       default: Date.now,
     },
   }],
+  
   // Loyalty points
   loyaltyPoints: {
     type: Number,
@@ -137,6 +183,7 @@ const userSchema = new mongoose.Schema({
     enum: ['bronze', 'silver', 'gold', 'platinum'],
     default: 'bronze',
   },
+  
   // Referral system
   referralCode: {
     type: String,
@@ -155,6 +202,25 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  
+  // User role and permissions
+  role: {
+    type: String,
+    enum: ['user', 'vendor', 'admin'],
+    default: 'user',
+  },
+  permissions: [{
+    type: String,
+  }],
+  
+  // Account status
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  lastLogin: Date,
+  lastActivity: Date,
+  
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
@@ -167,5 +233,17 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+// Virtual for full name
+userSchema.virtual('fullName').get(function() {
+  if (this.firstName && this.lastName) {
+    return `${this.firstName} ${this.lastName}`;
+  }
+  return this.firstName || this.lastName || '';
+});
+
+// Ensure virtual fields are serialized
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('User', userSchema); 

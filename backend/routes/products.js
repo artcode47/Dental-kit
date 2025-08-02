@@ -16,6 +16,9 @@ router.get('/featured', productController.getFeaturedProducts);
 // Get products on sale
 router.get('/on-sale', productController.getProductsOnSale);
 
+// Get all brands
+router.get('/brands', productController.getBrands);
+
 // Advanced search products
 router.get('/search', [
   query('q').notEmpty().withMessage('Search query is required'),

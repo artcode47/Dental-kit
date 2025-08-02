@@ -463,6 +463,16 @@ exports.getProductRecommendations = async (req, res) => {
   }
 };
 
+// Get all brands
+exports.getBrands = async (req, res) => {
+  try {
+    const brands = await Product.distinct('brand', { brand: { $exists: true, $ne: null, $ne: '' } });
+    res.json(brands.filter(brand => brand && brand.trim() !== ''));
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching brands', error: error.message });
+  }
+};
+
 // Upload product images
 exports.uploadProductImages = [
   uploadMultiple,
