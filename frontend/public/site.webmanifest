@@ -1,0 +1,20 @@
+{
+  "name": "DentalKit - Professional Dental Supplies",
+  "short_name": "DentalKit",
+  "description": "Professional dental supplies and equipment for modern dental practices",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d9488",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["medical", "business", "shopping"],
+  "lang": "en",
+  "dir": "ltr"
+} 

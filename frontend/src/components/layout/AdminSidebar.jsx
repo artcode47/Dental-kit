@@ -1,0 +1,223 @@
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { 
+  ChartBarIcon, 
+  UsersIcon, 
+  CubeIcon, 
+  ShoppingCartIcon,
+  TagIcon,
+  CogIcon,
+  BellIcon,
+  ChartPieIcon,
+  DocumentTextIcon,
+  CreditCardIcon,
+  GiftIcon,
+  StarIcon,
+  Bars3Icon,
+  XMarkIcon,
+  HomeIcon
+} from '@heroicons/react/24/outline';
+
+const AdminSidebar = () => {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const { isRTL } = useLanguage();
+  const { currentTheme } = useTheme();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const isActive = (path) => location.pathname === path;
+
+  const adminMenuItems = [
+    { 
+      path: '/admin', 
+      icon: HomeIcon, 
+      label: t('admin.sidebar.dashboard'),
+      description: t('admin.sidebar.dashboardDesc')
+    },
+    { 
+      path: '/admin/users', 
+      icon: UsersIcon, 
+      label: t('admin.sidebar.users'),
+      description: t('admin.sidebar.usersDesc')
+    },
+    { 
+      path: '/admin/products', 
+      icon: CubeIcon, 
+      label: t('admin.sidebar.products'),
+      description: t('admin.sidebar.productsDesc')
+    },
+    { 
+      path: '/admin/orders', 
+      icon: ShoppingCartIcon, 
+      label: t('admin.sidebar.orders'),
+      description: t('admin.sidebar.ordersDesc')
+    },
+    { 
+      path: '/admin/categories', 
+      icon: TagIcon, 
+      label: t('admin.sidebar.categories'),
+      description: t('admin.sidebar.categoriesDesc')
+    },
+    { 
+      path: '/admin/vendors', 
+      icon: UsersIcon, 
+      label: t('admin.sidebar.vendors'),
+      description: t('admin.sidebar.vendorsDesc')
+    },
+    { 
+      path: '/admin/reviews', 
+      icon: StarIcon, 
+      label: t('admin.sidebar.reviews'),
+      description: t('admin.sidebar.reviewsDesc')
+    },
+    { 
+      path: '/admin/coupons', 
+      icon: CreditCardIcon, 
+      label: t('admin.sidebar.coupons'),
+      description: t('admin.sidebar.couponsDesc')
+    },
+    { 
+      path: '/admin/gift-cards', 
+      icon: GiftIcon, 
+      label: t('admin.sidebar.giftCards'),
+      description: t('admin.sidebar.giftCardsDesc')
+    },
+    { 
+      path: '/admin/analytics', 
+      icon: ChartPieIcon, 
+      label: t('admin.sidebar.analytics'),
+      description: t('admin.sidebar.analyticsDesc')
+    },
+    { 
+      path: '/admin/reports', 
+      icon: DocumentTextIcon, 
+      label: t('admin.sidebar.reports'),
+      description: t('admin.sidebar.reportsDesc')
+    },
+    { 
+      path: '/admin/settings', 
+      icon: CogIcon, 
+      label: t('admin.sidebar.settings'),
+      description: t('admin.sidebar.settingsDesc')
+    },
+  ];
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  return (
+    <>
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={toggleMobileMenu}
+          className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700"
+        >
+          {isMobileMenuOpen ? (
+            <XMarkIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+          ) : (
+            <Bars3Icon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={toggleMobileMenu}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed top-0 left-0 z-40 h-screen transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:static lg:inset-0
+        w-72 bg-white/95 dark:bg-gray-900/95 border-r border-gray-200/50 dark:border-gray-700/50 backdrop-blur-md
+        ${isRTL ? 'lg:border-l lg:border-r-0' : ''}
+      `}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <img 
+                src={currentTheme === 'dark' ? '/Logo Page Darkmode.png' : '/Logo Page Lightmode.png'}
+                alt="DentalKit Admin Logo"
+                className="h-10 w-auto transition-all duration-300"
+              />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
+                Admin Panel
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Management Console
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-6 space-y-3 overflow-y-auto h-[calc(100vh-120px)]">
+          {adminMenuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`
+                  group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
+                  ${isActive(item.path)
+                    ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 border-r-2 border-teal-600 dark:border-teal-400 shadow-teal'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                  }
+                `}
+                title={item.description}
+              >
+                <Icon className={`
+                  h-5 w-5 transition-colors duration-200
+                  ${isActive(item.path)
+                    ? 'text-teal-600 dark:text-teal-400'
+                    : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'
+                  }
+                  ${isRTL ? 'ml-3' : 'mr-3'}
+                `} />
+                <span className="flex-1">{item.label}</span>
+                {isActive(item.path) && (
+                  <div className="w-2 h-2 bg-teal-600 dark:bg-teal-400 rounded-full shadow-teal" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-teal">
+              <UsersIcon className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                {user?.firstName || user?.email || 'Admin'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                {user?.role || 'Administrator'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+};
+
+export default AdminSidebar; 

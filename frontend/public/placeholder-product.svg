@@ -1,0 +1,12 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#F3F4F6"/>
+  <rect x="0" y="0" width="400" height="400" fill="url(#grid)" opacity="0.1"/>
+  <path d="M200 150C177.909 150 160 167.909 160 190C160 212.091 177.909 230 200 230C222.091 230 240 212.091 240 190C240 167.909 222.091 150 200 150ZM200 220C185.641 220 174 208.359 174 194C174 179.641 185.641 168 200 168C214.359 168 226 179.641 226 194C226 208.359 214.359 220 200 220Z" fill="#9CA3AF"/>
+  <path d="M280 170H260V190H280V170ZM280 200H260V220H280V200ZM280 230H260V250H280V230Z" fill="#9CA3AF"/>
+  <path d="M140 170H120V190H140V170ZM140 200H120V220H140V200ZM140 230H120V250H140V230Z" fill="#9CA3AF"/>
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#D1D5DB" stroke-width="1"/>
+    </pattern>
+  </defs>
+</svg> 
