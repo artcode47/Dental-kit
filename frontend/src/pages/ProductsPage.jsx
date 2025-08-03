@@ -6,27 +6,27 @@ import {
   FunnelIcon,
   HeartIcon,
   ShoppingCartIcon,
-  BellIcon,
-  UserIcon,
-  ViewColumnsIcon,
-  ListBulletIcon,
-  ChevronDownIcon,
   XMarkIcon,
   StarIcon,
   SparklesIcon,
   FireIcon,
   TagIcon,
-  AdjustmentsHorizontalIcon
+  AdjustmentsHorizontalIcon,
+  ViewColumnsIcon,
+  ListBulletIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid, StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { useCart } from '../contexts/CartContext';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
 
 const ProductsPage = () => {
   const { t } = useTranslation();
+  const { addToCart } = useCart();
   
   // State for products and data
   const [products, setProducts] = useState([]);
@@ -94,31 +94,20 @@ const ProductsPage = () => {
         api.get('/products/brands')
       ]);
       
-      // Ensure categories is always an array
       const categoriesData = Array.isArray(categoriesResponse.data) 
         ? categoriesResponse.data 
         : categoriesResponse.data?.categories || categoriesResponse.data?.data || [];
       
-      // Ensure brands is always an array
       const brandsData = Array.isArray(brandsResponse.data) 
         ? brandsResponse.data 
         : brandsResponse.data?.brands || brandsResponse.data?.data || [];
       
       setCategories(categoriesData);
       setBrands(brandsData);
-    } catch (error) {
-      console.error('Error fetching filters:', error);
-      // Set empty arrays as fallback
-      setCategories([]);
-      setBrands([]);
+    } catch {
+      console.error('Error fetching filters');
     }
   };
-
-  // Load data on mount
-  useEffect(() => {
-    fetchProducts();
-    fetchFilters();
-  }, [currentPage, searchTerm, selectedCategories, selectedBrands, priceRange, availability, sortBy]);
 
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
@@ -130,7 +119,7 @@ const ProductsPage = () => {
       case 'category':
         setSelectedCategories(prev => 
           prev.includes(value) 
-            ? prev.filter(cat => cat !== value)
+            ? prev.filter(id => id !== value)
             : [...prev, value]
         );
         setCurrentPage(1);
@@ -155,9 +144,6 @@ const ProductsPage = () => {
         setAvailability(value);
         setCurrentPage(1);
         break;
-      case 'rating':
-        // This case is no longer used, but keeping it for now
-        break;
       case 'sortBy':
         setSortBy(value);
         setCurrentPage(1);
@@ -177,7 +163,7 @@ const ProductsPage = () => {
     setSelectedBrands([]);
     setPriceRange({ min: '', max: '' });
     setAvailability('all');
-    setSortBy('popularity'); // Reset sortBy to default
+    setSortBy('popularity');
     setCurrentPage(1);
   };
 
@@ -210,8 +196,10 @@ const ProductsPage = () => {
   const handleAddToCart = async (productId) => {
     try {
       setAddingToCart(productId);
-      await api.post('/cart/add', { productId, quantity: 1 });
-      toast.success(t('cart.added'));
+      const product = products.find(p => p._id === productId);
+      if (product) {
+        await addToCart(product, 1);
+      }
     } catch {
       toast.error(t('cart.error.add'));
     } finally {
@@ -250,7 +238,7 @@ const ProductsPage = () => {
 
   // Filter checkbox component
   const FilterCheckbox = ({ label, checked, onChange, count, icon: Icon }) => (
-    <label className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg px-2">
+    <label className="flex items-center space-x-3 cursor-pointer group">
       <input
         type="checkbox"
         checked={checked}
@@ -258,140 +246,155 @@ const ProductsPage = () => {
         className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
       />
       <div className="flex items-center space-x-2 flex-1">
-        {Icon && <Icon className="h-4 w-4 text-gray-400" />}
-        <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+        {Icon && <Icon className="h-4 w-4 text-gray-400 group-hover:text-teal-500" />}
+        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">
+          {label}
+        </span>
       </div>
       {count !== undefined && (
-        <span className="text-xs text-gray-500 dark:text-gray-400">({count})</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+          {count}
+        </span>
       )}
     </label>
   );
 
   // Product card component
-  const ProductCard = ({ product }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden">
-        <img
-          src={product.images?.[0]?.url || '/placeholder-product.svg'}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        
-        {/* Product Badges */}
-        <div className="absolute top-3 left-3 flex flex-col space-y-2">
-          {product.isOnSale && getDiscountPercentage(product.originalPrice, product.price) > 0 && (
-            <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              {getDiscountPercentage(product.originalPrice, product.price)}% OFF
-            </div>
-          )}
-          {product.isNew && (
-            <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              NEW
-            </div>
-          )}
-          {product.isFeatured && (
-            <div className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              FEATURED
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="absolute top-3 right-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            onClick={() => toggleWishlist(product._id)}
-            className={`p-2 rounded-full shadow-lg transition-colors ${
-              wishlistItems.has(product._id)
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-white text-gray-600 hover:text-red-500'
-            }`}
-          >
-            {wishlistItems.has(product._id) ? (
-              <HeartIconSolid className="h-4 w-4" />
-            ) : (
-              <HeartIcon className="h-4 w-4" />
-            )}
-          </button>
+  const ProductCard = ({ product }) => {
+    const discountPercentage = getDiscountPercentage(product.originalPrice, product.price);
+    
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+        {/* Product Image */}
+        <div className="relative aspect-square overflow-hidden">
+          <img
+            src={product.images?.[0]?.url || '/placeholder-product.svg'}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.target.src = '/placeholder-product.svg';
+            }}
+          />
           
-          <button
-            onClick={() => handleAddToCart(product._id)}
-            disabled={addingToCart === product._id}
-            className="p-2 bg-white text-gray-600 hover:text-teal-600 rounded-full shadow-lg transition-colors disabled:opacity-50"
-          >
-            {addingToCart === product._id ? (
-              <LoadingSpinner size="sm" />
-            ) : (
-              <ShoppingCartIcon className="h-4 w-4" />
+          {/* Product Badges */}
+          <div className="absolute top-3 left-3 flex flex-col space-y-2">
+            {product.isOnSale && discountPercentage > 0 && (
+              <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                <TagIcon className="h-3 w-3 mr-1" />
+                {discountPercentage}% OFF
+              </div>
             )}
-          </button>
-        </div>
-      </div>
-
-      {/* Product Info */}
-      <div className="p-4">
-        <div className="mb-2">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
-            {product.name}
-          </h3>
-          {product.brand && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {product.brand}
-            </p>
-          )}
-        </div>
-
-        {/* Rating */}
-        <div className="flex items-center space-x-1 mb-3">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <StarIconSolid
-                key={i}
-                className={`h-4 w-4 ${
-                  i < Math.floor(product.averageRating || 0)
-                    ? 'text-yellow-400'
-                    : 'text-gray-300'
-                }`}
-              />
-            ))}
+            {product.isNew && (
+              <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                <SparklesIcon className="h-3 w-3 mr-1" />
+                NEW
+              </div>
+            )}
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            ({product.totalReviews || 0})
-          </span>
+
+          {/* Action Buttons */}
+          <div className="absolute top-3 right-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button
+              onClick={() => toggleWishlist(product._id)}
+              className={`p-2 rounded-full shadow-lg transition-colors ${
+                wishlistItems.has(product._id)
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-white text-gray-600 hover:text-red-500'
+              }`}
+            >
+              {wishlistItems.has(product._id) ? (
+                <HeartIconSolid className="h-4 w-4" />
+              ) : (
+                <HeartIcon className="h-4 w-4" />
+              )}
+            </button>
+            
+            <button
+              onClick={() => handleAddToCart(product._id)}
+              disabled={addingToCart === product._id}
+              className="p-2 bg-white text-gray-600 hover:text-teal-600 rounded-full shadow-lg transition-colors disabled:opacity-50"
+            >
+              {addingToCart === product._id ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <ShoppingCartIcon className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Price */}
-        <div className="flex items-center space-x-2 mb-3">
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
-            {formatPrice(product.price)}
-          </span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-sm text-gray-500 line-through">
-              {formatPrice(product.originalPrice)}
+        {/* Product Info */}
+        <div className="p-4">
+          <div className="mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
+              {product.name}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              {product.vendor?.name || 'DentalKit'}
+            </p>
+          </div>
+
+          {/* Rating */}
+          <div className="flex items-center mb-3">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <StarIconSolid
+                  key={i}
+                  className={`h-4 w-4 ${
+                    i < Math.floor(product.averageRating || 0)
+                      ? 'text-yellow-400'
+                      : 'text-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+              ({product.totalReviews || 0})
             </span>
-          )}
-        </div>
+          </div>
 
-        {/* Stock Status */}
-        <div className="flex items-center justify-between">
-          <span className={`text-sm font-medium ${
-            product.stock > 0 
-              ? 'text-green-600 dark:text-green-400' 
-              : 'text-red-600 dark:text-red-400'
-          }`}>
-            {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-          </span>
-          
-          <Link
-            to={`/products/${product._id}`}
-            className="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
-          >
-            View Details
-          </Link>
+          {/* Price */}
+          <div className="flex items-center space-x-2 mb-3">
+            <span className="text-xl font-bold text-gray-900 dark:text-white">
+              {formatPrice(product.price)}
+            </span>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-sm text-gray-500 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
+          </div>
+
+          {/* Stock Status */}
+          <div className="flex items-center justify-between">
+            <span className={`text-sm font-medium ${
+              product.stock > 0 
+                ? 'text-green-600 dark:text-green-400' 
+                : 'text-red-600 dark:text-red-400'
+            }`}>
+              {product.stock > 0 ? t('products.card.inStock') : t('products.card.outOfStock')}
+            </span>
+            
+            <Link
+              to={`/products/${product._id}`}
+              className="text-sm text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
+            >
+              {t('products.card.viewDetails')}
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  // Load data on mount and when filters change
+  useEffect(() => {
+    fetchProducts();
+  }, [currentPage, searchTerm, selectedCategories, selectedBrands, priceRange, availability, sortBy]);
+
+  useEffect(() => {
+    fetchFilters();
+  }, []);
 
   if (isLoading && products.length === 0) {
     return (
@@ -406,7 +409,7 @@ const ProductsPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <XMarkIcon className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Error loading products</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('products.error.title')}</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Button onClick={fetchProducts}>
             {t('products.error.retry')}
@@ -419,7 +422,7 @@ const ProductsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-400 text-white py-16 lg:py-20">
+      <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-400 text-white py-12 sm:py-16 lg:py-20">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute top-0 left-0 w-full h-full">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
@@ -431,57 +434,57 @@ const ProductsPage = () => {
               <SparklesIcon className="w-4 h-4 mr-2" />
               {t('products.premiumBadge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
               {t('products.title')}
             </h1>
-            <p className="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl opacity-90 max-w-3xl mx-auto leading-relaxed px-4">
               {t('products.description')}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* Search and Filters Header */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/20 p-8 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/20 p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="flex-1 max-w-lg">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                 <Input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder={t('products.search.placeholder')}
-                  className="pl-12 pr-4 py-4 w-full text-lg bg-white/50 dark:bg-gray-700/50 border-0 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-gray-700"
+                  className="pl-12 pr-4 py-3 sm:py-4 w-full text-base sm:text-lg bg-white/50 dark:bg-gray-700/50 border-0 focus:ring-2 focus:ring-teal-500 focus:bg-white dark:focus:bg-gray-700"
                 />
               </div>
             </form>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Filter Toggle */}
               <Button
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"
                 className="lg:hidden bg-white/50 dark:bg-gray-700/50 border-white/20 dark:border-gray-600/20 hover:bg-white dark:hover:bg-gray-700"
               >
-                <FunnelIcon className="h-5 w-5 mr-2" />
-                {t('products.filters.title')}
+                <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                <span className="hidden sm:inline">{t('products.filters.title')}</span>
               </Button>
 
               {/* View Mode Toggle */}
               <div className="flex items-center bg-white/50 dark:bg-gray-700/50 rounded-xl p-1 border border-white/20 dark:border-gray-600/20">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-3 rounded-lg transition-all duration-200 ${
+                  className={`p-2 sm:p-3 rounded-lg transition-all duration-200 ${
                     viewMode === 'grid'
                       ? 'bg-white dark:bg-gray-600 text-teal-600 dark:text-teal-400 shadow-sm'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
-                  <ViewColumnsIcon className="h-5 w-5" />
+                  <ViewColumnsIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
@@ -491,7 +494,7 @@ const ProductsPage = () => {
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
-                  <ListBulletIcon className="h-5 w-5" />
+                  <ListBulletIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
 
@@ -500,7 +503,7 @@ const ProductsPage = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 sm:px-4 py-2 pr-8 text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 >
                   <option value="popularity">{t('products.sort.popularity')}</option>
                   <option value="price-asc">{t('products.sort.priceLowToHigh')}</option>
@@ -515,11 +518,11 @@ const ProductsPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Filters Sidebar */}
           <div className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sticky top-8">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6 sticky top-8">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {t('products.filters.title')}
                 </h3>
@@ -531,7 +534,7 @@ const ProductsPage = () => {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Categories */}
                 <FilterSection title={t('products.filters.categories')}>
                   <div className="space-y-2">
@@ -615,8 +618,8 @@ const ProductsPage = () => {
           {/* Products Grid */}
           <div className="lg:col-span-3">
             {/* Results Header */}
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
                 {t('products.results', { count: totalProducts })}
               </p>
             </div>
@@ -659,7 +662,11 @@ const ProductsPage = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                  <div className={`grid gap-4 sm:gap-6 ${
+                    viewMode === 'grid' 
+                      ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' 
+                      : 'grid-cols-1'
+                  }`}>
                     {products.map((product) => (
                       <ProductCard key={product._id} product={product} />
                     ))}
@@ -668,14 +675,14 @@ const ProductsPage = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center mt-12">
+                  <div className="flex items-center justify-center mt-8 sm:mt-12">
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleFilterChange('page', currentPage - 1)}
                         disabled={currentPage === 1}
                         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Previous
+                        {t('products.pagination.previous')}
                       </button>
                       
                       {[...Array(totalPages)].map((_, i) => {
@@ -716,7 +723,7 @@ const ProductsPage = () => {
                         disabled={currentPage === totalPages}
                         className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Next
+                        {t('products.pagination.next')}
                       </button>
                     </div>
                   </div>

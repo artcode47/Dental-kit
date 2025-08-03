@@ -139,14 +139,10 @@ export const AuthProvider = ({ children }) => {
       const token = Cookies.get('authToken');
       const mfaToken = Cookies.get('mfaToken');
       
-
-      
       if (token) {
         try {
           const decoded = jwtDecode(token);
           const currentTime = Date.now() / 1000;
-          
-
           
           if (decoded.exp < currentTime) {
             // Token expired
@@ -193,14 +189,12 @@ export const AuthProvider = ({ children }) => {
           dispatch({ type: 'LOGOUT' });
         }
       } else if (mfaToken) {
-
         dispatch({
           type: 'MFA_REQUIRED',
           payload: { mfaToken }
         });
       } else {
-
-        dispatch({ type: 'AUTH_START' });
+        // No tokens found, user is not authenticated
         dispatch({ type: 'LOGOUT' });
       }
     };
@@ -210,38 +204,54 @@ export const AuthProvider = ({ children }) => {
 
   // Session monitoring
   useEffect(() => {
-    if (!state.isAuthenticated) return;
+    if (!state.isAuthenticated || !state.sessionExpiry) return;
 
     const checkSession = () => {
-      if (state.sessionExpiry && new Date(state.sessionExpiry) <= new Date()) {
+      const now = new Date();
+      const expiry = new Date(state.sessionExpiry);
+      
+      if (expiry <= now) {
         dispatch({ type: 'SESSION_EXPIRED' });
-        toast.error('Session expired');
+        toast.error(t('sessionExpired'));
         Cookies.remove('authToken');
         dispatch({ type: 'LOGOUT' });
       }
     };
 
-    const interval = setInterval(checkSession, 60000); // Check every minute
+    // Check immediately
+    checkSession();
+    
+    // Then check every 5 minutes instead of every minute to reduce API calls
+    const interval = setInterval(checkSession, 300000);
     return () => clearInterval(interval);
-  }, [state.isAuthenticated, state.sessionExpiry]);
+  }, [state.isAuthenticated, state.sessionExpiry, t]);
 
-  // Activity tracking
+  // Activity tracking - throttled to reduce unnecessary updates
   useEffect(() => {
     if (!state.isAuthenticated) return;
 
+    let timeoutId = null;
     const updateActivity = () => {
-      dispatch({ type: 'UPDATE_ACTIVITY' });
+      if (timeoutId) return; // Throttle updates
+      
+      timeoutId = setTimeout(() => {
+        dispatch({ type: 'UPDATE_ACTIVITY' });
+        timeoutId = null;
+      }, 30000); // Only update every 30 seconds
     };
 
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    const events = ['mousedown', 'keypress', 'scroll', 'touchstart'];
     events.forEach(event => {
-      document.addEventListener(event, updateActivity, true);
+      document.addEventListener(event, updateActivity, { passive: true });
     });
 
     return () => {
       events.forEach(event => {
-        document.removeEventListener(event, updateActivity, true);
+        document.removeEventListener(event, updateActivity);
       });
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, [state.isAuthenticated]);
 

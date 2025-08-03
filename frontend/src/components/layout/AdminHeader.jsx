@@ -146,10 +146,10 @@ const AdminHeader = () => {
                 </div>
                 <div className="hidden sm:block text-left">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {user?.firstName || user?.email || 'Admin'}
+                    {user?.firstName || user?.email || t('nav.admin')}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                    {user?.role || 'Administrator'}
+                    {user?.role ? t(`roles.${user.role}`) : t('roles.admin')}
                   </p>
                 </div>
                 <ChevronDownIcon className="w-4 h-4 text-gray-400" />
@@ -161,7 +161,7 @@ const AdminHeader = () => {
                   <div className="py-2">
                     <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {user?.firstName || user?.email || 'Admin'}
+                        {user?.firstName || user?.email || t('nav.admin')}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {user?.email}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../hooks/useTranslation';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   CheckIcon,
@@ -23,7 +23,7 @@ import {
   DocumentArrowDownIcon,
   ShoppingBagIcon
 } from '@heroicons/react/24/outline';
-import Layout from '../components/layout/Layout';
+
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
 import api, { endpoints } from '../services/api';
@@ -46,7 +46,7 @@ const OrderConfirmationPage = () => {
     try {
       setLoading(true);
       const response = await api.get(endpoints.orders.get(orderId));
-      setOrder(response);
+      setOrder(response.data || response);
     } catch (err) {
       setError(err.message || t('orderConfirmation.error.fetchingOrder'));
       toast.error(t('orderConfirmation.error.fetchingOrder'));
@@ -125,61 +125,55 @@ const OrderConfirmationPage = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <LoadingSpinner size="lg" />
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <LoadingSpinner size="lg" />
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <div className="container mx-auto px-4 py-8">
-            <div className="max-w-md mx-auto text-center">
-              <ExclamationTriangleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {t('orderConfirmation.error.title')}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                {error}
-              </p>
-              <Button onClick={fetchOrder} variant="primary">
-                {t('orderConfirmation.retry')}
-              </Button>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto text-center">
+            <ExclamationTriangleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {t('orderConfirmation.error.title')}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              {error}
+            </p>
+            <Button onClick={fetchOrder} variant="primary">
+              {t('orderConfirmation.retry')}
+            </Button>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (!order) {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <div className="container mx-auto px-4 py-8">
-            <div className="max-w-md mx-auto text-center">
-              <ExclamationTriangleIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {t('orderConfirmation.orderNotFound')}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                {t('orderConfirmation.orderNotFoundMessage')}
-              </p>
-              <Button onClick={() => navigate('/orders')} variant="primary">
-                {t('orderConfirmation.viewOrders')}
-              </Button>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto text-center">
+            <ExclamationTriangleIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {t('orderConfirmation.orderNotFound')}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              {t('orderConfirmation.orderNotFoundMessage')}
+            </p>
+            <Button onClick={() => navigate('/orders')} variant="primary">
+              {t('orderConfirmation.viewOrders')}
+            </Button>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -187,10 +181,9 @@ const OrderConfirmationPage = () => {
   const estimatedDelivery = getEstimatedDelivery();
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white">
+        <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-teal-400 text-white">
           <div className="container mx-auto px-4 py-12">
             <div className="text-center">
               <h1 className="text-4xl font-bold mb-2">
@@ -207,8 +200,8 @@ const OrderConfirmationPage = () => {
           <div className="max-w-4xl mx-auto space-y-8">
             {/* Order Confirmation Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
-              <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckIcon className="w-10 h-10 text-green-600" />
+              <div className="w-20 h-20 bg-teal-100 dark:bg-teal-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckIcon className="w-10 h-10 text-teal-600" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                 {t('orderConfirmation.thankYou')}
@@ -229,7 +222,7 @@ const OrderConfirmationPage = () => {
                 {/* Order Summary */}
                 <div>
                   <div className="flex items-center mb-6">
-                    <ShoppingBagIcon className="w-8 h-8 text-blue-600 mr-3" />
+                    <ShoppingBagIcon className="w-8 h-8 text-teal-600 mr-3" />
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                       {t('orderConfirmation.orderSummary.title')}
                     </h3>
@@ -301,7 +294,7 @@ const OrderConfirmationPage = () => {
                       <span className="text-gray-900 dark:text-white">
                         {t('orderConfirmation.orderSummary.total')}
                       </span>
-                      <span className="text-blue-600">
+                      <span className="text-teal-600">
                         {formatPrice(order.total)}
                       </span>
                     </div>
@@ -311,7 +304,7 @@ const OrderConfirmationPage = () => {
                 {/* Delivery Information */}
                 <div>
                   <div className="flex items-center mb-6">
-                    <TruckIcon className="w-8 h-8 text-blue-600 mr-3" />
+                    <TruckIcon className="w-8 h-8 text-teal-600 mr-3" />
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                       {t('orderConfirmation.deliveryInformation.title')}
                     </h3>
@@ -334,11 +327,11 @@ const OrderConfirmationPage = () => {
                     </div>
 
                     {/* Estimated Delivery */}
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                    <div className="p-4 bg-teal-50 dark:bg-teal-900/20 rounded-xl">
+                      <h4 className="font-semibold text-teal-900 dark:text-teal-100 mb-2">
                         {t('orderConfirmation.deliveryInformation.estimatedDelivery')}
                       </h4>
-                      <p className="text-blue-800 dark:text-blue-200 font-medium">
+                      <p className="text-teal-800 dark:text-teal-200 font-medium">
                         {estimatedDelivery}
                       </p>
                     </div>
@@ -375,14 +368,14 @@ const OrderConfirmationPage = () => {
                           <div key={step.id} className="flex items-center">
                             <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
                               index <= statusInfo.currentIndex
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-teal-600 text-white'
                                 : 'bg-gray-200 dark:bg-gray-600 text-gray-500'
                             }`}>
                               {index < statusInfo.currentIndex ? '✓' : step.icon}
                             </div>
                             {index < statusInfo.steps.length - 1 && (
                               <div className={`w-8 h-0.5 mx-2 ${
-                                index < statusInfo.currentIndex ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                                index < statusInfo.currentIndex ? 'bg-teal-600' : 'bg-gray-300 dark:bg-gray-600'
                               }`} />
                             )}
                           </div>
@@ -439,7 +432,6 @@ const OrderConfirmationPage = () => {
           </div>
         </div>
       </div>
-    </Layout>
   );
 };
 

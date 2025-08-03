@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
   Bars3Icon,
@@ -26,7 +25,6 @@ const Header = () => {
   const { t } = useTranslation();
   const { isAuthenticated, user, logout } = useAuth();
   const { getItemCount } = useCart();
-  const { isRTL } = useLanguage();
   const { currentTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,8 +62,13 @@ const Header = () => {
     { name: t('nav.home'), href: '/' },
     { name: t('nav.products'), href: '/products' },
     { name: t('nav.categories'), href: '/categories' },
-    { name: t('nav.about'), href: '/about' },
-    { name: t('nav.contact'), href: '/contact' },
+  ];
+
+  const authenticatedNavigation = [
+    { name: t('nav.home'), href: '/' },
+    { name: t('nav.products'), href: '/products' },
+    { name: t('nav.categories'), href: '/categories' },
+    { name: t('nav.orders'), href: '/orders' },
   ];
 
   const userMenuItems = [
@@ -85,16 +88,16 @@ const Header = () => {
               <div className="relative">
                 <img 
                   src={currentTheme === 'dark' ? '/Logo Darkmode.png' : '/Logo Lightmode.png'}
-                  alt="DentalKit Logo"
+                  alt={t('brand.name')}
                   className="h-12 w-auto transition-all duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="hidden sm:block">
                 <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
-                  DentalKit
+                  {t('brand.name')}
                 </span>
                 <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
-                  Professional Dental Supplies
+                  {t('brand.tagline')}
                 </p>
               </div>
             </Link>
@@ -102,7 +105,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
-            {navigation.map((item) => (
+            {(isAuthenticated ? authenticatedNavigation : navigation).map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -182,23 +185,23 @@ const Header = () => {
                   </div>
                   <div className="hidden lg:block text-left">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {user?.firstName || user?.name || user?.email || 'User'}
+                      {user?.firstName || user?.name || user?.email || t('nav.user')}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                      {user?.role || 'Customer'}
+                      {user?.role ? t(`roles.${user.role}`) : t('roles.customer')}
                     </p>
                   </div>
-                  <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  <ChevronDownIcon className="w-4 h-4 text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-200" />
                 </button>
 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 py-2 z-50 backdrop-blur-sm">
                     <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {user?.firstName || user?.name || user?.email || 'User'}
+                        {user?.firstName || user?.name || user?.email || t('nav.user')}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                        {user?.role || 'Customer'}
+                        {user?.role ? t(`roles.${user.role}`) : t('roles.customer')}
                       </p>
                     </div>
                     

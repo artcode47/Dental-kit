@@ -181,9 +181,9 @@ const cartReducer = (state, action) => {
       };
     
     case 'ADD_TO_RECENTLY_VIEWED':
-      const existingViewed = state.recentlyViewed.find(item => item.id === action.payload.id);
+      const existingViewed = state.recentlyViewed.find(item => item.id === (action.payload._id || action.payload.id));
       const updatedRecentlyViewed = existingViewed
-        ? state.recentlyViewed.filter(item => item.id !== action.payload.id)
+        ? state.recentlyViewed.filter(item => item.id !== (action.payload._id || action.payload.id))
         : state.recentlyViewed;
       
       return {
@@ -263,47 +263,29 @@ export const CartProvider = ({ children }) => {
     dispatch({ type: 'UPDATE_TOTALS' });
   }, [state.items, state.appliedCoupon, state.appliedGiftCard]);
 
-  // Sync cart with backend if user is authenticated
-  useEffect(() => {
-    const syncCartWithBackend = async () => {
-      const token = Cookies.get('authToken');
-      if (token && state.items.length > 0) {
-        try {
-          await api.put('/cart/sync', {
-            items: state.items,
-            appliedCoupon: state.appliedCoupon,
-            appliedGiftCard: state.appliedGiftCard
-          });
-        } catch (error) {
-          console.error('Failed to sync cart with backend:', error);
-        }
-      }
-    };
-
-    const debounceTimer = setTimeout(syncCartWithBackend, 2000);
-    return () => clearTimeout(debounceTimer);
-  }, [state.items, state.appliedCoupon, state.appliedGiftCard]);
+  // Note: Cart sync with backend is disabled since we're using localStorage-based cart management
+  // If you need backend sync, implement the /cart/sync endpoint on the backend
 
   const addToCart = async (product, quantity = 1, variantId = null) => {
     try {
       dispatch({ type: 'SET_UPDATING', payload: true });
       
       const cartItem = {
-        id: `${product.id}-${variantId || 'default'}`,
-        productId: product.id,
+        id: `${product._id || product.id}-${variantId || 'default'}`,
+        productId: product._id || product.id,
         variantId,
         name: product.name,
         price: variantId ? product.variants.find(v => v.id === variantId)?.price : product.price,
         originalPrice: variantId ? product.variants.find(v => v.id === variantId)?.originalPrice : product.originalPrice,
         quantity,
-        image: product.images[0],
+        image: product.images?.[0],
         category: product.category,
         brand: product.brand,
         sku: variantId ? product.variants.find(v => v.id === variantId)?.sku : product.sku,
         weight: variantId ? product.variants.find(v => v.id === variantId)?.weight : product.weight,
         dimensions: variantId ? product.variants.find(v => v.id === variantId)?.dimensions : product.dimensions,
-        inStock: variantId ? product.variants.find(v => v.id === variantId)?.inStock : product.inStock,
-        maxQuantity: variantId ? product.variants.find(v => v.id === variantId)?.maxQuantity : product.maxQuantity
+        inStock: variantId ? product.variants.find(v => v.id === variantId)?.inStock : (product.stock > 0),
+        maxQuantity: variantId ? product.variants.find(v => v.id === variantId)?.maxQuantity : product.stock
       };
 
       dispatch({ type: 'ADD_ITEM', payload: cartItem });
@@ -313,11 +295,7 @@ export const CartProvider = ({ children }) => {
       
       toast.success(`${product.name} added to cart`);
       
-      // Sync with backend if authenticated
-      const token = Cookies.get('authToken');
-      if (token) {
-        await api.post('/cart/add', cartItem);
-      }
+      // Note: Backend sync is disabled. If needed, implement the /cart/add endpoint
     } catch (error) {
       toast.error('Failed to add item to cart');
       console.error('Add to cart error:', error);
@@ -337,11 +315,7 @@ export const CartProvider = ({ children }) => {
       
       dispatch({ type: 'UPDATE_ITEM_QUANTITY', payload: { itemId, quantity } });
       
-      // Sync with backend if authenticated
-      const token = Cookies.get('authToken');
-      if (token) {
-        await api.put(`/cart/update/${itemId}`, { quantity });
-      }
+      // Note: Backend sync is disabled. If needed, implement the /cart/update endpoint
     } catch (error) {
       toast.error('Failed to update quantity');
       console.error('Update quantity error:', error);
@@ -356,11 +330,7 @@ export const CartProvider = ({ children }) => {
       
       dispatch({ type: 'REMOVE_ITEM', payload: itemId });
       
-      // Sync with backend if authenticated
-      const token = Cookies.get('authToken');
-      if (token) {
-        await api.delete(`/cart/remove/${itemId}`);
-      }
+      // Note: Backend sync is disabled. If needed, implement the /cart/remove endpoint
       
       toast.success('Item removed from cart');
     } catch (error) {
@@ -377,11 +347,7 @@ export const CartProvider = ({ children }) => {
       
       dispatch({ type: 'CLEAR_CART' });
       
-      // Sync with backend if authenticated
-      const token = Cookies.get('authToken');
-      if (token) {
-        await api.delete('/cart/clear');
-      }
+      // Note: Backend sync is disabled. If needed, implement the /cart/clear endpoint
       
       toast.success('Cart cleared');
     } catch (error) {

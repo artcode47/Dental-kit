@@ -46,12 +46,37 @@ export { default as ProductDetails } from './products/ProductDetails';
 export { default as ProductFilters } from './products/ProductFilters';
 export { default as ProductSearch } from './products/ProductSearch';
 export { default as ProductComparison } from './products/ProductComparison';
+export { default as ProductImageGallery } from './products/ProductImageGallery';
+export { default as ProductInfo } from './products/ProductInfo';
+export { default as ProductBreadcrumb } from './products/ProductBreadcrumb';
+export { default as ProductTabs } from './products/ProductTabs';
+export { default as ProductDescription } from './products/ProductDescription';
+export { default as ProductSpecifications } from './products/ProductSpecifications';
+export { default as ProductReviews } from './products/ProductReviews';
+export { default as ProductRelated } from './products/ProductRelated';
+export { default as ReviewFormModal } from './products/ReviewFormModal';
 
 // Cart Components
 export { default as CartItem } from './cart/CartItem';
 export { default as CartSummary } from './cart/CartSummary';
 export { default as CartDrawer } from './cart/CartDrawer';
 export { default as CartBadge } from './cart/CartBadge';
+export { default as CartHeader } from './cart/CartHeader';
+export { default as CartBreadcrumb } from './cart/CartBreadcrumb';
+export { default as CartEmptyState } from './cart/CartEmptyState';
+export { default as CartItem } from './cart/CartItem';
+export { default as CartItemsList } from './cart/CartItemsList';
+export { default as CartOrderSummary } from './cart/CartOrderSummary';
+
+// Checkout Components
+export { default as CheckoutHeader } from './checkout/CheckoutHeader';
+export { default as CheckoutProgress } from './checkout/CheckoutProgress';
+export { default as CheckoutOrderSummary } from './checkout/CheckoutOrderSummary';
+export { default as CheckoutNavigation } from './checkout/CheckoutNavigation';
+export { default as CheckoutShippingForm } from './checkout/CheckoutShippingForm';
+export { default as CheckoutBillingForm } from './checkout/CheckoutBillingForm';
+export { default as CheckoutPaymentForm } from './checkout/CheckoutPaymentForm';
+export { default as CheckoutReviewForm } from './checkout/CheckoutReviewForm';
 
 // User Components
 export { default as UserProfile } from './user/UserProfile';

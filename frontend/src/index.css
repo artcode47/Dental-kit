@@ -518,6 +518,17 @@
   }
 }
 
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(0, 177, 219, 0.3);
@@ -538,6 +549,10 @@
 
 .animate-slide-up {
   animation: slide-up 0.5s ease-out;
+}
+
+.animate-slide-in-from-top {
+  animation: slide-in-from-top 0.3s ease-out;
 }
 
 .animate-glow {

@@ -30,12 +30,12 @@ const ProductImageGallery = ({ images, productName }) => {
 
         {/* Thumbnail Images */}
         {images.length > 1 && (
-          <div className="flex space-x-2 overflow-x-auto">
+          <div className="flex space-x-2 overflow-x-auto pb-2">
             {images.map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                   selectedImage === index
                     ? 'border-blue-500 shadow-lg'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { 
   HeartIcon, 
   HeartIcon as HeartIconSolid,
@@ -45,11 +45,11 @@ const ProductInfo = ({
     <div className="space-y-6">
       {/* Product Title and Brand */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {product.name}
         </h1>
         {product.brand && (
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
             Brand: {product.brand}
           </p>
         )}
@@ -99,11 +99,11 @@ const ProductInfo = ({
       {/* Price */}
       <div className="space-y-2">
         <div className="flex items-center space-x-4">
-          <span className="text-3xl font-bold text-gray-900 dark:text-white">
+          <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             {formatPrice(product.price)}
           </span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-xl text-gray-500 line-through">
+            <span className="text-lg sm:text-xl text-gray-500 line-through">
               {formatPrice(product.originalPrice)}
             </span>
           )}
@@ -179,7 +179,7 @@ const ProductInfo = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex space-x-4">
+      <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
         <Button
           onClick={onAddToCart}
           disabled={product.stock === 0 || addingToCart}

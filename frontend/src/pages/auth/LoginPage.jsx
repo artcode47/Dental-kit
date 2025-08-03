@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSecurity } from '../../hooks/useSecurity';
 import Button from '../../components/ui/Button';
@@ -19,28 +18,26 @@ import {
   LockClosedIcon,
   UserIcon,
   EnvelopeIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 
 const LoginPage = () => {
   const { t } = useTranslation();
-  const { login, isLoading, failedLoginAttempts, isLocked, lockoutUntil } = useAuth();
-  const { isRTL } = useLanguage();
-  const { currentTheme, isDark } = useTheme();
+  const { login, isLocked, lockoutUntil } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Security hook
   const {
-    attempts: securityAttempts,
     isLocked: securityLocked,
     lockoutUntil: securityLockoutUntil,
     recordFailedAttempt,
     resetAttempts,
     sanitizeInput,
     validateInput,
-    getRemainingLockoutTime,
     performSecurityCheck,
     canProceed
   } = useSecurity({
@@ -116,7 +113,7 @@ const LoginPage = () => {
       const remainingTime = Math.ceil((lockoutTime - now) / 1000);
       
       if (remainingTime > 0) {
-        toast.error(t('login.accountLockedWithTime', { time: remainingTime }));
+        toast.error(t('auth.common.accountTemporarilyLocked'));
       }
     }
   }, [isLocked, securityLocked, lockoutUntil, securityLockoutUntil, t]);
@@ -168,7 +165,7 @@ const LoginPage = () => {
       resetAttempts();
       
       // Success feedback
-      toast.success(t('login.success'));
+      toast.success(t('auth.login.success'));
       
       // Check user role and redirect accordingly
       if (loginResult.user?.role === 'admin') {
@@ -188,15 +185,15 @@ const LoginPage = () => {
       if (error.response?.status === 403) {
         setError('email', { 
           type: 'manual', 
-          message: t('login.emailNotVerified') 
+          message: t('auth.login.emailNotVerified')
         });
-        toast.error(t('login.emailNotVerified'));
+        toast.error(t('auth.login.emailNotVerified'));
       } else if (error.response?.status === 423) {
         setError('email', { 
           type: 'manual', 
-          message: t('login.accountLocked') 
+          message: t('auth.login.accountLocked')
         });
-        toast.error(t('login.accountLocked'));
+        toast.error(t('auth.login.accountLocked'));
       } else if (error.response?.status === 401 && error.response?.data?.message?.includes('MFA')) {
         // Handle MFA requirement
         navigate('/mfa-login', { 
@@ -206,19 +203,19 @@ const LoginPage = () => {
           } 
         });
       } else if (error.response?.status === 429) {
-        toast.error(t('login.rateLimitExceeded'));
+        toast.error(t('auth.login.rateLimitExceeded'));
       } else if (error.response?.status === 400) {
         setError('email', { 
           type: 'manual', 
-          message: t('login.invalidCredentials') 
+          message: t('auth.login.invalidCredentials') 
         });
         setError('password', { 
           type: 'manual', 
-          message: t('login.invalidCredentials') 
+          message: t('auth.login.invalidCredentials') 
         });
       } else {
         // Generic error handling
-        toast.error(t('login.genericError'));
+        toast.error(t('auth.login.genericError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -279,9 +276,9 @@ const LoginPage = () => {
   }, [reset]);
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Left Section - Branding/Marketing */}
-      <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 to-teal-600 items-center justify-center p-8 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 items-center justify-center p-8 relative overflow-hidden">
         {/* Animated background pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
@@ -292,12 +289,15 @@ const LoginPage = () => {
         
         <div className="text-center text-white relative z-10 max-w-md">
           <div className="mb-8">
-            <img
-              src={getLogoPath()}
-              alt="DentalKit Logo"
-              className="w-20 h-20 mx-auto mb-4 filter brightness-0 invert drop-shadow-lg"
-              loading="eager"
-            />
+            <div className="flex justify-center mb-6">
+              <img
+                src={getLogoPath()}
+                alt="DentalKit Logo"
+                className="w-24 h-24 object-contain filter brightness-0 invert drop-shadow-lg"
+                loading="eager"
+                style={{ aspectRatio: '1/1' }}
+              />
+            </div>
             <h1 className="text-4xl font-bold mb-2 tracking-tight drop-shadow-lg">
               DentalKit
             </h1>
@@ -308,10 +308,10 @@ const LoginPage = () => {
           
           <div className="space-y-3 text-base leading-relaxed">
             <p className="font-medium drop-shadow-md">
-              {t('auth.trustedPartner')}
+              {t('auth.common.trustedPartner')}
             </p>
             <p className="opacity-90 drop-shadow-md">
-              {t('auth.streamlinePractice')}
+              {t('auth.common.streamlinePractice')}
             </p>
           </div>
           
@@ -319,11 +319,11 @@ const LoginPage = () => {
           <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <ShieldCheckIcon className="w-5 h-5" />
-              <span>Secure Login</span>
+              <span>{t('auth.common.secureLogin')}</span>
             </div>
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <LockClosedIcon className="w-5 h-5" />
-              <span>SSL Encrypted</span>
+              <span>{t('auth.common.sslEncrypted')}</span>
             </div>
           </div>
         </div>
@@ -333,45 +333,54 @@ const LoginPage = () => {
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-md">
           {/* Mobile logo for smaller screens */}
-          <div className="lg:hidden text-center mb-8">
-            <img
-              src={getLogoPath()}
-              alt="DentalKit Logo"
-              className="w-16 h-16 mx-auto mb-4 drop-shadow-md"
-              loading="eager"
-            />
+          <div className="lg:hidden text-center mb-4 sm:mb-6">
+            <div className="flex justify-center mb-3 sm:mb-4">
+              <img
+                src={getLogoPath()}
+                alt="DentalKit Logo"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md"
+                loading="eager"
+                style={{ aspectRatio: '1/1' }}
+              />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+              DentalKit
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+              Professional Dental Supplies
+            </p>
           </div>
 
           {/* Enhanced Form Container */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-6 lg:p-8 border border-white/20 dark:border-gray-700/50">
             {/* Enhanced Header */}
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-3">
-                <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/20 rounded-full flex items-center justify-center mr-3">
-                  <ArrowRightIcon className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center justify-center mb-2 sm:mb-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-lg">
+                  <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                  {t('login.title')}
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+                  {t('auth.login.title')}
                 </h2>
               </div>
-              <p className="text-gray-600 dark:text-gray-300">
-                {t('login.tagline')}
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-300">
+                {t('auth.login.tagline')}
               </p>
             </div>
 
             {/* Enhanced Account lockout warning */}
             {isAccountLocked && remainingTime > 0 && (
-              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg animate-pulse">
+              <div className="mb-4 sm:mb-6 p-3 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800 rounded-xl animate-pulse">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mr-3">
-                    <LockClosedIcon className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mr-2 sm:mr-3">
+                    <LockClosedIcon className="w-3 h-3 sm:w-4 sm:h-4 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                      Account temporarily locked
+                    <p className="text-xs sm:text-sm font-medium text-red-800 dark:text-red-200">
+                      {t('auth.common.accountTemporarilyLocked')}
                     </p>
-                    <p className="text-sm text-red-600 dark:text-red-300">
-                      Try again in {remainingTime} seconds
+                    <p className="text-xs text-red-600 dark:text-red-300">
+                      {t('auth.common.tryAgainIn', { time: remainingTime })}
                     </p>
                   </div>
                 </div>
@@ -381,41 +390,41 @@ const LoginPage = () => {
             {/* Enhanced Login Form */}
             <form 
               onSubmit={handleSubmit(onSubmit)} 
-              className="space-y-6"
+              className="space-y-3 sm:space-y-4 lg:space-y-6"
               noValidate
               autoComplete="off"
             >
               {/* Enhanced Email Field */}
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 <Input
-                  label={t('login.email')}
+                  label={t('auth.login.email')}
                   type="email"
-                  placeholder={t('login.emailPlaceholder')}
+                  placeholder={t('auth.login.emailPlaceholder')}
                   {...register('email')}
                   error={errors.email?.message}
-                  leftIcon={<EnvelopeIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
+                  leftIcon={<EnvelopeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />}
                   fullWidth
                   disabled={isAccountLocked || isSubmitting}
                   autoComplete="email"
                   aria-describedby={errors.email ? 'email-error' : undefined}
                   onKeyPress={handleKeyPress}
-                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                 />
               </div>
 
               {/* Enhanced Password Field */}
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 <Input
-                  label={t('login.password')}
+                  label={t('auth.login.password')}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder={t('login.passwordPlaceholder')}
+                  placeholder={t('auth.login.passwordPlaceholder')}
                   {...register('password')}
                   error={errors.password?.message}
                   fullWidth
                   disabled={isAccountLocked || isSubmitting}
                   autoComplete="current-password"
                   aria-describedby={errors.password ? 'password-error' : undefined}
-                  leftIcon={<LockClosedIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
+                  leftIcon={<LockClosedIcon className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />}
                   rightIcon={
                     <button
                       type="button"
@@ -424,19 +433,19 @@ const LoginPage = () => {
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <EyeSlashIcon className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />
                       ) : (
-                        <EyeIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <EyeIcon className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />
                       )}
                     </button>
                   }
                   onKeyPress={handleKeyPress}
-                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                 />
               </div>
 
               {/* Enhanced Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center">
                   <input
                     id="remember-me"
@@ -448,27 +457,27 @@ const LoginPage = () => {
                   />
                   <label 
                     htmlFor="remember-me" 
-                    className="ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                    className="ml-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
                   >
-                    {t('login.rememberMe')}
+                    {t('auth.login.rememberMe')}
                   </label>
                 </div>
                 <Link 
                   to="/forgot-password" 
-                  className="text-sm text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors duration-200 font-medium hover:underline"
+                  className="text-xs sm:text-sm text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors duration-200 font-medium hover:underline"
                 >
-                  {t('login.forgotPassword')}
+                  {t('auth.login.forgotPassword')}
                 </Link>
               </div>
 
               {/* Enhanced Security Check Indicator */}
               {securityCheck && !isAccountLocked && (
-                <div className="flex items-center justify-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-3">
-                    <ShieldCheckIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <div className="flex items-center justify-center p-2 sm:p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-2 sm:mr-3">
+                    <CheckCircleIcon className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
                   </div>
-                  <span className="text-sm text-green-700 dark:text-green-300 font-medium">
-                    Security check passed
+                  <span className="text-xs sm:text-sm text-green-700 dark:text-green-300 font-medium">
+                    {t('auth.common.securityCheckPassed')}
                   </span>
                 </div>
               )}
@@ -481,43 +490,43 @@ const LoginPage = () => {
                 fullWidth
                 loading={isSubmitting}
                 disabled={!isValid || isAccountLocked || isSubmitting || !canProceed}
-                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-teal"
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-2.5 sm:py-3 lg:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl"
                 aria-describedby={isAccountLocked ? 'lockout-message' : undefined}
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <LoadingSpinner size="sm" className="mr-2" />
-                    {t('login.signingIn')}...
+                    <span className="text-xs sm:text-sm lg:text-base">{t('auth.login.signingIn')}...</span>
                   </div>
                 ) : (
-                  t('login.signIn')
+                  <span className="text-xs sm:text-sm lg:text-base">{t('auth.login.signIn')}</span>
                 )}
               </Button>
             </form>
 
             {/* Enhanced Registration Link */}
-            <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                {t('login.noAccount')}{' '}
+            <div className="mt-4 sm:mt-6 lg:mt-8 text-center">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+                {t('auth.login.noAccount')}{' '}
                 <Link 
                   to="/register" 
                   className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors duration-200 hover:underline"
                 >
-                  {t('login.register')}
+                  {t('auth.login.register')}
                 </Link>
               </p>
             </div>
 
             {/* Enhanced Security Notice */}
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t('login.securityNotice')}{' '}
+            <div className="mt-3 sm:mt-4 lg:mt-6 text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                {t('auth.login.securityNotice')}{' '}
                 <Link to="/terms" className="underline hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
-                  {t('login.termsOfService')}
+                  {t('auth.common.termsOfService')}
                 </Link>{' '}
-                {t('login.and')}{' '}
+                {t('auth.common.and')}{' '}
                 <Link to="/privacy" className="underline hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
-                  {t('login.privacyPolicy')}
+                  {t('auth.common.privacyPolicy')}
                 </Link>
               </p>
             </div>

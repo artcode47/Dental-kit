@@ -36,6 +36,8 @@ import ProductsPage from './pages/ProductsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
+import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import OrdersPage from './pages/OrdersPage';
 import NotFoundPage from './pages/NotFoundPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 
@@ -200,6 +202,20 @@ function App() {
                             <Layout>
                               <CheckoutPage />
                             </Layout>
+                          </ProtectedRoute>
+                        } />
+                        
+                        <Route path="/orders" element={
+                          <ProtectedRoute>
+                            <Layout>
+                              <OrdersPage />
+                            </Layout>
+                          </ProtectedRoute>
+                        } />
+                        
+                        <Route path="/orders/:orderId" element={
+                          <ProtectedRoute>
+                            <OrderConfirmationPage />
                           </ProtectedRoute>
                         } />
                         

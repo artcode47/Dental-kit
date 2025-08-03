@@ -149,16 +149,16 @@ const AdminSidebar = () => {
             <div className="relative">
               <img 
                 src={currentTheme === 'dark' ? '/Logo Page Darkmode.png' : '/Logo Page Lightmode.png'}
-                alt="DentalKit Admin Logo"
+                alt={t('brand.name')}
                 className="h-10 w-auto transition-all duration-300"
               />
             </div>
             <div>
               <h2 className="text-lg font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
-                Admin Panel
+                {t('admin.panel.title')}
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Management Console
+                {t('admin.panel.subtitle')}
               </p>
             </div>
           </div>
@@ -207,10 +207,10 @@ const AdminSidebar = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                {user?.firstName || user?.email || 'Admin'}
+                {user?.firstName || user?.email || t('nav.admin')}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                {user?.role || 'Administrator'}
+                {user?.role ? t(`roles.${user.role}`) : t('roles.admin')}
               </p>
             </div>
           </div>

@@ -10,6 +10,7 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "create-admin": "node scripts/create-it-admin.js",
+    "seed": "node scripts/seed-data.js",
     "migrate": "echo 'No migrations needed'"
   },
   "keywords": [],

@@ -48,15 +48,15 @@ const Input = React.forwardRef(({
 
   const getStateClasses = () => {
     if (error) {
-      return 'border-red-300 dark:border-red-600 text-red-900 dark:text-red-100 placeholder-red-400 dark:placeholder-red-400 focus:border-red-500 focus:ring-red-500 bg-white dark:bg-gray-700';
+      return 'border-red-300 dark:border-red-600 text-red-900 dark:text-red-100 placeholder-red-400 dark:placeholder-red-400 focus:border-red-500 focus:ring-red-500 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm';
     }
     if (success) {
-      return 'border-green-300 dark:border-green-600 text-green-900 dark:text-green-100 placeholder-green-400 dark:placeholder-green-400 focus:border-green-500 focus:ring-green-500 bg-white dark:bg-gray-700';
+      return 'border-green-300 dark:border-green-600 text-green-900 dark:text-green-100 placeholder-green-400 dark:placeholder-green-400 focus:border-green-500 focus:ring-green-500 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm';
     }
     if (warning) {
-      return 'border-yellow-300 dark:border-yellow-600 text-yellow-900 dark:text-yellow-100 placeholder-yellow-400 dark:placeholder-yellow-400 focus:border-yellow-500 focus:ring-yellow-500 bg-white dark:bg-gray-700';
+      return 'border-yellow-300 dark:border-yellow-600 text-yellow-900 dark:text-yellow-100 placeholder-yellow-400 dark:placeholder-yellow-400 focus:border-yellow-500 focus:ring-yellow-500 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm';
     }
-    return 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-teal-500 focus:ring-teal-500 bg-white dark:bg-gray-700';
+    return 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-teal-500 focus:ring-teal-500 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm';
   };
 
   const getIconColor = () => {

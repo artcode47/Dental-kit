@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSecurity } from '../../hooks/useSecurity';
 import Button from '../../components/ui/Button';
@@ -22,9 +21,8 @@ import { toast } from 'react-hot-toast';
 
 const MFALoginPage = () => {
   const { t } = useTranslation();
-  const { verifyMFA, isLoading } = useAuth();
-  const { isRTL } = useLanguage();
-  const { currentTheme, isDark } = useTheme();
+  const { verifyMFA } = useAuth();
+  const { isDark } = useTheme();
   const location = useLocation();
   const [mfaCode, setMfaCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -156,21 +154,21 @@ const MFALoginPage = () => {
           <div className="mb-8">
             <img
               src={getLogoPath()}
-              alt="DentalKit Logo"
+              alt={t('brand.name')}
               className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
               loading="eager"
             />
             <h1 className="text-5xl font-bold mb-4 tracking-tight">
-              DentalKit
+              {t('brand.name')}
             </h1>
           </div>
           
           <div className="space-y-4 text-lg leading-relaxed">
             <p className="font-medium">
-              Your trusted partner for modern dental supplies.
+              {t('auth.common.trustedPartner')}
             </p>
             <p className="opacity-90">
-              Streamline your practice with our innovative solutions.
+              {t('auth.common.streamlinePractice')}
             </p>
           </div>
           
@@ -178,11 +176,11 @@ const MFALoginPage = () => {
           <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
             <div className="flex items-center space-x-2">
               <ShieldCheckIcon className="w-5 h-5" />
-              <span>Two-Factor Auth</span>
+              <span>{t('auth.mfa.twoFactorAuth')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <LockClosedIcon className="w-5 h-5" />
-              <span>SSL Encrypted</span>
+              <span>{t('auth.common.sslEncrypted')}</span>
             </div>
           </div>
         </div>
@@ -195,7 +193,7 @@ const MFALoginPage = () => {
           <div className="lg:hidden text-center mb-8">
             <img
               src={getLogoPath()}
-              alt="DentalKit Logo"
+              alt={t('brand.name')}
               className="w-16 h-16 mx-auto mb-4"
               loading="eager"
             />
@@ -208,15 +206,15 @@ const MFALoginPage = () => {
               <div className="flex items-center justify-center mb-3">
                 <ArrowRightIcon className="w-6 h-6 text-teal-500 mr-2" />
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Two-Factor Authentication
+                  {t('auth.mfa.title')}
                 </h2>
               </div>
               <p className="text-gray-600 dark:text-gray-300">
-                Enter the 6-digit code from your authenticator app
+                {t('auth.mfa.tagline')}
               </p>
               {email && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  For: {email}
+                  {t('auth.mfa.forEmail')}: {email}
                 </p>
               )}
             </div>
@@ -231,7 +229,7 @@ const MFALoginPage = () => {
               {/* MFA Code Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Authentication Code
+                  {t('auth.mfa.authenticationCode')}
                 </label>
                 <div className="flex space-x-3 justify-center">
                   {[0, 1, 2, 3, 4, 5].map((index) => (
@@ -286,10 +284,10 @@ const MFALoginPage = () => {
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <LoadingSpinner size="sm" className="mr-2" />
-                    Verifying Code...
+                    {t('auth.mfa.verifyingCode')}
                   </div>
                 ) : (
-                  'Verify Code'
+                  t('auth.mfa.verifyCode')
                 )}
               </Button>
             </form>
@@ -299,20 +297,20 @@ const MFALoginPage = () => {
               <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg p-4">
                 <h3 className="font-medium text-teal-900 dark:text-teal-100 mb-3 flex items-center">
                   <KeyIcon className="w-4 h-4 mr-2" />
-                  How to get your code:
+                  {t('auth.mfa.instructions.title')}
                 </h3>
                 <ul className="text-sm text-teal-800 dark:text-teal-200 space-y-2">
                   <li className="flex items-start">
                     <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    Open your authenticator app (Google Authenticator, Authy, etc.)
+                    {t('auth.mfa.instructions.step1')} (Google Authenticator, Authy, etc.)
                   </li>
                   <li className="flex items-start">
                     <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    Find the code for DentalKit
+                    {t('auth.mfa.instructions.step2')}
                   </li>
                   <li className="flex items-start">
                     <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    Enter the 6-digit code above
+                    {t('auth.mfa.instructions.step3')}
                   </li>
                 </ul>
               </div>
@@ -325,7 +323,7 @@ const MFALoginPage = () => {
                   className="flex items-center justify-center text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
                 >
                   <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                  Back to Login
+                  {t('auth.mfa.backToLogin')}
                 </Button>
               </Link>
             </div>
@@ -333,7 +331,7 @@ const MFALoginPage = () => {
             {/* Security Notice */}
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                This code expires in 30 seconds for your security.
+                {t('auth.mfa.codeExpiresIn')}
               </p>
             </div>
           </div>

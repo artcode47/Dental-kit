@@ -16,7 +16,7 @@ import toast from 'react-hot-toast';
 
 const VerifyEmailSentPage = () => {
   const { t } = useTranslation();
-  const { currentTheme, isDark } = useTheme();
+  const { isDark } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [isResending, setIsResending] = useState(false);
@@ -33,16 +33,16 @@ const VerifyEmailSentPage = () => {
 
   const handleResendEmail = useCallback(async () => {
     if (!email) {
-      toast.error(t('auth.noEmailProvided'));
+      toast.error(t('auth.verifyEmail.sent.noEmail'));
       return;
     }
 
     setIsResending(true);
     try {
       await api.post('/auth/resend-verification', { email });
-      toast.success(t('auth.verificationEmailSent'));
+      toast.success(t('auth.verifyEmail.sent.resendSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.message || t('auth.failedToResendEmail'));
+      toast.error(error.response?.data?.message || t('auth.verifyEmail.sent.resendError'));
     } finally {
       setIsResending(false);
     }
@@ -68,23 +68,23 @@ const VerifyEmailSentPage = () => {
         
         <div className="text-center text-white relative z-10 max-w-md">
           <div className="mb-8">
-            <img
-              src={getLogoPath()}
-              alt="DentalKit Logo"
-              className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
-              loading="eager"
-            />
-            <h1 className="text-5xl font-bold mb-4 tracking-tight">
-              DentalKit
-            </h1>
+                          <img
+                src={getLogoPath()}
+                alt={t('brand.name')}
+                className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
+                loading="eager"
+              />
+              <h1 className="text-5xl font-bold mb-4 tracking-tight">
+                {t('brand.name')}
+              </h1>
           </div>
           
           <div className="space-y-4 text-lg leading-relaxed">
             <p className="font-medium">
-              {t('auth.trustedPartner')}
+              {t('auth.common.trustedPartner')}
             </p>
             <p className="opacity-90">
-              {t('auth.streamlinePractice')}
+              {t('auth.common.streamlinePractice')}
             </p>
           </div>
           
@@ -92,11 +92,11 @@ const VerifyEmailSentPage = () => {
           <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
             <div className="flex items-center space-x-2">
               <ShieldCheckIcon className="w-5 h-5" />
-              <span>{t('auth.emailVerification')}</span>
+              <span>{t('auth.verifyEmail.title')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <LockClosedIcon className="w-5 h-5" />
-              <span>{t('auth.sslEncrypted')}</span>
+              <span>{t('auth.common.sslEncrypted')}</span>
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@ const VerifyEmailSentPage = () => {
           <div className="lg:hidden text-center mb-8">
             <img
               src={getLogoPath()}
-              alt="DentalKit Logo"
+              alt={t('brand.name')}
               className="w-16 h-16 mx-auto mb-4"
               loading="eager"
             />
@@ -122,10 +122,10 @@ const VerifyEmailSentPage = () => {
                 <EnvelopeIcon className="w-8 h-8 text-teal-600 dark:text-teal-400" />
               </div>
               <h2 className="text-3xl font-bold text-dark-900 dark:text-light-100 mb-3">
-                {t('auth.checkYourEmail')}
+                {t('auth.verifyEmail.sent.title')}
               </h2>
               <p className="text-dark-600 dark:text-light-300 mb-4">
-                {t('auth.verificationLinkSent')}
+                {t('auth.verifyEmail.sent.instructions')}
               </p>
               {email && (
                 <p className="text-dark-900 dark:text-light-100 font-semibold mb-4">
@@ -137,20 +137,20 @@ const VerifyEmailSentPage = () => {
             <div className="space-y-6">
               <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg p-4">
                 <h3 className="font-medium text-teal-900 dark:text-teal-100 mb-3">
-                  {t('auth.whatToDoNext')}:
+                  {t('auth.verifyEmail.sent.whatToDo')}:
                 </h3>
                 <ul className="text-sm text-teal-800 dark:text-teal-200 space-y-2">
                   <li className="flex items-start">
                     <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {t('auth.checkEmailInbox')}
+                    {t('auth.verifyEmail.sent.step1')}
                   </li>
                   <li className="flex items-start">
                     <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {t('auth.clickVerificationLink')}
+                    {t('auth.verifyEmail.sent.step2')}
                   </li>
                   <li className="flex items-start">
                     <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {t('auth.completeAccountSetup')}
+                    {t('auth.verifyEmail.sent.step3')}
                   </li>
                 </ul>
               </div>
@@ -158,10 +158,10 @@ const VerifyEmailSentPage = () => {
               <div className="bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-lg p-4">
                 <h3 className="font-medium text-warning-900 dark:text-warning-100 mb-3 flex items-center">
                   <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
-                  {t('auth.dontSeeEmail')}
+                  {t('auth.verifyEmail.sent.checkSpam')}
                 </h3>
                 <p className="text-sm text-warning-800 dark:text-warning-200">
-                  {t('auth.checkSpamFolder')}
+                  {t('auth.verifyEmail.sent.spamInstructions')}
                 </p>
               </div>
 
@@ -178,10 +178,10 @@ const VerifyEmailSentPage = () => {
                   {isResending ? (
                     <div className="flex items-center justify-center">
                       <LoadingSpinner size="sm" className="mr-2" />
-                      {t('auth.sendingEmail')}...
+                      {t('auth.verifyEmail.sent.sending')}...
                     </div>
                   ) : (
-                    t('auth.resendVerificationEmail')
+                    t('auth.verifyEmail.sent.resend')
                   )}
                 </Button>
 
@@ -192,19 +192,19 @@ const VerifyEmailSentPage = () => {
                   fullWidth
                   className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-teal"
                 >
-                  {t('auth.backToLogin')}
+                  {t('auth.verifyEmail.sent.backToLogin')}
                 </Button>
               </div>
             </div>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-dark-500 dark:text-light-400">
-                {t('auth.needHelp')}{' '}
+                {t('auth.verifyEmail.sent.help')}{' '}
                 <button
                   onClick={() => navigate('/contact')}
                   className="text-teal-600 dark:text-teal-400 hover:underline font-medium"
                 >
-                  {t('auth.contactSupport')}
+                  {t('auth.verifyEmail.sent.contactSupport')}
                 </button>
               </p>
             </div>

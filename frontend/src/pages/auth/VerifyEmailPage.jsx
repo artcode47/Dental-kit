@@ -17,7 +17,7 @@ import toast from 'react-hot-toast';
 
 const VerifyEmailPage = () => {
   const { t } = useTranslation();
-  const { currentTheme, isDark } = useTheme();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isVerifying, setIsVerifying] = useState(false);
@@ -49,10 +49,10 @@ const VerifyEmailPage = () => {
         params: { token, email }
       });
       setVerificationStatus('success');
-      toast.success('Email verified successfully!');
+      toast.success(t('auth.verifyEmail.success.title'));
     } catch (error) {
       setVerificationStatus('error');
-      toast.error(error.response?.data?.message || 'Email verification failed');
+      toast.error(error.response?.data?.message || t('auth.verifyEmail.error.message'));
     } finally {
       setIsVerifying(false);
     }
@@ -119,7 +119,7 @@ const VerifyEmailPage = () => {
             <div className="lg:hidden text-center mb-8">
               <img
                 src={getLogoPath()}
-                alt="DentalKit Logo"
+                alt={t('brand.name')}
                 className="w-16 h-16 mx-auto mb-4"
                 loading="eager"
               />
@@ -130,10 +130,10 @@ const VerifyEmailPage = () => {
               <div className="text-center">
                 <LoadingSpinner size="lg" className="mx-auto mb-6" />
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                  Verifying Your Email
+                  {t('auth.verifyEmail.verifying')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Please wait while we verify your email address...
+                  {t('auth.verifyEmail.verifyingText')}
                 </p>
               </div>
             </div>
@@ -159,21 +159,21 @@ const VerifyEmailPage = () => {
             <div className="mb-8">
               <img
                 src={getLogoPath()}
-                alt="DentalKit Logo"
+                alt={t('brand.name')}
                 className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
                 loading="eager"
               />
               <h1 className="text-5xl font-bold mb-4 tracking-tight">
-                DentalKit
+                {t('brand.name')}
               </h1>
             </div>
             
             <div className="space-y-4 text-lg leading-relaxed">
               <p className="font-medium">
-                Your trusted partner for modern dental supplies.
+                {t('auth.common.trustedPartner')}
               </p>
               <p className="opacity-90">
-                Streamline your practice with our innovative solutions.
+                {t('auth.common.streamlinePractice')}
               </p>
             </div>
             
@@ -181,11 +181,11 @@ const VerifyEmailPage = () => {
             <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
               <div className="flex items-center space-x-2">
                 <ShieldCheckIcon className="w-5 h-5" />
-                <span>Email Verified</span>
+                <span>{t('auth.verifyEmail.success.title')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <LockClosedIcon className="w-5 h-5" />
-                <span>SSL Encrypted</span>
+                <span>{t('auth.common.sslEncrypted')}</span>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ const VerifyEmailPage = () => {
             <div className="lg:hidden text-center mb-8">
               <img
                 src={getLogoPath()}
-                alt="DentalKit Logo"
+                alt={t('brand.name')}
                 className="w-16 h-16 mx-auto mb-4"
                 loading="eager"
               />
@@ -211,30 +211,30 @@ const VerifyEmailPage = () => {
                   <CheckCircleIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Email Verified Successfully!
+                  {t('auth.verifyEmail.success.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Your email address has been verified. You can now access your account.
+                  {t('auth.verifyEmail.success.message')}
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <h3 className="font-medium text-green-900 dark:text-green-100 mb-3">
-                    What happens next:
+                    {t('auth.verifyEmail.success.whatNext')}:
                   </h3>
                   <ul className="text-sm text-green-800 dark:text-green-200 space-y-2">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Your account is now fully activated
+                      {t('auth.verifyEmail.success.step1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      You can log in with your credentials
+                      {t('auth.verifyEmail.success.step2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Access all DentalKit features and services
+                      {t('auth.verifyEmail.success.step3')}
                     </li>
                   </ul>
                 </div>
@@ -246,7 +246,7 @@ const VerifyEmailPage = () => {
                   fullWidth
                   className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
                 >
-                  Continue to Login
+                  {t('auth.verifyEmail.success.login')}
                 </Button>
               </div>
             </div>
@@ -311,7 +311,7 @@ const VerifyEmailPage = () => {
             <div className="lg:hidden text-center mb-8">
               <img
                 src={getLogoPath()}
-                alt="DentalKit Logo"
+                alt={t('brand.name')}
                 className="w-16 h-16 mx-auto mb-4"
                 loading="eager"
               />
@@ -324,30 +324,30 @@ const VerifyEmailPage = () => {
                   <ExclamationTriangleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Verification Failed
+                  {t('auth.verifyEmail.error.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
-                  We couldn't verify your email address. Please try again or contact support.
+                  {t('auth.verifyEmail.error.message')}
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                   <h3 className="font-medium text-red-900 dark:text-red-100 mb-3">
-                    Possible reasons:
+                    {t('auth.verifyEmail.error.possibleReasons')}:
                   </h3>
                   <ul className="text-sm text-red-800 dark:text-red-200 space-y-2">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      The verification link has expired
+                      {t('auth.verifyEmail.error.reason1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      The link was already used
+                      {t('auth.verifyEmail.error.reason2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-red-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Invalid or corrupted verification token
+                      {t('auth.verifyEmail.error.reason3')}
                     </li>
                   </ul>
                 </div>
@@ -361,7 +361,7 @@ const VerifyEmailPage = () => {
                       fullWidth
                       className="border-teal-500 text-teal-600 hover:bg-teal-50 dark:border-teal-400 dark:text-teal-400 dark:hover:bg-teal-900/20"
                     >
-                      Try Again
+                      {t('auth.verifyEmail.error.retry')}
                     </Button>
                   )}
 
@@ -372,7 +372,7 @@ const VerifyEmailPage = () => {
                     fullWidth
                     className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
                   >
-                    Resend Verification Email
+                    {t('auth.verifyEmail.error.resend')}
                   </Button>
 
                   <Button
@@ -382,7 +382,7 @@ const VerifyEmailPage = () => {
                     fullWidth
                     className="text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
                   >
-                    Back to Login
+                    {t('auth.verifyEmail.error.backToLogin')}
                   </Button>
                 </div>
               </div>

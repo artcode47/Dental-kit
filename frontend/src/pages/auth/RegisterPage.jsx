@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSecurity } from '../../hooks/useSecurity';
 import Button from '../../components/ui/Button';
@@ -30,21 +30,17 @@ import { toast } from 'react-hot-toast';
 
 const RegisterPage = () => {
   const { t } = useTranslation();
-  const { register: registerUser, isLoading } = useAuth();
-  const { isRTL } = useLanguage();
-  const { currentTheme, isDark } = useTheme();
+  const { register: registerUser } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   // Security hook
   const {
-    attempts: securityAttempts,
     isLocked: securityLocked,
-    lockoutUntil: securityLockoutUntil,
     recordFailedAttempt,
     resetAttempts,
     sanitizeInput,
     validateInput,
-    getRemainingLockoutTime,
     performSecurityCheck,
     canProceed
   } = useSecurity({
@@ -87,7 +83,7 @@ const RegisterPage = () => {
     phone: yup
       .string()
       .required(t('validation.phone.required'))
-      .matches(/^[+]?[\d\s\-\(\)]+$/, t('validation.phone.invalid'))
+      .matches(/^[+]?[\d\s\-()]+$/, t('validation.phone.invalid'))
       .trim(),
     company: yup
       .string()
@@ -253,7 +249,7 @@ const RegisterPage = () => {
       resetAttempts();
       
       // Success feedback
-      toast.success(t('register.success'));
+              toast.success(t('auth.register.success'));
       
       // Navigate to email verification page
       navigate('/verify-email-sent', {
@@ -269,16 +265,16 @@ const RegisterPage = () => {
       if (error.response?.status === 409) {
           setError('email', { 
             type: 'manual', 
-            message: t('register.emailAlreadyExists') 
-          });
-          toast.error(t('register.emailAlreadyExists'));
+                      message: t('auth.register.emailAlreadyExists')
+        });
+        toast.error(t('auth.register.emailAlreadyExists'));
       } else if (error.response?.status === 429) {
-        toast.error(t('register.rateLimitExceeded'));
+        toast.error(t('auth.register.rateLimitExceeded'));
       } else if (error.response?.status === 500) {
-        toast.error(t('register.serverError'));
+        toast.error(t('auth.register.serverError'));
       } else {
         // Generic error handling
-        toast.error(t('register.genericError'));
+        toast.error(t('auth.register.genericError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -308,8 +304,8 @@ const RegisterPage = () => {
 
   // Countries and governorates data
   const countries = [
-    { code: 'EG', name: 'Egypt' },
-    { code: 'SA', name: 'Saudi Arabia' }
+    { code: 'EG', name: t('countries.EG') },
+    { code: 'SA', name: t('countries.SA') }
   ];
 
   const governorates = {
@@ -358,9 +354,9 @@ const RegisterPage = () => {
   }, [reset]);
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Left Section - Branding/Marketing */}
-      <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 to-teal-600 items-center justify-center p-8 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 items-center justify-center p-8 relative overflow-hidden">
         {/* Animated background pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
@@ -370,27 +366,30 @@ const RegisterPage = () => {
         </div>
         
         <div className="text-center text-white relative z-10 max-w-md">
-                    <div className="mb-8">
-            <img
-              src={getLogoPath()}
-              alt="DentalKit Logo"
-              className="w-20 h-20 mx-auto mb-4 filter brightness-0 invert drop-shadow-lg"
-              loading="eager"
-            />
+          <div className="mb-8">
+            <div className="flex justify-center mb-6">
+              <img
+                src={getLogoPath()}
+                alt={t('brand.name')}
+                className="w-24 h-24 object-contain filter brightness-0 invert drop-shadow-lg"
+                loading="eager"
+                style={{ aspectRatio: '1/1' }}
+              />
+            </div>
             <h1 className="text-4xl font-bold mb-2 tracking-tight drop-shadow-lg">
-              DentalKit
+              {t('brand.name')}
             </h1>
             <p className="text-lg opacity-90 drop-shadow-md">
-              Professional Dental Supplies
+              {t('brand.tagline')}
             </p>
           </div>
           
           <div className="space-y-3 text-base leading-relaxed">
             <p className="font-medium drop-shadow-md">
-              {t('register.tagline')}
+              {t('auth.register.tagline')}
             </p>
             <p className="opacity-90 drop-shadow-md">
-              {t('auth.streamlinePractice')}
+              {t('auth.common.streamlinePractice')}
             </p>
           </div>
           
@@ -398,11 +397,11 @@ const RegisterPage = () => {
           <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <ShieldCheckIcon className="w-5 h-5" />
-              <span>Secure Registration</span>
+              <span>{t('auth.common.secureRegistration')}</span>
             </div>
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full">
               <LockClosedIcon className="w-5 h-5" />
-              <span>SSL Encrypted</span>
+              <span>{t('auth.common.sslEncrypted')}</span>
             </div>
           </div>
         </div>
@@ -413,30 +412,33 @@ const RegisterPage = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo for smaller screens */}
           <div className="lg:hidden text-center mb-8">
-            <img
-              src={getLogoPath()}
-              alt="DentalKit Logo"
-              className="w-16 h-16 mx-auto mb-4 drop-shadow-md"
-              loading="eager"
-            />
+            <div className="flex justify-center mb-6">
+              <img
+                src={getLogoPath()}
+                alt={t('brand.name')}
+                className="w-20 h-20 object-contain drop-shadow-md"
+                loading="eager"
+                style={{ aspectRatio: '1/1' }}
+              />
+            </div>
           </div>
 
           {/* Enhanced Form Container */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 dark:border-gray-700/50">
             {/* Enhanced Header */}
             <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-3">
-                <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/20 rounded-full flex items-center justify-center mr-3">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30 rounded-full flex items-center justify-center mr-3 shadow-lg">
                   <UserPlusIcon className="w-6 h-6 text-teal-600 dark:text-teal-400" />
                 </div>
-                              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                {t('register.title')}
-              </h2>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+                  {t('auth.register.title')}
+                </h2>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
+                {t('auth.register.tagline')}
+              </p>
             </div>
-            <p className="text-gray-600 dark:text-gray-300">
-              {t('register.tagline')}
-            </p>
-          </div>
 
             {/* Enhanced Registration Form */}
             <form 
@@ -447,85 +449,85 @@ const RegisterPage = () => {
             >
               {/* Enhanced Email Field */}
               <div className="space-y-2">
-            <Input
-                  label={t('register.email')}
-              type="email"
-                  placeholder={t('register.emailPlaceholder')}
-              {...register('email')}
-              error={errors.email?.message}
+                <Input
+                  label={t('auth.register.email')}
+                  type="email"
+                  placeholder={t('auth.register.emailPlaceholder')}
+                  {...register('email')}
+                  error={errors.email?.message}
                   leftIcon={<EnvelopeIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
-              fullWidth
-                disabled={securityLocked || isSubmitting}
-                autoComplete="email"
-                aria-describedby={errors.email ? 'email-error' : undefined}
-                onKeyPress={handleKeyPress}
-                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  fullWidth
+                  disabled={securityLocked || isSubmitting}
+                  autoComplete="email"
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                  onKeyPress={handleKeyPress}
+                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                 />
               </div>
 
               {/* Personal Information Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-                  Personal Information
+                  {t('auth.register.personalInformation')}
                 </h3>
                 
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="First Name *"
-                    placeholder="Enter your first name"
+                    label={t('auth.register.firstName')}
+                    placeholder={t('auth.register.firstNamePlaceholder')}
                     {...register('firstName')}
                     error={errors.firstName?.message}
                     leftIcon={<UserIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
                     fullWidth
                     disabled={securityLocked || isSubmitting}
-                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                   />
                   <Input
-                    label="Last Name *"
-                    placeholder="Enter your last name"
+                    label={t('auth.register.lastName')}
+                    placeholder={t('auth.register.lastNamePlaceholder')}
                     {...register('lastName')}
                     error={errors.lastName?.message}
                     leftIcon={<UserIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
                     fullWidth
                     disabled={securityLocked || isSubmitting}
-                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                   />
                 </div>
 
                 {/* Phone Field */}
                 <Input
-                  label="Phone Number *"
-                  placeholder="Enter your phone number"
+                  label={t('auth.register.phone')}
+                  placeholder={t('auth.register.phonePlaceholder')}
                   {...register('phone')}
                   error={errors.phone?.message}
                   leftIcon={<PhoneIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
                   fullWidth
                   disabled={securityLocked || isSubmitting}
-                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                 />
 
                 {/* Company and University Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="Company"
-                    placeholder="Enter your company (optional)"
+                    label={t('auth.register.company')}
+                    placeholder={t('auth.register.companyPlaceholder')}
                     {...register('company')}
                     error={errors.company?.message}
                     leftIcon={<BuildingOfficeIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
                     fullWidth
                     disabled={securityLocked || isSubmitting}
-                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                   />
                   <Input
-                    label="University"
-                    placeholder="Enter your university (optional)"
+                    label={t('auth.register.university')}
+                    placeholder={t('auth.register.universityPlaceholder')}
                     {...register('university')}
                     error={errors.university?.message}
                     leftIcon={<AcademicCapIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
                     fullWidth
                     disabled={securityLocked || isSubmitting}
-                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                   />
                 </div>
 
@@ -533,12 +535,12 @@ const RegisterPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Country *
+                      {t('auth.register.country')}
                     </label>
                     <select
                       {...register('country')}
                       disabled={securityLocked || isSubmitting}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-600"
                     >
                       {countries.map(country => (
                         <option key={country.code} value={country.code}>
@@ -554,14 +556,14 @@ const RegisterPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Governorate *
+                      {t('auth.register.governorate')}
                     </label>
                     <select
                       {...register('governorate')}
                       disabled={securityLocked || isSubmitting}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-600"
                     >
-                      <option value="">Select Governorate</option>
+                      <option value="">{t('auth.register.selectGovernorate')}</option>
                       {governorates[watchedValues.country]?.map(governorate => (
                         <option key={governorate} value={governorate}>
                           {governorate}
@@ -579,109 +581,109 @@ const RegisterPage = () => {
 
               {/* Enhanced Password Field */}
               <div className="space-y-2">
-            <Input
-                  label={t('register.password')}
-              type={showPassword ? 'text' : 'password'}
-                  placeholder={t('register.passwordPlaceholder')}
-              {...register('password')}
-              error={errors.password?.message}
-              fullWidth
-                disabled={securityLocked || isSubmitting}
-                autoComplete="new-password"
-                aria-describedby={errors.password ? 'password-error' : undefined}
+                <Input
+                  label={t('auth.register.password')}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t('auth.register.passwordPlaceholder')}
+                  {...register('password')}
+                  error={errors.password?.message}
+                  fullWidth
+                  disabled={securityLocked || isSubmitting}
+                  autoComplete="new-password"
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   leftIcon={<LockClosedIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
-              rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
                       className="focus:outline-none focus:ring-2 focus:ring-teal-500 rounded p-1 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? (
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
                         <EyeSlashIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                    ) : (
+                      ) : (
                         <EyeIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                    )}
-                  </button>
-                }
-                onKeyPress={handleKeyPress}
-                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
+                      )}
+                    </button>
+                  }
+                  onKeyPress={handleKeyPress}
+                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                />
 
-              {/* Password Strength Indicator */}
+                {/* Password Strength Indicator */}
                 {watchedValues.password && (
                   <div className="mt-2">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Password Strength:
-                    </span>
+                        {t('auth.register.passwordStrength')}:
+                      </span>
                       <span className={`text-sm font-medium px-2 py-1 rounded-full ${getPasswordStrengthColor(passwordStrength.score)}`}>
-                      {getPasswordStrengthText(passwordStrength.score)}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
+                        {getPasswordStrengthText(passwordStrength.score)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${
                           passwordStrength.score <= 2 ? 'bg-red-500' :
                           passwordStrength.score <= 3 ? 'bg-yellow-500' :
                           passwordStrength.score <= 4 ? 'bg-teal-500' :
                           'bg-green-500'
-                      }`}
-                      style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                    />
-                  </div>
+                        }`}
+                        style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                      />
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
 
               {/* Enhanced Confirm Password Field */}
               <div className="space-y-2">
-            <Input
-                  label={t('register.confirmPassword')}
-              type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder={t('register.confirmPasswordPlaceholder')}
-              {...register('confirmPassword')}
-              error={errors.confirmPassword?.message}
-              fullWidth
-                disabled={securityLocked || isSubmitting}
-                autoComplete="new-password"
-                aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
+                <Input
+                  label={t('auth.register.confirmPassword')}
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder={t('auth.register.confirmPasswordPlaceholder')}
+                  {...register('confirmPassword')}
+                  error={errors.confirmPassword?.message}
+                  fullWidth
+                  disabled={securityLocked || isSubmitting}
+                  autoComplete="new-password"
+                  aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
                   leftIcon={<LockClosedIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />}
-              rightIcon={
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="focus:outline-none focus:ring-2 focus:ring-teal-500 rounded p-1 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors"
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showConfirmPassword ? (
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? (
                         <EyeSlashIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                    ) : (
+                      ) : (
                         <EyeIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                    )}
-                  </button>
-                }
-                onKeyPress={handleKeyPress}
-                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                      )}
+                    </button>
+                  }
+                  onKeyPress={handleKeyPress}
+                  className="focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                 />
               </div>
 
               {/* Enhanced Consent Checkbox */}
               <div className="space-y-3">
                 <div className="flex items-start">
-                <input
-                  id="consent"
-                  type="checkbox"
-                  {...register('consentGiven')}
+                  <input
+                    id="consent"
+                    type="checkbox"
+                    {...register('consentGiven')}
                     disabled={securityLocked || isSubmitting}
                     className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 dark:focus:ring-teal-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 hover:border-teal-500 transition-colors mt-1"
-                />
+                  />
                   <label 
                     htmlFor="consent" 
                     className="ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
                   >
-                    {t('register.consentLabel')}
-                </label>
+                    {t('auth.register.consentLabel')}
+                  </label>
                 </div>
                 {errors.consentGiven && (
                   <p className="text-sm text-error-600 dark:text-error-400 ml-6">
@@ -689,52 +691,52 @@ const RegisterPage = () => {
                   </p>
                 )}
                 <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
-                  {t('register.consentText')}
+                  {t('auth.register.consentText')}
                 </p>
-            </div>
+              </div>
 
               {/* Enhanced Security Check Indicator */}
               {securityCheck && !securityLocked && (
-                              <div className="flex items-center justify-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-3">
-                  <ShieldCheckIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                <span className="text-sm text-green-700 dark:text-green-300 font-medium">
-                    Security check passed
+                <div className="flex items-center justify-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-3">
+                    <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <span className="text-sm text-green-700 dark:text-green-300 font-medium">
+                    {t('auth.common.securityCheckPassed')}
                   </span>
                 </div>
               )}
 
               {/* Enhanced Register Button */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
                 loading={isSubmitting}
                 disabled={!isValid || securityLocked || isSubmitting || !canProceed}
-                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-teal"
+                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <LoadingSpinner size="sm" className="mr-2" />
-                    {t('register.creating')}...
+                    {t('auth.register.creating')}...
                   </div>
                 ) : (
-                  t('register.createAccount')
+                  t('auth.register.createAccount')
                 )}
-            </Button>
+              </Button>
             </form>
 
             {/* Enhanced Login Link */}
-              <div className="mt-8 text-center">
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                {t('register.alreadyHaveAccount')}{' '}
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {t('auth.register.alreadyHaveAccount')}{' '}
                 <Link 
                   to="/login" 
                   className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors duration-200 hover:underline"
                 >
-                  {t('register.login')}
+                  {t('auth.register.login')}
                 </Link>
               </p>
             </div>
@@ -742,16 +744,16 @@ const RegisterPage = () => {
             {/* Enhanced Security Notice */}
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t('register.securityNotice')}{' '}
+                {t('auth.register.securityNotice')}{' '}
                 <Link to="/terms" className="underline hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
-                  {t('register.termsOfService')}
-                  </Link>{' '}
-                {t('register.and')}{' '}
+                  {t('auth.common.termsOfService')}
+                </Link>{' '}
+                {t('auth.common.and')}{' '}
                 <Link to="/privacy" className="underline hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
-                  {t('register.privacyPolicy')}
-            </Link>
-          </p>
-              </div>
+                  {t('auth.common.privacyPolicy')}
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

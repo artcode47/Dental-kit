@@ -94,8 +94,17 @@ exports.createOrder = async (req, res) => {
     const shipping = 0; // Calculate based on shipping method
     const total = subtotal + tax + shipping;
 
+    // Generate order number
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const orderNumber = `DENTAL-${year}${month}${day}-${random}`;
+
     // Create order
     const order = new Order({
+      orderNumber,
       user: req.user._id,
       items: validItems,
       subtotal,

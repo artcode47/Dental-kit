@@ -24,35 +24,35 @@ const createRateLimiter = (windowMs, max, message) => {
 // General API rate limiter
 const apiLimiter = createRateLimiter(
   15 * 60 * 1000, // 15 minutes
-  100, // 100 requests per window
+  200, // Increased from 100 to 200 requests per window
   'Too many requests from this IP, please try again later.'
 );
 
-// Auth endpoints rate limiter (more strict)
+// Auth endpoints rate limiter (more generous)
 const authLimiter = createRateLimiter(
   15 * 60 * 1000, // 15 minutes
-  5, // 5 requests per window
+  100, // Increased from 30 to 100 requests per window
   'Too many authentication attempts, please try again later.'
 );
 
 // Search endpoints rate limiter
 const searchLimiter = createRateLimiter(
   1 * 60 * 1000, // 1 minute
-  30, // 30 requests per window
+  60, // Increased from 30 to 60 requests per window
   'Too many search requests, please try again later.'
 );
 
 // File upload rate limiter
 const uploadLimiter = createRateLimiter(
   60 * 60 * 1000, // 1 hour
-  10, // 10 uploads per hour
+  20, // Increased from 10 to 20 uploads per hour
   'Too many file uploads, please try again later.'
 );
 
 // Admin endpoints rate limiter
 const adminLimiter = createRateLimiter(
   15 * 60 * 1000, // 15 minutes
-  50, // 50 requests per window
+  100, // Increased from 50 to 100 requests per window
   'Too many admin requests, please try again later.'
 );
 

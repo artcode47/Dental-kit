@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSecurity } from '../../hooks/useSecurity';
 import Button from '../../components/ui/Button';
@@ -25,9 +24,8 @@ import { toast } from 'react-hot-toast';
 
 const ResetPasswordPage = () => {
   const { t } = useTranslation();
-  const { resetPassword, isLoading } = useAuth();
-  const { isRTL } = useLanguage();
-  const { currentTheme, isDark } = useTheme();
+  const { resetPassword } = useAuth();
+  const { isDark } = useTheme();
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -158,26 +156,26 @@ const ResetPasswordPage = () => {
 
       await resetPassword(token, sanitizedPassword);
       setIsSuccess(true);
-      toast.success(t('resetPassword.success'));
+      toast.success(t('auth.resetPassword.success.title'));
     } catch (error) {
       console.error('Reset password error:', error);
       
       if (error.response?.status === 400) {
         setError('password', { 
           type: 'manual', 
-          message: t('resetPassword.invalidToken') 
+          message: t('auth.resetPassword.error.title') 
         });
-        toast.error(t('resetPassword.invalidToken'));
+        toast.error(t('auth.resetPassword.error.title'));
       } else if (error.response?.status === 410) {
         setError('password', { 
           type: 'manual', 
-          message: t('resetPassword.tokenExpired') 
+          message: t('auth.resetPassword.error.message') 
         });
-        toast.error(t('resetPassword.tokenExpired'));
+        toast.error(t('auth.resetPassword.error.message'));
       } else if (error.response?.status === 429) {
-        toast.error(t('resetPassword.rateLimitExceeded'));
+        toast.error(t('auth.resetPassword.error.rateLimitExceeded'));
       } else {
-        toast.error(t('resetPassword.genericError'));
+        toast.error(t('auth.resetPassword.error.genericError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -261,7 +259,7 @@ const ResetPasswordPage = () => {
             <div className="lg:hidden text-center mb-8">
               <img
                 src={getLogoPath()}
-                alt="DentalKit Logo"
+                alt={t('brand.name')}
                 className="w-16 h-16 mx-auto mb-4"
                 loading="eager"
               />
@@ -274,30 +272,30 @@ const ResetPasswordPage = () => {
                   <CheckCircleIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Password Reset Successfully!
+                  {t('auth.resetPassword.success.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Your password has been updated. You can now log in with your new password.
+                  {t('auth.resetPassword.success.message')}
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <h3 className="font-medium text-green-900 dark:text-green-100 mb-3">
-                    What happens next:
+                    {t('auth.resetPassword.success.whatNext')}:
                   </h3>
                   <ul className="text-sm text-green-800 dark:text-green-200 space-y-2">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      Your password has been securely updated
+                      {t('auth.resetPassword.success.step1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      All your existing sessions remain active
+                      {t('auth.resetPassword.success.step2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      You can now log in with your new password
+                      {t('auth.resetPassword.success.step3')}
                     </li>
                   </ul>
                 </div>
@@ -309,7 +307,7 @@ const ResetPasswordPage = () => {
                     fullWidth
                     className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
                   >
-                    Continue to Login
+                    {t('auth.resetPassword.success.login')}
                   </Button>
                 </Link>
               </div>
@@ -388,10 +386,10 @@ const ResetPasswordPage = () => {
                   <ExclamationTriangleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  Invalid Reset Link
+                  {t('auth.resetPassword.error.title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
-                  The password reset link is invalid or has expired. Please request a new one.
+                  {t('auth.resetPassword.error.message')}
                 </p>
               </div>
 
@@ -403,7 +401,7 @@ const ResetPasswordPage = () => {
                     fullWidth
                     className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
                   >
-                    Request New Reset Link
+                    {t('auth.resetPassword.error.requestNewLink')}
                   </Button>
                 </Link>
 
@@ -415,7 +413,7 @@ const ResetPasswordPage = () => {
                     className="flex items-center justify-center text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
                   >
                     <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                    Back to Login
+                    {t('auth.resetPassword.error.backToLogin')}
                   </Button>
                 </Link>
               </div>
@@ -480,7 +478,7 @@ const ResetPasswordPage = () => {
           <div className="lg:hidden text-center mb-8">
             <img
               src={getLogoPath()}
-              alt="DentalKit Logo"
+              alt={t('brand.name')}
               className="w-16 h-16 mx-auto mb-4"
               loading="eager"
             />
@@ -493,11 +491,11 @@ const ResetPasswordPage = () => {
               <div className="flex items-center justify-center mb-3">
                 <ArrowRightIcon className="w-6 h-6 text-teal-500 mr-2" />
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Reset Password
+                  {t('auth.resetPassword.title')}
                 </h2>
               </div>
               <p className="text-gray-600 dark:text-gray-300">
-                Create a new secure password for your account
+                {t('auth.resetPassword.tagline')}
               </p>
               {email && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -516,9 +514,9 @@ const ResetPasswordPage = () => {
               {/* New Password Field */}
               <div className="space-y-2">
                 <Input
-                  label="New Password"
+                  label={t('auth.resetPassword.newPassword')}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Create a strong password"
+                  placeholder={t('auth.resetPassword.newPasswordPlaceholder')}
                   {...register('password')}
                   error={errors.password?.message}
                   fullWidth
@@ -546,7 +544,7 @@ const ResetPasswordPage = () => {
                 {password && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Password strength:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('auth.register.passwordStrength')}</span>
                       <span className={`font-medium ${strengthInfo.textColor}`}>
                         {strengthInfo.label}
                       </span>
@@ -558,7 +556,7 @@ const ResetPasswordPage = () => {
                       ></div>
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                      <p>Password must contain:</p>
+                      <p>{t('auth.register.passwordRequirements')}</p>
                       <ul className="grid grid-cols-2 gap-1">
                         <li className={`flex items-center ${password.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
                           <CheckCircleIcon className="w-3 h-3 mr-1" />
@@ -588,9 +586,9 @@ const ResetPasswordPage = () => {
 
               {/* Confirm Password Field */}
               <Input
-                label="Confirm Password"
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Confirm your new password"
+                                  label={t('auth.resetPassword.confirmPassword')}
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder={t('auth.resetPassword.confirmPasswordPlaceholder')}
                 {...register('confirmPassword')}
                 error={errors.confirmPassword?.message}
                 fullWidth
@@ -627,10 +625,10 @@ const ResetPasswordPage = () => {
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <LoadingSpinner size="sm" className="mr-2" />
-                    Resetting Password...
+                    {t('auth.resetPassword.resetting')}...
                   </div>
                 ) : (
-                  'Reset Password'
+                  t('auth.resetPassword.resetPassword')
                 )}
               </Button>
             </form>
@@ -642,14 +640,14 @@ const ResetPasswordPage = () => {
                 className="text-sm text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors duration-200 flex items-center justify-center"
               >
                 <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                Back to Login
+                {t('auth.resetPassword.backToLogin')}
               </Link>
             </div>
 
             {/* Security Notice */}
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                This reset link will expire in 1 hour for your security.
+                {t('auth.resetPassword.securityNotice')}
               </p>
             </div>
           </div>
