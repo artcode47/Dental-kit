@@ -9,9 +9,33 @@ const SECURITY_CONFIG = {
   RATE_LIMIT_HEADER: 'X-RateLimit-Remaining'
 };
 
+// Determine the base URL based on environment
+const getBaseURL = () => {
+  // If VITE_API_URL is explicitly set, use it
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Check if we're in production mode
+  const isProduction = import.meta.env.PROD || 
+                      import.meta.env.MODE === 'production' ||
+                      window.location.hostname !== 'localhost';
+  
+  // Debug logging
+  console.log('Environment check:', {
+    VITE_API_URL: import.meta.env.VITE_API_URL,
+    PROD: import.meta.env.PROD,
+    MODE: import.meta.env.MODE,
+    hostname: window.location.hostname,
+    isProduction
+  });
+  
+  return isProduction ? 'https://dental-website-backend.fly.dev/api' : '/api';
+};
+
 // Create axios instance with enhanced security
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://dental-website-backend.fly.dev/api' : '/api'),
+  baseURL: getBaseURL(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

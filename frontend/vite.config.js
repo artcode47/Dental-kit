@@ -7,6 +7,12 @@ export default defineConfig(({ command, mode }) => {
   // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), '')
   
+  // Set production environment variables
+  if (mode === 'production') {
+    env.VITE_API_URL = env.VITE_API_URL || 'https://dental-website-backend.fly.dev/api'
+    env.VITE_SOCKET_URL = env.VITE_SOCKET_URL || 'https://dental-website-backend.fly.dev'
+  }
+  
   return {
   plugins: [react()],
   resolve: {
@@ -132,6 +138,11 @@ export default defineConfig(({ command, mode }) => {
     supported: {
       'bigint': true,
     },
+  },
+  // Define environment variables for build time
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || (mode === 'production' ? 'https://dental-website-backend.fly.dev/api' : undefined)),
+    'import.meta.env.VITE_SOCKET_URL': JSON.stringify(env.VITE_SOCKET_URL || (mode === 'production' ? 'https://dental-website-backend.fly.dev' : undefined)),
   },
   }
 })
