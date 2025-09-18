@@ -1,18 +1,9 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  const env = loadEnv(mode, process.cwd(), '')
-  
-  // Set production environment variables
-  if (mode === 'production') {
-    env.VITE_API_URL = env.VITE_API_URL || 'https://dental-website-backend.fly.dev/api'
-    env.VITE_SOCKET_URL = env.VITE_SOCKET_URL || 'https://dental-website-backend.fly.dev'
-  }
-  
   return {
   plugins: [react()],
   resolve: {
@@ -36,12 +27,12 @@ export default defineConfig(({ command, mode }) => {
     host: true,
     proxy: {
       '/api': {
-        target: env.VITE_API_URL || 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },
       '/socket.io': {
-        target: env.VITE_SOCKET_URL || 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         ws: true,
       },
@@ -138,11 +129,6 @@ export default defineConfig(({ command, mode }) => {
     supported: {
       'bigint': true,
     },
-  },
-  // Define environment variables for build time
-  define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || (mode === 'production' ? 'https://dental-website-backend.fly.dev/api' : undefined)),
-    'import.meta.env.VITE_SOCKET_URL': JSON.stringify(env.VITE_SOCKET_URL || (mode === 'production' ? 'https://dental-website-backend.fly.dev' : undefined)),
   },
   }
 })
