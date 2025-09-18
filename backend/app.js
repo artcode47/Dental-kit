@@ -318,6 +318,37 @@ app.get('/test-env', (req, res) => {
   });
 });
 
+// Simple test endpoint for products without Firebase
+app.get('/api/test-products', (req, res) => {
+  res.json({
+    products: [
+      {
+        id: '1',
+        name: 'Test Product 1',
+        price: 99.99,
+        description: 'This is a test product',
+        isFeatured: true,
+        isActive: true,
+        image: 'https://via.placeholder.com/300x200?text=Test+Product+1'
+      },
+      {
+        id: '2',
+        name: 'Test Product 2',
+        price: 149.99,
+        description: 'This is another test product',
+        isFeatured: true,
+        isActive: true,
+        image: 'https://via.placeholder.com/300x200?text=Test+Product+2'
+      }
+    ],
+    total: 2,
+    totalPages: 1,
+    currentPage: 1,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
+});
+
 // Performance metrics endpoint
 app.get('/api/performance', async (req, res) => {
   try {

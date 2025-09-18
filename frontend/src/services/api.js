@@ -9,6 +9,16 @@ const SECURITY_CONFIG = {
   RATE_LIMIT_HEADER: 'X-RateLimit-Remaining'
 };
 
+// Debug: Log the environment variables
+console.log('🔍 API Configuration Debug:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  PROD: import.meta.env.PROD,
+  MODE: import.meta.env.MODE,
+  NODE_ENV: import.meta.env.NODE_ENV,
+  hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
+  finalBaseURL: import.meta.env.VITE_API_URL || 'https://dental-website-backend.fly.dev/api'
+});
+
 // Create axios instance with enhanced security
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://dental-website-backend.fly.dev/api',
