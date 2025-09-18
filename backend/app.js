@@ -146,13 +146,19 @@ app.use(cors({
       'http://localhost:3000',
       'http://localhost:5173',
       'https://dental-kit-store.vercel.app',
-      'https://dental-kit-store.netlify.app'
+      'https://dental-kit-store.netlify.app',
+      'https://dentalkit.vercel.app', // Added your actual Vercel domain
+      'https://*.vercel.app' // Allow all Vercel subdomains
     ];
     
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else if (origin.endsWith('.vercel.app')) {
+      // Allow any Vercel subdomain
       callback(null, true);
     } else {
       console.warn(`⚠️  CORS blocked origin: ${origin}`);
