@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for dental-website-backend on 2025-08-02T22:31:28+03:00
+# fly.toml app configuration file generated for dental-website-backend on 2025-09-18T23:25:49+03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -33,9 +33,9 @@ primary_region = 'iad'
     path = '/health'
 
 [[vm]]
+  memory = '2gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 512
 
 [[metrics]]
   port = 9091

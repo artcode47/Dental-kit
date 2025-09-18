@@ -290,6 +290,28 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Test endpoint to show environment variables
+app.get('/test-env', (req, res) => {
+  const firebaseVars = [
+    'FIREBASE_ADMIN_PROJECT_ID',
+    'FIREBASE_ADMIN_PRIVATE_KEY_ID', 
+    'FIREBASE_ADMIN_PRIVATE_KEY',
+    'FIREBASE_ADMIN_CLIENT_EMAIL',
+    'FIREBASE_ADMIN_CLIENT_ID'
+  ];
+  
+  const envStatus = {};
+  firebaseVars.forEach(varName => {
+    envStatus[varName] = process.env[varName] ? 'SET' : 'NOT SET';
+  });
+  
+  res.json({
+    environment: process.env.NODE_ENV,
+    firebaseVars: envStatus,
+    allFirebaseVars: Object.keys(process.env).filter(key => key.startsWith('FIREBASE'))
+  });
+});
+
 // Performance metrics endpoint
 app.get('/api/performance', async (req, res) => {
   try {

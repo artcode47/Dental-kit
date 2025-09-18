@@ -10,6 +10,15 @@ let storage;
 try {
   // Check if app is already initialized
   if (admin.apps.length === 0) {
+    // Debug: Log environment variables (without sensitive data)
+    console.log('Firebase initialization - checking environment variables...');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('FIREBASE_ADMIN_PROJECT_ID:', process.env.FIREBASE_ADMIN_PROJECT_ID ? 'SET' : 'NOT SET');
+    console.log('FIREBASE_ADMIN_PRIVATE_KEY_ID:', process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID ? 'SET' : 'NOT SET');
+    console.log('FIREBASE_ADMIN_PRIVATE_KEY:', process.env.FIREBASE_ADMIN_PRIVATE_KEY ? 'SET' : 'NOT SET');
+    console.log('FIREBASE_ADMIN_CLIENT_EMAIL:', process.env.FIREBASE_ADMIN_CLIENT_EMAIL ? 'SET' : 'NOT SET');
+    console.log('FIREBASE_ADMIN_CLIENT_ID:', process.env.FIREBASE_ADMIN_CLIENT_ID ? 'SET' : 'NOT SET');
+
     // Validate required environment variables
     const requiredEnvVars = [
       'FIREBASE_ADMIN_PROJECT_ID',
@@ -21,6 +30,8 @@ try {
 
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
     if (missingVars.length > 0) {
+      console.error('Missing Firebase environment variables:', missingVars);
+      console.error('All environment variables:', Object.keys(process.env).filter(key => key.startsWith('FIREBASE')));
       throw new Error(`Missing required Firebase environment variables: ${missingVars.join(', ')}`);
     }
 
@@ -68,39 +79,56 @@ try {
     app = admin.app();
   }
 
-  db = admin.firestore();
-  auth = admin.auth();
-  storage = admin.storage();
-
-  // Enhanced Firestore security rules
-  db.settings({
-    ignoreUndefinedProperties: true,
-    // Add security rules validation
-    validateOnWrite: true
-  });
-
-  // Enhanced Auth security settings
-  auth.setCustomUserClaims = async (uid, claims) => {
-    try {
-      await auth.setCustomUserClaims(uid, claims);
-      return true;
-    } catch (error) {
-      console.error('Error setting custom claims:', error);
-      return false;
-    }
-  };
-
   console.log('Firebase Admin SDK initialized successfully with enhanced security');
 } catch (error) {
   console.error('Critical error initializing Firebase Admin SDK:', error);
   
-  // In production, exit if Firebase fails to initialize
+  // In production, don't exit immediately - let the app start and show the error
   if (process.env.NODE_ENV === 'production') {
-    console.error('Exiting due to Firebase initialization failure in production');
-    process.exit(1);
+    console.error('Firebase initialization failed in production, but continuing...');
+    console.error('App will start but Firebase features will not work');
   }
   
-  throw error;
+  // Don't throw error, just log it and continue
+  console.error('Firebase initialization error:', error.message);
+  
+  // Set app to null so we know Firebase failed
+  app = null;
+}
+
+// Initialize Firebase services (even if initialization failed)
+try {
+  if (app) {
+    db = admin.firestore();
+    auth = admin.auth();
+    storage = admin.storage();
+
+    // Enhanced Firestore security rules
+    db.settings({
+      ignoreUndefinedProperties: true,
+      // Add security rules validation
+      validateOnWrite: true
+    });
+
+    // Enhanced Auth security settings
+    auth.setCustomUserClaims = async (uid, claims) => {
+      try {
+        await auth.setCustomUserClaims(uid, claims);
+        return true;
+      } catch (error) {
+        console.error('Error setting custom claims:', error);
+        return false;
+      }
+    };
+  } else {
+    console.log('Firebase app not initialized, services will be null');
+  }
+} catch (error) {
+  console.error('Error initializing Firebase services:', error);
+  // Set to null so the app doesn't crash
+  db = null;
+  auth = null;
+  storage = null;
 }
 
 // Enhanced security utilities

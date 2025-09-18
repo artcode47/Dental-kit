@@ -11,7 +11,7 @@ const SECURITY_CONFIG = {
 
 // Create axios instance with enhanced security
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://dental-website-backend.fly.dev/api' : '/api'),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

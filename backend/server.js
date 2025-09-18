@@ -25,4 +25,10 @@ connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+}).catch((error) => {
+  console.error('Database connection failed:', error);
+  // Start server anyway for now
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} (without database)`);
+  });
 }); 
