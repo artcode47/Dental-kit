@@ -4,7 +4,14 @@ const admin = require('firebase-admin');
 class FirebaseService {
   constructor(collectionName) {
     this.collectionName = collectionName;
-    this.collectionRef = db.collection(collectionName);
+    
+    // Check if Firebase is properly initialized
+    if (!db) {
+      console.error('Firebase not initialized. Database operations will fail.');
+      this.collectionRef = null;
+    } else {
+      this.collectionRef = db.collection(collectionName);
+    }
   }
 
   /**
@@ -12,6 +19,10 @@ class FirebaseService {
    */
   async create(data) {
     try {
+      if (!this.collectionRef) {
+        throw new Error('Firebase not initialized');
+      }
+      
       const docData = {
         ...data,
         createdAt: new Date(),
@@ -33,6 +44,10 @@ class FirebaseService {
    */
   async getById(id) {
     try {
+      if (!this.collectionRef) {
+        throw new Error('Firebase not initialized');
+      }
+      
       const docRef = this.collectionRef.doc(id);
       const docSnap = await docRef.get();
       
@@ -56,6 +71,10 @@ class FirebaseService {
    */
   async getAll(options = {}) {
     try {
+      if (!this.collectionRef) {
+        throw new Error('Firebase not initialized');
+      }
+      
       const {
         filters = [],
         sortBy = 'createdAt',
@@ -184,6 +203,10 @@ class FirebaseService {
    */
   async getAllSimple(options = {}) {
     try {
+      if (!this.collectionRef) {
+        throw new Error('Firebase not initialized');
+      }
+      
       const { limitCount = 1000 } = options;
 
       // Get all documents without any filters or sorting
