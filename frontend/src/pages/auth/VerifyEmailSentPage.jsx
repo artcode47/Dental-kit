@@ -1,22 +1,31 @@
 import React, { useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import Seo from '../../components/seo/Seo';
 import Button from '../../components/ui/Button';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import AnimatedSection from '../../components/animations/AnimatedSection';
 import { 
   EnvelopeIcon,
-  ArrowRightIcon,
   ShieldCheckIcon,
   LockClosedIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  StarIcon,
+  TruckIcon,
+  UserGroupIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import api from '../../services/api';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 const VerifyEmailSentPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
+  const { t: tSeo } = useTranslation('auth');
   const { isDark } = useTheme();
+  const { currentLanguage } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const [isResending, setIsResending] = useState(false);
@@ -25,24 +34,21 @@ const VerifyEmailSentPage = () => {
 
   // Get logo path based on theme
   const getLogoPath = useCallback(() => {
-    if (isDark()) {
-      return '/Logo Page Darkmode.png';
-    }
-    return '/Logo Page Lightmode.png';
+    return isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png';
   }, [isDark]);
 
   const handleResendEmail = useCallback(async () => {
     if (!email) {
-      toast.error(t('auth.verifyEmail.sent.noEmail'));
+      toast.error(t('verifyEmailSent.noEmail'));
       return;
     }
 
     setIsResending(true);
     try {
       await api.post('/auth/resend-verification', { email });
-      toast.success(t('auth.verifyEmail.sent.resendSuccess'));
+      toast.success(t('verifyEmailSent.resendSuccess'));
     } catch (error) {
-      toast.error(error.response?.data?.message || t('auth.verifyEmail.sent.resendError'));
+      toast.error(error.response?.data?.message || t('verifyEmailSent.resendError'));
     } finally {
       setIsResending(false);
     }
@@ -56,158 +62,217 @@ const VerifyEmailSentPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex bg-light-50 dark:bg-dark-900">
-      {/* Left Section - Branding/Marketing */}
-      <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 to-teal-600 items-center justify-center p-8 relative overflow-hidden">
-        {/* Background pattern for visual interest */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12"></div>
-          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white rounded-full"></div>
-        </div>
-        
-        <div className="text-center text-white relative z-10 max-w-md">
-          <div className="mb-8">
-                          <img
-                src={getLogoPath()}
-                alt={t('brand.name')}
-                className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
-                loading="eager"
-              />
-              <h1 className="text-5xl font-bold mb-4 tracking-tight">
-                {t('brand.name')}
-              </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+      <Seo
+        title={tSeo('verifyEmailSent.title', 'Check Your Email - DentalKit')}
+        description={tSeo('verifyEmailSent.message', 'We have sent a verification link to your email address')}
+        type="website"
+        locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
+        themeColor={isDark ? '#0B1220' : '#FFFFFF'}
+      />
+      
+      <div className="min-h-screen flex">
+        {/* Left Section - Branding & Features */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+            <div className="absolute inset-0 bg-black/20"></div>
+            
+            {/* Animated Background Elements */}
+            <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
-          <div className="space-y-4 text-lg leading-relaxed">
-            <p className="font-medium">
-              {t('auth.common.trustedPartner')}
-            </p>
-            <p className="opacity-90">
-              {t('auth.common.streamlinePractice')}
-            </p>
-          </div>
-          
-          {/* Security badges */}
-          <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
-            <div className="flex items-center space-x-2">
-              <ShieldCheckIcon className="w-5 h-5" />
-              <span>{t('auth.verifyEmail.title')}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <LockClosedIcon className="w-5 h-5" />
-              <span>{t('auth.common.sslEncrypted')}</span>
-            </div>
+          <div className="relative z-10 w-full flex flex-col justify-center items-center text-center p-8 xl:p-12 text-white">
+            <AnimatedSection animation="fadeInUp" delay={0}>
+              <div className="mb-8 max-w-lg">
+                <img
+                  src={getLogoPath()}
+                  alt="DentalKit Logo"
+                  className="w-24 h-24 mx-auto mb-6 drop-shadow-2xl"
+                  loading="eager"
+                />
+                <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                  {t('brand.name')}
+                </h1>
+                <p className="text-xl xl:text-2xl text-blue-100 leading-relaxed">
+                  {t('brand.tagline')}
+                </p>
+              </div>
+            </AnimatedSection>
+
+            <AnimatedSection animation="fadeInUp" delay={200}>
+              <div className="grid grid-cols-2 gap-4 xl:gap-6 max-w-lg">
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <EnvelopeIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-blue-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">✓</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Sent</div>
+                </div>
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <ShieldCheckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-yellow-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">100%</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Secure</div>
+                </div>
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <TruckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-green-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">24/7</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Support</div>
+                </div>
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <StarIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-purple-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">5★</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Rating</div>
+                </div>
+              </div>
+            </AnimatedSection>
           </div>
         </div>
-      </div>
 
-      {/* Right Section - Email Sent */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-md">
-          {/* Mobile logo for smaller screens */}
-          <div className="lg:hidden text-center mb-8">
-            <img
-              src={getLogoPath()}
-              alt={t('brand.name')}
-              className="w-16 h-16 mx-auto mb-4"
-              loading="eager"
-            />
-          </div>
-
-          {/* Email Sent Container */}
-          <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-xl p-8 border border-light-200 dark:border-dark-700">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-teal-100 dark:bg-teal-900/20 rounded-full">
-                <EnvelopeIcon className="w-8 h-8 text-teal-600 dark:text-teal-400" />
-              </div>
-              <h2 className="text-3xl font-bold text-dark-900 dark:text-light-100 mb-3">
-                {t('auth.verifyEmail.sent.title')}
-              </h2>
-              <p className="text-dark-600 dark:text-light-300 mb-4">
-                {t('auth.verifyEmail.sent.instructions')}
-              </p>
-              {email && (
-                <p className="text-dark-900 dark:text-light-100 font-semibold mb-4">
-                  {maskEmail(email)}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg p-4">
-                <h3 className="font-medium text-teal-900 dark:text-teal-100 mb-3">
-                  {t('auth.verifyEmail.sent.whatToDo')}:
-                </h3>
-                <ul className="text-sm text-teal-800 dark:text-teal-200 space-y-2">
-                  <li className="flex items-start">
-                    <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {t('auth.verifyEmail.sent.step1')}
-                  </li>
-                  <li className="flex items-start">
-                    <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {t('auth.verifyEmail.sent.step2')}
-                  </li>
-                  <li className="flex items-start">
-                    <span className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    {t('auth.verifyEmail.sent.step3')}
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-lg p-4">
-                <h3 className="font-medium text-warning-900 dark:text-warning-100 mb-3 flex items-center">
-                  <ExclamationTriangleIcon className="w-4 h-4 mr-2" />
-                  {t('auth.verifyEmail.sent.checkSpam')}
-                </h3>
-                <p className="text-sm text-warning-800 dark:text-warning-200">
-                  {t('auth.verifyEmail.sent.spamInstructions')}
+        {/* Right Section - Email Sent */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12">
+          <div className="w-full max-w-md xl:max-w-lg">
+            {/* Mobile Logo */}
+            <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
+              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+                <img
+                  src={getLogoPath()}
+                  alt="DentalKit Logo"
+                  className="w-16 h-16 mx-auto mb-4 drop-shadow-md"
+                  loading="eager"
+                />
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  {t('brand.name')}
+                </h1>
+                <p className="text-sm sm:text-base text-blue-100">
+                  {t('brand.tagline')}
                 </p>
               </div>
+              
+              {/* Mobile Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <EnvelopeIcon className="w-6 h-6 mx-auto mb-2 text-blue-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">✓</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Sent</div>
+                </div>
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <ShieldCheckIcon className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">100%</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Secure</div>
+                </div>
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <TruckIcon className="w-6 h-6 mx-auto mb-2 text-green-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">24/7</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Support</div>
+                </div>
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <StarIcon className="w-6 h-6 mx-auto mb-2 text-purple-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">5★</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Rating</div>
+                </div>
+              </div>
+            </AnimatedSection>
 
-              <div className="space-y-4">
-                <Button
-                  onClick={handleResendEmail}
-                  variant="outline"
-                  size="lg"
-                  fullWidth
-                  loading={isResending}
-                  disabled={!email}
-                  className="border-teal-500 text-teal-600 hover:bg-teal-50 dark:border-teal-400 dark:text-teal-400 dark:hover:bg-teal-900/20"
-                >
-                  {isResending ? (
-                    <div className="flex items-center justify-center">
-                      <LoadingSpinner size="sm" className="mr-2" />
-                      {t('auth.verifyEmail.sent.sending')}...
-                    </div>
-                  ) : (
-                    t('auth.verifyEmail.sent.resend')
+            {/* Email Sent Container */}
+            <AnimatedSection animation="fadeInUp" delay={200}>
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                {/* Header */}
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <EnvelopeIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    {t('verifyEmailSent.title')}
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                    {t('verifyEmailSent.message')}
+                  </p>
+                  {email && (
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mt-2">
+                      {maskEmail(email)}
+                    </p>
                   )}
-                </Button>
+                </div>
 
-                <Button
-                  onClick={() => navigate('/login')}
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-teal"
-                >
-                  {t('auth.verifyEmail.sent.backToLogin')}
-                </Button>
+                <div className="space-y-6">
+                  {/* Instructions */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 sm:p-6">
+                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 text-sm sm:text-base">
+                      {t('verifyEmailSent.whatToDo')}:
+                    </h3>
+                    <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        {t('verifyEmailSent.step1')}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        {t('verifyEmailSent.step2')}
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        {t('verifyEmailSent.step3')}
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Spam Warning */}
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 sm:p-6">
+                    <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-3 flex items-center text-sm sm:text-base">
+                      <ExclamationTriangleIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                      {t('verifyEmailSent.checkSpam')}
+                    </h3>
+                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                      {t('verifyEmailSent.checkSpam')}
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-4">
+                    <Button
+                      onClick={handleResendEmail}
+                      variant="outline"
+                      size="lg"
+                      fullWidth
+                      loading={isResending}
+                      disabled={!email}
+                      className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20 font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      {isResending ? (
+                        <div className="flex items-center justify-center">
+                          <LoadingSpinner size="sm" className="mr-2" />
+                          <span>{t('verifyEmailSent.resending')}</span>
+                        </div>
+                      ) : (
+                        <span>{t('verifyEmailSent.resendEmail')}</span>
+                      )}
+                    </Button>
+
+                    <Button
+                      onClick={() => navigate('/login')}
+                      size="lg"
+                      fullWidth
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                    >
+                      {t('verifyEmailSent.backToLogin')}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Help Section */}
+                <div className="mt-6 sm:mt-8 text-center">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    {t('verifyEmailSent.didntReceive')}{' '}
+                    <button
+                      onClick={() => navigate('/contact')}
+                      className="text-blue-600 dark:text-blue-400 hover:underline font-medium transition-colors duration-200"
+                    >
+                      {t('verifyEmailSent.contactSupport')}
+                    </button>
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-dark-500 dark:text-light-400">
-                {t('auth.verifyEmail.sent.help')}{' '}
-                <button
-                  onClick={() => navigate('/contact')}
-                  className="text-teal-600 dark:text-teal-400 hover:underline font-medium"
-                >
-                  {t('auth.verifyEmail.sent.contactSupport')}
-                </button>
-              </p>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
@@ -215,4 +280,4 @@ const VerifyEmailSentPage = () => {
   );
 };
 
-export default VerifyEmailSentPage; 
+export default VerifyEmailSentPage;

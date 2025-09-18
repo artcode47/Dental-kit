@@ -10,7 +10,7 @@ const ReviewFormModal = ({
   setReviewForm, 
   onSubmit 
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   if (!isOpen) return null;
 

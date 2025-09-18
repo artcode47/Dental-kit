@@ -6,56 +6,71 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-// Create order (checkout) - requires authentication
-router.post('/checkout', [
-  auth,
-  body('paymentMethod').isIn(['stripe', 'paypal', 'cash_on_delivery', 'bank_transfer']).withMessage('Valid payment method is required'),
-  body('shippingMethod').isIn(['standard', 'express', 'overnight', 'pickup']).withMessage('Valid shipping method is required'),
-  body('useDefaultAddresses').optional().isBoolean().withMessage('useDefaultAddresses must be a boolean'),
-  body('customerNotes').optional().trim(),
-  body('shippingAddress').optional().isObject().withMessage('Shipping address must be an object'),
-  body('billingAddress').optional().isObject().withMessage('Billing address must be an object'),
-], validate, orderController.createOrder);
-
-// Admin routes (you can add admin middleware here later)
-// Get all orders
+// User routes - require authentication
+// Get user orders
 router.get('/', [
+  auth,
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-  query('status').optional().isIn(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']).withMessage('Valid status is required'),
-  query('paymentStatus').optional().isIn(['pending', 'paid', 'failed', 'refunded', 'partially_refunded']).withMessage('Valid payment status is required'),
-  query('shippingStatus').optional().isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned']).withMessage('Valid shipping status is required'),
-  query('search').optional().trim(),
-  query('startDate').optional().isISO8601().withMessage('Valid start date is required'),
-  query('endDate').optional().isISO8601().withMessage('Valid end date is required'),
-], validate, orderController.getAllOrders);
+  query('status').optional().isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled']).withMessage('Valid status is required'),
+], validate, orderController.getUserOrders);
 
-// Get single order
+// Get order by ID
 router.get('/:id', [
-  param('id').isMongoId().withMessage('Valid order ID is required'),
+  auth,
+  param('id').notEmpty().withMessage('Order ID is required'),
 ], validate, orderController.getOrder);
 
-// Update order status
-router.put('/:id/status', [
-  param('id').isMongoId().withMessage('Valid order ID is required'),
-  body('status').optional().isIn(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']).withMessage('Valid status is required'),
-  body('paymentStatus').optional().isIn(['pending', 'paid', 'failed', 'refunded', 'partially_refunded']).withMessage('Valid payment status is required'),
-  body('shippingStatus').optional().isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned']).withMessage('Valid shipping status is required'),
-  body('adminNotes').optional().trim(),
-], validate, orderController.updateOrderStatus);
+// Create order (checkout)
+router.post('/checkout', [
+  auth,
+  body('shippingAddress').isObject().withMessage('Shipping address is required'),
+  body('billingAddress').isObject().withMessage('Billing address is required'),
+  body('paymentMethod').isIn(['stripe', 'paypal', 'cash_on_delivery', 'bank_transfer']).withMessage('Valid payment method is required'),
+  body('notes').optional().trim(),
+], validate, orderController.createOrder);
 
-// Add tracking information
-router.post('/:id/tracking', [
-  param('id').isMongoId().withMessage('Valid order ID is required'),
-  body('trackingNumber').notEmpty().trim().withMessage('Tracking number is required'),
-  body('trackingUrl').optional().isURL().withMessage('Valid tracking URL is required'),
-  body('estimatedDelivery').optional().isISO8601().withMessage('Valid estimated delivery date is required'),
-], validate, orderController.addTrackingInfo);
+// Cancel order
+router.post('/:id/cancel', [
+  auth,
+  param('id').notEmpty().withMessage('Order ID is required'),
+  body('reason').optional().trim(),
+], validate, orderController.cancelOrder);
 
 // Get order statistics
 router.get('/stats/overview', [
+  auth,
+], orderController.getOrderStats);
+
+// Get recent orders
+router.get('/recent/list', [
+  auth,
+  query('limit').optional().isInt({ min: 1, max: 20 }).withMessage('Limit must be between 1 and 20'),
+], validate, orderController.getRecentOrders);
+
+// Admin routes - require admin authentication
+// Get all orders (admin)
+router.get('/admin/all', [
+  auth,
+  query('status').optional().isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'all']).withMessage('Valid status is required'),
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+], validate, orderController.getAllOrders);
+
+// Update order status (admin)
+router.put('/admin/:id/status', [
+  auth,
+  param('id').notEmpty().withMessage('Order ID is required'),
+  body('status').isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled']).withMessage('Valid status is required'),
+  body('trackingNumber').optional().trim(),
+  body('estimatedDelivery').optional().isISO8601().withMessage('Valid estimated delivery date is required'),
+], validate, orderController.updateOrderStatus);
+
+// Get order analytics (admin)
+router.get('/admin/analytics', [
+  auth,
   query('startDate').optional().isISO8601().withMessage('Valid start date is required'),
   query('endDate').optional().isISO8601().withMessage('Valid end date is required'),
-], validate, orderController.getOrderStats);
+], validate, orderController.getOrderAnalytics);
 
 module.exports = router; 

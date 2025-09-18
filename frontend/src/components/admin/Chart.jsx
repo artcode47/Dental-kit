@@ -10,7 +10,7 @@ const Chart = ({
   showLegend = true,
   showGrid = true
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
 
   const getColorClasses = () => {
     const colors = {
@@ -48,7 +48,7 @@ const Chart = ({
       return (
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-500 dark:text-gray-400">
-            {t('admin.dashboard.noData')}
+            {t('dashboard.noData')}
           </p>
         </div>
       );
@@ -68,7 +68,7 @@ const Chart = ({
   const renderLineChart = () => {
     const maxValue = Math.max(...data.map(d => d.value));
     const minValue = Math.min(...data.map(d => d.value));
-    const range = maxValue - minValue;
+    const range = maxValue - minValue || 1; // Prevent division by zero
 
     return (
       <svg width="100%" height={height} className="overflow-visible">
@@ -82,16 +82,18 @@ const Chart = ({
         
         <rect width="100%" height="100%" fill="url(#grid)" />
         
-        <polyline
-          fill="none"
-          stroke={getColorClasses().primary}
-          strokeWidth="2"
-          points={data.map((d, i) => {
-            const x = (i / (data.length - 1)) * 100;
-            const y = 100 - ((d.value - minValue) / range) * 80;
-            return `${x}%,${y}%`;
-          }).join(' ')}
-        />
+        {data.length > 1 && (
+          <polyline
+            fill="none"
+            stroke={getColorClasses().primary}
+            strokeWidth="2"
+            points={data.map((d, i) => {
+              const x = (i / (data.length - 1)) * 100;
+              const y = 100 - ((d.value - minValue) / range) * 80;
+              return `${x},${y}`;
+            }).join(' ')}
+          />
+        )}
         
         {data.map((d, i) => {
           const x = (i / (data.length - 1)) * 100;

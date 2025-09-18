@@ -8,7 +8,7 @@ const CheckoutReviewForm = ({
   customerNotes, 
   setCustomerNotes 
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
@@ -53,7 +53,7 @@ const CheckoutReviewForm = ({
       {/* Shipping Method */}
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-white/20 dark:border-gray-700/20">
         <div className="flex items-center mb-4 sm:mb-6">
-          <TruckIcon className="w-6 h-6 sm:w-8 sm:h-8 text-teal-600 mr-2 sm:mr-3" />
+          <TruckIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mr-2 sm:mr-3" />
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               {t('checkout.shippingMethod.title')}
@@ -70,14 +70,14 @@ const CheckoutReviewForm = ({
               key={method.id}
               className={`p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                 shippingMethod === method.id
-                  ? 'border-teal-600 bg-teal-50 dark:bg-teal-900/20'
+                  ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                   : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
               onClick={() => setShippingMethod(method.id)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <method.icon className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 mr-2 sm:mr-3" />
+                  <method.icon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2 sm:mr-3" />
                   <div>
                     <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">
                       {method.name}
@@ -107,7 +107,7 @@ const CheckoutReviewForm = ({
           value={customerNotes}
           onChange={(e) => setCustomerNotes(e.target.value)}
           placeholder={t('checkout.customerNotesPlaceholder')}
-          className="w-full p-3 sm:p-4 border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none text-sm sm:text-base"
+          className="w-full p-3 sm:p-4 border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none text-sm sm:text-base"
           rows="3"
         />
       </div>

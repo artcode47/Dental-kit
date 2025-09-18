@@ -11,7 +11,7 @@ const LanguageSwitcher = ({
   showNames = true,
   showNativeNames = false
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const { currentLanguage, setLanguage, getSupportedLanguages } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -87,11 +87,11 @@ const LanguageSwitcher = ({
   }
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative ${className || ''}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between w-full px-3 py-2 text-left bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200
+          flex items-center justify-between w-full px-3 py-2 text-left bg-white text-gray-700 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-100 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200
           ${buttonSizes[size]}
           ${sizes[size]}
         `}
@@ -107,7 +107,7 @@ const LanguageSwitcher = ({
           )}
         </div>
         <ChevronDownIcon 
-          className={`${iconSizes[size]} text-gray-400 dark:text-gray-500 transition-transform duration-200 ${
+          className={`${iconSizes[size]} text-gray-500 dark:text-gray-300 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`} 
         />
@@ -122,7 +122,7 @@ const LanguageSwitcher = ({
                 onClick={() => handleLanguageChange(language.code)}
                 className={`
                   flex items-center w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200
-                  ${currentLanguage === language.code ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300' : 'text-gray-700 dark:text-gray-300'}
+                  ${currentLanguage === language.code ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300' : 'text-gray-700 dark:text-gray-200'}
                   ${sizes[size]}
                 `}
               >

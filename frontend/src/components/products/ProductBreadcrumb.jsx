@@ -4,7 +4,7 @@ import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
 const ProductBreadcrumb = ({ productName }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const navigate = useNavigate();
 
   return (
@@ -17,7 +17,7 @@ const ProductBreadcrumb = ({ productName }) => {
                 onClick={() => navigate('/')}
                 className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors font-medium"
               >
-                {t('common.home')}
+                {t('nav.home')}
               </button>
             </li>
             <li>

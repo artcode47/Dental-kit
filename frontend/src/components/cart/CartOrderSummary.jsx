@@ -21,7 +21,7 @@ const CartOrderSummary = ({
   onProceedToCheckout,
   disabled = false
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const [promoCode, setPromoCode] = useState('');
   const [applyingPromo, setApplyingPromo] = useState(false);
 
@@ -101,7 +101,7 @@ const CartOrderSummary = ({
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
             placeholder="DENTALPROMO20"
-            className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-xs sm:text-sm"
+            className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-xs sm:text-sm"
             disabled={applyingPromo}
           />
           <Button

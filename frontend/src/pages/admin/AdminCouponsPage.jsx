@@ -27,7 +27,7 @@ import Input from '../../components/ui/Input';
 import { toast } from 'react-hot-toast';
 
 const AdminCouponsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const [coupons, setCoupons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

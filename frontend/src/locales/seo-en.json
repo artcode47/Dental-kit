@@ -1,0 +1,44 @@
+{
+  "seo": {
+    "home": {
+      "title": "DentalKit - Premium Dental Supplies",
+      "description": "Discover cutting-edge dental equipment and supplies for your practice. Professional dental tools, equipment, and supplies at competitive prices.",
+      "keywords": "dental supplies, dental equipment, dental tools, dental practice, dental instruments, dental materials, dental technology"
+    },
+    "products": {
+      "title": "Dental Products - Professional Equipment & Supplies",
+      "description": "Browse our comprehensive collection of dental products including instruments, equipment, materials, and supplies for dental professionals.",
+      "keywords": "dental products, dental instruments, dental equipment, dental materials, dental supplies, dental tools"
+    },
+    "categories": {
+      "title": "Dental Categories - Shop by Product Type",
+      "description": "Find the right dental products by browsing our organized categories. From instruments to equipment, find everything you need.",
+      "keywords": "dental categories, dental product types, dental equipment categories, dental instrument categories"
+    },
+    "about": {
+      "title": "About DentalKit - Your Trusted Dental Supply Partner",
+      "description": "Learn about DentalKit's mission to provide premium dental equipment and supplies to dental professionals worldwide.",
+      "keywords": "about dental kit, dental supply company, dental equipment provider, dental professional supplies"
+    },
+    "contact": {
+      "title": "Contact DentalKit - Get in Touch",
+      "description": "Contact our team for support, questions, or inquiries about our dental products and services.",
+      "keywords": "contact dental kit, dental support, dental customer service, dental inquiries"
+    },
+    "login": {
+      "title": "Login - DentalKit",
+      "description": "Sign in to your DentalKit account to access professional dental equipment and supplies. Secure login for dental professionals.",
+      "keywords": "dental login, dental account, dental professional login, dental equipment access"
+    },
+    "register": {
+      "title": "Register - DentalKit",
+      "description": "Create your DentalKit account to access professional dental equipment and supplies. Join our dental community.",
+      "keywords": "dental registration, dental account signup, dental professional registration, dental equipment access"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password - DentalKit",
+      "description": "Reset your DentalKit account password securely. Get back access to your dental equipment and supplies.",
+      "keywords": "dental password reset, dental account recovery, dental login help"
+    }
+  }
+}

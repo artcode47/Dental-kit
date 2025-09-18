@@ -22,13 +22,66 @@ import Button from '../../components/ui/Button';
 import { toast } from 'react-hot-toast';
 
 const AdminAnalyticsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const [analytics, setAnalytics] = useState(null);
   const [dashboardStats, setDashboardStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [selectedChart, setSelectedChart] = useState('revenue');
+
+  const Chart = ({ data = [], xKey, yKey, stroke = '#2563eb', fill = 'rgba(37,99,235,0.15)' }) => {
+    const width = 600;
+    const height = 200;
+    const padding = 32;
+    if (!data || data.length === 0) {
+      return (
+        <div className="h-64 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+          <div className="text-center">
+            <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-500 dark:text-gray-400">{t('admin.analytics.chartPlaceholder')}</p>
+          </div>
+        </div>
+      );
+    }
+
+    const values = data.map(d => Number(d[yKey] || 0));
+    const maxY = Math.max(...values, 1);
+    const stepX = (width - padding * 2) / Math.max(data.length - 1, 1);
+
+    const points = data.map((d, i) => {
+      const x = padding + i * stepX;
+      const y = padding + (height - padding * 2) * (1 - (Number(d[yKey] || 0) / maxY));
+      return `${x},${y}`;
+    }).join(' ');
+
+    const areaPath = () => {
+      const firstPoint = points.split(' ')[0];
+      const lastPoint = points.split(' ')[points.split(' ').length - 1];
+      const [lastX] = lastPoint.split(',').map(Number);
+      return `M ${firstPoint} L ${points.replace(/^\S+\s/, '')} L ${lastX} ${height - padding} L ${padding} ${height - padding} Z`;
+    };
+
+    return (
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-64">
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={fill} />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width={width} height={height} fill="none" />
+        <g>
+          {/* Y-axis grid */}
+          {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => (
+            <line key={idx} x1={padding} x2={width - padding} y1={padding + (height - padding * 2) * p} y2={padding + (height - padding * 2) * p} stroke="#e5e7eb" className="dark:stroke-gray-600" strokeWidth="1" />
+          ))}
+        </g>
+        <path d={areaPath()} fill="url(#grad)" />
+        <polyline fill="none" stroke={stroke} strokeWidth="2.5" points={points} />
+      </svg>
+    );
+  };
 
   // Fetch analytics on component mount
   useEffect(() => {
@@ -278,7 +331,7 @@ const AdminAnalyticsPage = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Revenue Chart */}
+          {/* Revenue/Orders Chart */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -308,15 +361,11 @@ const AdminAnalyticsPage = () => {
               </div>
             </div>
             
-            {/* Placeholder for chart */}
-            <div className="h-64 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t('admin.analytics.chartPlaceholder')}
-                </p>
-              </div>
-            </div>
+            {selectedChart === 'revenue' ? (
+              <Chart data={(analytics?.salesAnalytics || []).sort((a,b)=> new Date(a.date)-new Date(b.date))} xKey="date" yKey="revenue" />
+            ) : (
+              <Chart data={(analytics?.salesAnalytics || []).sort((a,b)=> new Date(a.date)-new Date(b.date))} xKey="date" yKey="orders" stroke="#16a34a" fill="rgba(22,163,74,0.15)" />
+            )}
           </div>
 
           {/* User Growth Chart */}
@@ -328,15 +377,7 @@ const AdminAnalyticsPage = () => {
                                 <ArrowTrendingUpIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             
-            {/* Placeholder for chart */}
-            <div className="h-64 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <ChartPieIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t('admin.analytics.chartPlaceholder')}
-                </p>
-              </div>
-            </div>
+            <Chart data={(analytics?.userAnalytics || []).sort((a,b)=> new Date(a.date)-new Date(b.date))} xKey="date" yKey="newUsers" stroke="#9333ea" fill="rgba(147,51,234,0.15)" />
           </div>
         </div>
 

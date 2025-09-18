@@ -29,7 +29,7 @@ import Input from '../../components/ui/Input';
 import { toast } from 'react-hot-toast';
 
 const AdminNotificationsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const [notifications, setNotifications] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

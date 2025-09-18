@@ -29,6 +29,42 @@ export const bulkUserOperations = async (operation, userIds) => {
   }
 };
 
+export const createUser = async (userData) => {
+  try {
+    const response = await api.post('/admin/users', userData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to create user');
+  }
+};
+
+export const updateUser = async (userId, userData) => {
+  try {
+    const response = await api.put(`/admin/users/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update user');
+  }
+};
+
+export const deleteUser = async (userId) => {
+  try {
+    const response = await api.delete(`/admin/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to delete user');
+  }
+};
+
+export const getUser = async (userId) => {
+  try {
+    const response = await api.get(`/admin/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch user');
+  }
+};
+
 // Product Management
 export const getAllProducts = async (params = {}) => {
   try {
@@ -41,13 +77,78 @@ export const getAllProducts = async (params = {}) => {
 
 export const bulkProductOperations = async (operation, productIds, data = null) => {
   try {
-    const payload = { operation, productIds };
-    if (data) payload.data = data;
-    
-    const response = await api.post('/admin/products/bulk', payload);
-    return response.data;
+    // Try bulk endpoint first
+    try {
+      const payload = { operation, productIds };
+      if (data) payload.data = data;
+      const response = await api.post('/admin/products/bulk', payload);
+      return response.data;
+    } catch (err) {
+      // Fallback: perform sequential operations using existing endpoints
+      if (!Array.isArray(productIds) || productIds.length === 0) return { success: true };
+      switch (operation) {
+        case 'activate':
+        case 'deactivate': {
+          const isActive = operation === 'activate';
+          for (const id of productIds) {
+            await api.put(`/products/${id}`, { isActive });
+          }
+          return { success: true };
+        }
+        case 'update': {
+          for (const id of productIds) {
+            await api.put(`/products/${id}`, data || {});
+          }
+          return { success: true };
+        }
+        case 'delete': {
+          for (const id of productIds) {
+            await api.delete(`/products/${id}`);
+          }
+          return { success: true };
+        }
+        default:
+          throw err;
+      }
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to perform bulk product operation');
+  }
+};
+
+export const createProduct = async (productData) => {
+  try {
+    const response = await api.post('/products', productData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to create product');
+  }
+};
+
+export const updateProduct = async (productId, productData) => {
+  try {
+    const response = await api.put(`/products/${productId}`, productData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update product');
+  }
+};
+
+export const deleteProduct = async (productId) => {
+  try {
+    const response = await api.delete(`/products/${productId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to delete product');
+  }
+};
+
+export const getProduct = async (productId) => {
+  try {
+    const response = await api.get(`/products/${productId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch product');
   }
 };
 
@@ -63,11 +164,31 @@ export const getAllOrders = async (params = {}) => {
 
 export const bulkOrderOperations = async (operation, orderIds, data = null) => {
   try {
-    const payload = { operation, orderIds };
-    if (data) payload.data = data;
+    // Since bulk endpoint doesn't exist, perform individual operations
+    if (!Array.isArray(orderIds) || orderIds.length === 0) return { success: true };
     
-    const response = await api.post('/admin/orders/bulk', payload);
-    return response.data;
+    switch (operation) {
+      case 'updateStatus': {
+        for (const id of orderIds) {
+          await api.put(`/orders/admin/${id}/status`, { status: data?.status });
+        }
+        return { success: true };
+      }
+      case 'updatePaymentStatus': {
+        for (const id of orderIds) {
+          await api.put(`/orders/admin/${id}/payment-status`, { paymentStatus: data?.paymentStatus });
+        }
+        return { success: true };
+      }
+      case 'delete': {
+        for (const id of orderIds) {
+          await api.delete(`/orders/admin/${id}`);
+        }
+        return { success: true };
+      }
+      default:
+        throw new Error(`Unknown operation: ${operation}`);
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to perform bulk order operation');
   }
@@ -75,7 +196,7 @@ export const bulkOrderOperations = async (operation, orderIds, data = null) => {
 
 export const updateOrderStatus = async (orderId, status) => {
   try {
-    const response = await api.patch(`/admin/orders/${orderId}/status`, { status });
+    const response = await api.put(`/orders/admin/${orderId}/status`, { status });
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to update order status');
@@ -84,7 +205,7 @@ export const updateOrderStatus = async (orderId, status) => {
 
 export const updateOrderPaymentStatus = async (orderId, paymentStatus) => {
   try {
-    const response = await api.patch(`/admin/orders/${orderId}/payment-status`, { paymentStatus });
+    const response = await api.put(`/orders/admin/${orderId}/payment-status`, { paymentStatus });
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to update order payment status');
@@ -98,6 +219,35 @@ export const getAnalytics = async (period = '30d') => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch analytics');
+  }
+};
+
+// Reports generation (placeholder: reuse analytics for now)
+export const generateReport = async (type, params = {}) => {
+  try {
+    const response = await api.get('/admin/analytics', { params: { period: params.period || '30d' } });
+    return { type, data: response.data };
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to generate report');
+  }
+};
+
+// Settings
+export const getSettings = async () => {
+  try {
+    const response = await api.get('/admin/settings');
+    return response.data?.settings;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch settings');
+  }
+};
+
+export const updateSettings = async (payload) => {
+  try {
+    const response = await api.put('/admin/settings', payload);
+    return response.data?.settings;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update settings');
   }
 };
 
@@ -214,11 +364,45 @@ export const verifyVendor = async (vendorId) => {
 
 export const bulkVendorOperations = async (operation, vendorIds, data = null) => {
   try {
-    const payload = { operation, vendorIds };
-    if (data) payload.data = data;
-    
-    const response = await api.post('/vendors/bulk', payload);
-    return response.data;
+    // Try bulk endpoint first
+    try {
+      const payload = { operation, vendorIds };
+      if (data) payload.data = data;
+      const response = await api.post('/vendors/bulk', payload);
+      return response.data;
+    } catch (err) {
+      // Fallback to sequential operations
+      if (!Array.isArray(vendorIds) || vendorIds.length === 0) return { success: true };
+      switch (operation) {
+        case 'activate':
+        case 'deactivate': {
+          for (const id of vendorIds) {
+            await api.patch(`/vendors/${id}/toggle`);
+          }
+          return { success: true };
+        }
+        case 'verify': {
+          for (const id of vendorIds) {
+            await api.patch(`/vendors/${id}/verify`);
+          }
+          return { success: true };
+        }
+        case 'delete': {
+          for (const id of vendorIds) {
+            await api.delete(`/vendors/${id}`);
+          }
+          return { success: true };
+        }
+        case 'update': {
+          for (const id of vendorIds) {
+            await api.put(`/vendors/${id}`, data || {});
+          }
+          return { success: true };
+        }
+        default:
+          throw err;
+      }
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to perform bulk vendor operation');
   }
@@ -418,10 +602,25 @@ export const getMockRecentActivity = () => {
   ];
 };
 
+export const uploadProductImages = async (files) => {
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('images', file);
+  }
+  const response = await api.post('/products/upload-images', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
 export default {
   getDashboardStats,
   getAllUsers,
   bulkUserOperations,
+  createUser,
+  updateUser,
+  deleteUser,
+  getUser,
   getAllProducts,
   bulkProductOperations,
   getAllOrders,

@@ -1,78 +1,111 @@
 const express = require('express');
-const { body, query } = require('express-validator');
+const { query } = require('express-validator');
 const adminController = require('../controlllers/adminController');
 const validate = require('../middleware/validate');
+const settingsController = require('../controlllers/settingsController');
 const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 
-// Apply admin middleware to all routes
-router.use(auth);
+// All admin routes require authentication and admin privileges
+router.use(auth, adminAuth);
 
-// Dashboard overview
+// Dashboard
 router.get('/dashboard', adminController.getDashboardStats);
 
-// User management
+// Analytics
+router.get('/analytics', [
+  query('startDate').optional().isISO8601().withMessage('Valid start date is required'),
+  query('endDate').optional().isISO8601().withMessage('Valid end date is required'),
+  query('period').optional().isIn(['day', 'week', 'month', 'year']).withMessage('Valid period is required'),
+], validate, adminController.getAnalytics);
+
+// Users management
 router.get('/users', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('role').optional().isIn(['user', 'admin', 'vendor']).withMessage('Valid role is required'),
+  query('status').optional().isIn(['active', 'inactive', 'suspended']).withMessage('Valid status is required'),
   query('search').optional().trim(),
-  query('status').optional().isIn(['verified', 'unverified']).withMessage('Valid status is required'),
-  query('sortBy').optional().isIn(['createdAt', 'firstName', 'lastName', 'email']).withMessage('Valid sort field is required'),
+  query('sortBy').optional().isIn(['createdAt', 'lastLogin', 'name', 'email']).withMessage('Valid sort field is required'),
   query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
 ], validate, adminController.getAllUsers);
 
-// Bulk user operations
-router.post('/users/bulk', [
-  body('operation').isIn(['verify', 'unverify', 'delete']).withMessage('Valid operation is required'),
-  body('userIds').isArray({ min: 1 }).withMessage('User IDs array is required'),
-], validate, adminController.bulkUserOperations);
+// Users bulk operations
+router.post('/users/bulk', adminController.bulkUserOperations);
 
-// Product management
-router.get('/products', [
-  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-  query('search').optional().trim(),
-  query('category').optional().isMongoId().withMessage('Valid category ID is required'),
-  query('vendor').optional().isMongoId().withMessage('Valid vendor ID is required'),
-  query('status').optional().isIn(['active', 'inactive']).withMessage('Valid status is required'),
-  query('sortBy').optional().isIn(['createdAt', 'name', 'price', 'stock']).withMessage('Valid sort field is required'),
-  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
-], validate, adminController.getAllProducts);
+// Create user (admin)
+router.post('/users', adminController.createUser);
 
-// Bulk product operations
-router.post('/products/bulk', [
-  body('operation').isIn(['activate', 'deactivate', 'update', 'delete']).withMessage('Valid operation is required'),
-  body('productIds').isArray({ min: 1 }).withMessage('Product IDs array is required'),
-  body('data').optional().isObject().withMessage('Data must be an object'),
-], validate, adminController.bulkProductOperations);
+// Update user (admin)
+router.put('/users/:userId', adminController.updateUser);
 
-// Order management
+// Delete user (admin)
+router.delete('/users/:userId', adminController.deleteUser);
+
+// Orders management
 router.get('/orders', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('status').optional().isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']).withMessage('Valid status is required'),
+  query('startDate').optional().isISO8601().withMessage('Valid start date is required'),
+  query('endDate').optional().isISO8601().withMessage('Valid end date is required'),
   query('search').optional().trim(),
-  query('status').optional().isIn(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded']).withMessage('Valid status is required'),
-  query('paymentStatus').optional().isIn(['pending', 'paid', 'failed', 'refunded', 'partially_refunded']).withMessage('Valid payment status is required'),
-  query('dateFrom').optional().isISO8601().withMessage('Valid date is required'),
-  query('dateTo').optional().isISO8601().withMessage('Valid date is required'),
   query('sortBy').optional().isIn(['createdAt', 'total', 'status']).withMessage('Valid sort field is required'),
   query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
 ], validate, adminController.getAllOrders);
 
-// Bulk order operations
-router.post('/orders/bulk', [
-  body('operation').isIn(['updateStatus', 'updatePaymentStatus', 'delete']).withMessage('Valid operation is required'),
-  body('orderIds').isArray({ min: 1 }).withMessage('Order IDs array is required'),
-  body('data').optional().isObject().withMessage('Data must be an object'),
-], validate, adminController.bulkOrderOperations);
+// Products management
+router.get('/products', [
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('category').optional().notEmpty().withMessage('Valid category ID is required'),
+  query('vendor').optional().notEmpty().withMessage('Valid vendor ID is required'),
+  query('status').optional().isIn(['active', 'inactive', 'out_of_stock']).withMessage('Valid status is required'),
+  query('search').optional().trim(),
+  query('sortBy').optional().isIn(['createdAt', 'price', 'stock', 'sales']).withMessage('Valid sort field is required'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
+], validate, adminController.getAllProducts);
 
-// Analytics and reports
-router.get('/analytics', [
-  query('period').optional().isIn(['7d', '30d', '90d', '1y']).withMessage('Valid period is required'),
-], validate, adminController.getAnalytics);
+// Categories management
+router.get('/categories', [
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('parentId').optional().trim(),
+  query('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
+  query('search').optional().trim(),
+  query('sortBy').optional().isIn(['createdAt', 'name', 'productCount']).withMessage('Valid sort field is required'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
+], validate, adminController.getAllCategories);
+
+// Vendors management
+router.get('/vendors', [
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
+  query('isVerified').optional().isBoolean().withMessage('isVerified must be a boolean'),
+  query('search').optional().trim(),
+  query('sortBy').optional().isIn(['createdAt', 'name', 'productCount']).withMessage('Valid sort field is required'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
+], validate, adminController.getAllVendors);
+
+// Reviews management
+router.get('/reviews', [
+  query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('status').optional().isIn(['pending', 'approved', 'rejected']).withMessage('Valid status is required'),
+  query('rating').optional().isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+  query('search').optional().trim(),
+  query('sortBy').optional().isIn(['createdAt', 'rating', 'helpful']).withMessage('Valid sort field is required'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
+], validate, adminController.getAllReviews);
 
 // System health check
 router.get('/health', adminController.getSystemHealth);
+
+// Settings
+router.get('/settings', settingsController.getSettings);
+router.put('/settings', settingsController.updateSettings);
 
 module.exports = router; 

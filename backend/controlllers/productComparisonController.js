@@ -1,28 +1,20 @@
-const ProductComparison = require('../models/ProductComparison');
-const Product = require('../models/Product');
-const User = require('../models/User');
+const ProductComparisonService = require('../services/productComparisonService');
+const ProductService = require('../services/productService');
+const UserService = require('../services/userService');
+
+const productComparisonService = new ProductComparisonService();
+const productService = new ProductService();
+const userService = new UserService();
 
 // Get user's product comparison
 exports.getUserComparison = async (req, res) => {
   try {
-    let comparison = await ProductComparison.findOne({ user: req.user._id })
-      .populate({
-        path: 'products.product',
-        select: 'name description price images brand averageRating totalReviews stock isOnSale salePercentage category vendor',
-        populate: [
-          { path: 'category', select: 'name' },
-          { path: 'vendor', select: 'name' }
-        ]
-      });
-
-    if (!comparison) {
-      // Create new comparison if doesn't exist
-      comparison = new ProductComparison({ user: req.user._id });
-      await comparison.save();
-    }
+    let comparison = await productComparisonService.getOrCreateComparison(req.user.id);
 
     // Update last viewed
-    await comparison.updateLastViewed();
+    await productComparisonService.update(comparison.id, {
+      lastViewed: new Date()
+    });
 
     res.json({ comparison });
 
@@ -40,23 +32,7 @@ exports.addToComparison = async (req, res) => {
       return res.status(400).json({ message: 'Product ID is required' });
     }
 
-    let comparison = await ProductComparison.findOne({ user: req.user._id });
-    
-    if (!comparison) {
-      comparison = new ProductComparison({ user: req.user._id });
-    }
-
-    await comparison.addProduct(productId);
-
-    // Populate product details
-    await comparison.populate({
-      path: 'products.product',
-      select: 'name description price images brand averageRating totalReviews stock isOnSale salePercentage category vendor',
-      populate: [
-        { path: 'category', select: 'name' },
-        { path: 'vendor', select: 'name' }
-      ]
-    });
+    const comparison = await productComparisonService.addProductToComparison(req.user.id, productId);
 
     res.json({
       message: 'Product added to comparison',
@@ -73,22 +49,7 @@ exports.removeFromComparison = async (req, res) => {
   try {
     const { productId } = req.params;
 
-    const comparison = await ProductComparison.findOne({ user: req.user._id });
-    if (!comparison) {
-      return res.status(404).json({ message: 'Comparison not found' });
-    }
-
-    await comparison.removeProduct(productId);
-
-    // Populate remaining products
-    await comparison.populate({
-      path: 'products.product',
-      select: 'name description price images brand averageRating totalReviews stock isOnSale salePercentage category vendor',
-      populate: [
-        { path: 'category', select: 'name' },
-        { path: 'vendor', select: 'name' }
-      ]
-    });
+    const comparison = await productComparisonService.removeProductFromComparison(req.user.id, productId);
 
     res.json({
       message: 'Product removed from comparison',
@@ -103,12 +64,7 @@ exports.removeFromComparison = async (req, res) => {
 // Clear comparison
 exports.clearComparison = async (req, res) => {
   try {
-    const comparison = await ProductComparison.findOne({ user: req.user._id });
-    if (!comparison) {
-      return res.status(404).json({ message: 'Comparison not found' });
-    }
-
-    await comparison.clearProducts();
+    const comparison = await productComparisonService.clearComparison(req.user.id);
 
     res.json({
       message: 'Comparison cleared',
@@ -120,205 +76,108 @@ exports.clearComparison = async (req, res) => {
   }
 };
 
-// Get comparison by share token (public)
-exports.getPublicComparison = async (req, res) => {
+// Get comparison with product details
+exports.getComparisonWithProducts = async (req, res) => {
   try {
-    const { shareToken } = req.params;
-
-    const comparison = await ProductComparison.findOne({ 
-      shareToken, 
-      isPublic: true 
-    })
-    .populate({
-      path: 'products.product',
-      select: 'name description price images brand averageRating totalReviews stock isOnSale salePercentage category vendor',
-      populate: [
-        { path: 'category', select: 'name' },
-        { path: 'vendor', select: 'name' }
-      ]
-    })
-    .populate('user', 'firstName lastName');
-
-    if (!comparison) {
-      return res.status(404).json({ message: 'Comparison not found or not public' });
-    }
-
-    // Update last viewed
-    await comparison.updateLastViewed();
+    const comparison = await productComparisonService.getComparisonWithProducts(req.user.id);
 
     res.json({ comparison });
 
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching comparison', error: error.message });
+    res.status(500).json({ message: 'Error fetching comparison with products', error: error.message });
   }
 };
 
-// Make comparison public/private
-exports.togglePublic = async (req, res) => {
+// Check if product is in comparison
+exports.checkProductInComparison = async (req, res) => {
   try {
-    const { isPublic, title, description } = req.body;
+    const { productId } = req.params;
 
-    const comparison = await ProductComparison.findOne({ user: req.user._id });
-    if (!comparison) {
-      return res.status(404).json({ message: 'Comparison not found' });
-    }
+    const isInComparison = await productComparisonService.isProductInComparison(req.user.id, productId);
 
-    comparison.isPublic = isPublic;
-    if (title) comparison.title = title;
-    if (description) comparison.description = description;
-
-    await comparison.save();
-
-    res.json({
-      message: `Comparison ${isPublic ? 'made public' : 'made private'}`,
-      comparison: {
-        id: comparison._id,
-        isPublic: comparison.isPublic,
-        shareToken: comparison.shareToken,
-        title: comparison.title,
-        description: comparison.description
-      }
-    });
+    res.json({ isInComparison });
 
   } catch (error) {
-    res.status(500).json({ message: 'Error updating comparison visibility', error: error.message });
+    res.status(500).json({ message: 'Error checking product in comparison', error: error.message });
+  }
+};
+
+// Get comparison count
+exports.getComparisonCount = async (req, res) => {
+  try {
+    const count = await productComparisonService.getComparisonCount(req.user.id);
+
+    res.json({ count });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error getting comparison count', error: error.message });
   }
 };
 
 // Get comparison statistics
 exports.getComparisonStats = async (req, res) => {
   try {
-    const stats = await ProductComparison.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalComparisons: { $sum: 1 },
-          publicComparisons: { $sum: { $cond: ['$isPublic', 1, 0] } },
-          averageProductsPerComparison: { $avg: { $size: '$products' } },
-          totalProductsCompared: { $sum: { $size: '$products' } }
-        }
-      }
-    ]);
+    const stats = await productComparisonService.getComparisonStats(req.user.id);
 
-    const popularProducts = await ProductComparison.aggregate([
-      { $unwind: '$products' },
-      {
-        $group: {
-          _id: '$products.product',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'product'
-        }
-      },
-      { $unwind: '$product' },
-      {
-        $project: {
-          product: {
-            _id: 1,
-            name: 1,
-            price: 1,
-            images: 1,
-            brand: 1
-          },
-          count: 1
-        }
-      }
-    ]);
-
-    res.json({
-      overall: stats[0] || {
-        totalComparisons: 0,
-        publicComparisons: 0,
-        averageProductsPerComparison: 0,
-        totalProductsCompared: 0
-      },
-      popularProducts
-    });
+    res.json(stats);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching comparison statistics', error: error.message });
+    res.status(500).json({ message: 'Error getting comparison stats', error: error.message });
   }
 };
 
-// Get comparison analytics for user
-exports.getUserComparisonAnalytics = async (req, res) => {
-  try {
-    const comparison = await ProductComparison.findOne({ user: req.user._id });
-    
-    if (!comparison) {
-      return res.json({
-        totalProducts: 0,
-        lastViewed: null,
-        isPublic: false,
-        shareToken: null
-      });
-    }
-
-    const analytics = {
-      totalProducts: comparison.products.length,
-      lastViewed: comparison.lastViewed,
-      isPublic: comparison.isPublic,
-      shareToken: comparison.shareToken,
-      title: comparison.title,
-      description: comparison.description,
-      createdAt: comparison.createdAt
-    };
-
-    res.json({ analytics });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching comparison analytics', error: error.message });
-  }
-};
-
-// Admin: Get all comparisons
+// Get all comparisons (admin)
 exports.getAllComparisons = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      isPublic,
-      search
-    } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
-    const query = {};
-
-    if (isPublic !== undefined) query.isPublic = isPublic === 'true';
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const comparisons = await ProductComparison.find(query)
-      .populate('user', 'firstName lastName email')
-      .populate({
-        path: 'products.product',
-        select: 'name price brand'
-      })
-      .sort({ lastViewed: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await ProductComparison.countDocuments(query);
-
-    res.json({
-      comparisons,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total
+    const comparisons = await productComparisonService.getAll({
+      sortBy: 'lastViewed',
+      sortOrder: 'desc',
+      limitCount: parseInt(limit) * 10
     });
 
+    // Apply pagination
+    const total = comparisons.length;
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedComparisons = comparisons.slice(startIndex, endIndex);
+
+    res.json({
+      comparisons: paginatedComparisons,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      currentPage: parseInt(page),
+      total,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching comparisons', error: error.message });
+  }
+};
+
+// Get comparison by user (admin)
+exports.getComparisonByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const comparison = await productComparisonService.getComparisonByUser(userId);
+
+    res.json({ comparison });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user comparison', error: error.message });
+  }
+};
+
+// Delete comparison (admin)
+exports.deleteComparison = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await productComparisonService.delete(id);
+
+    res.json({ message: 'Comparison deleted successfully' });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting comparison', error: error.message });
   }
 }; 

@@ -3,7 +3,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { CheckIcon } from '@heroicons/react/24/outline';
 
 const CheckoutProgress = ({ currentStep }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   const steps = [
     { key: 'shipping', label: t('checkout.steps.shipping') },
@@ -20,7 +20,7 @@ const CheckoutProgress = ({ currentStep }) => {
           <div key={step.key} className="flex items-center">
             <div className={`flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-200 ${
               currentStep >= index + 1
-                ? 'bg-teal-600 border-teal-600 text-white'
+                ? 'bg-blue-600 border-blue-600 text-white'
                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500'
             }`}>
               {currentStep > index + 1 ? (
@@ -31,7 +31,7 @@ const CheckoutProgress = ({ currentStep }) => {
             </div>
             {index < steps.length - 1 && (
               <div className={`w-8 sm:w-16 h-0.5 mx-1 sm:mx-2 ${
-                currentStep > index + 1 ? 'bg-teal-600' : 'bg-gray-300 dark:bg-gray-600'
+                currentStep > index + 1 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
               }`} />
             )}
           </div>
@@ -45,7 +45,7 @@ const CheckoutProgress = ({ currentStep }) => {
             key={step.key}
             className={`text-xs sm:text-sm font-medium transition-colors duration-200 ${
               currentStep >= index + 1
-                ? 'text-teal-600 dark:text-teal-400'
+                ? 'text-blue-600 dark:text-blue-400'
                 : 'text-gray-500 dark:text-gray-400'
             }`}
           >

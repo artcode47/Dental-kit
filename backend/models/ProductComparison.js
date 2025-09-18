@@ -37,7 +37,17 @@ const productComparisonSchema = new mongoose.Schema({
     trim: true,
     maxlength: 100,
   },
+  titleAr: {
+    type: String,
+    trim: true,
+    maxlength: 100,
+  },
   description: {
+    type: String,
+    trim: true,
+    maxlength: 500,
+  },
+  descriptionAr: {
     type: String,
     trim: true,
     maxlength: 500,

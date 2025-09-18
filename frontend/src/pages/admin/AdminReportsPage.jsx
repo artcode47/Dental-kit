@@ -17,14 +17,14 @@ import {
   DocumentChartBarIcon,
   TableCellsIcon
 } from '@heroicons/react/24/outline';
-import { getAnalytics, getDashboardStats } from '../../services/adminApi';
+import { getAnalytics, getDashboardStats, generateReport as generateReportApi } from '../../services/adminApi';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { toast } from 'react-hot-toast';
 
 const AdminReportsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -102,41 +102,14 @@ const AdminReportsPage = () => {
   ];
 
   useEffect(() => {
-    // Load recent reports
     loadRecentReports();
   }, []);
 
   const loadRecentReports = async () => {
     try {
       setIsLoading(true);
-      // Mock data for recent reports
-      const mockReports = [
-        {
-          id: 1,
-          type: 'sales',
-          name: 'Sales Report - December 2024',
-          generatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          status: 'completed',
-          size: '2.3 MB'
-        },
-        {
-          id: 2,
-          type: 'orders',
-          name: 'Orders Report - November 2024',
-          generatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-          status: 'completed',
-          size: '1.8 MB'
-        },
-        {
-          id: 3,
-          type: 'users',
-          name: 'User Growth Report - Q4 2024',
-          generatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-          status: 'completed',
-          size: '3.1 MB'
-        }
-      ];
-      setReports(mockReports);
+      // Start with empty list; in future this can call /admin/reports
+      setReports([]);
     } catch (err) {
       console.error('Error loading reports:', err);
     } finally {
@@ -161,35 +134,24 @@ const AdminReportsPage = () => {
 
     try {
       setIsGenerating(true);
-      setError(null);
-
-      // Simulate report generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const reportData = {
+      const period = showCustomDate ? 'custom' : dateRange;
+      const params = { period };
+      const result = await generateReportApi(selectedReportType, params);
+      const newReport = {
         id: Date.now(),
         type: selectedReportType,
-        name: `${reportTypes.find(r => r.id === selectedReportType)?.name} - ${new Date().toLocaleDateString()}`,
+        name: `${getReportTypeMeta(selectedReportType).name} - ${new Date().toLocaleDateString()}`,
         generatedAt: new Date(),
         status: 'completed',
-        size: `${(Math.random() * 5 + 1).toFixed(1)} MB`,
-        data: {
-          summary: {
-            totalRecords: Math.floor(Math.random() * 10000) + 1000,
-            totalValue: Math.floor(Math.random() * 1000000) + 100000,
-            period: dateRange === 'custom' ? `${customStartDate} to ${customEndDate}` : dateRange
-          },
-          details: []
-        }
+        size: '—',
+        data: result.data
       };
-
-      setGeneratedReport(reportData);
-      setReports(prev => [reportData, ...prev]);
-      toast.success(t('admin.reports.generationSuccess'));
+      setGeneratedReport(newReport);
+      setReports(prev => [newReport, ...prev]);
+      toast.success(t('admin.reports.generated'));
     } catch (err) {
       console.error('Error generating report:', err);
-      setError(err.message);
-      toast.error(t('admin.reports.generationError'));
+      toast.error(t('admin.reports.generateError'));
     } finally {
       setIsGenerating(false);
     }
@@ -243,6 +205,10 @@ const AdminReportsPage = () => {
   };
 
   const getReportTypeInfo = (type) => {
+    return reportTypes.find(r => r.id === type) || reportTypes[0];
+  };
+
+  const getReportTypeMeta = (type) => {
     return reportTypes.find(r => r.id === type) || reportTypes[0];
   };
 

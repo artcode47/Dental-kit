@@ -1,0 +1,330 @@
+{
+  "auth": {
+    "register": {
+      "title": "Create Account",
+      "tagline": "Join our professional dental community",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "personalInformation": "Personal Information",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Enter your last name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Enter your phone number",
+      "company": "Company/Clinic",
+      "companyPlaceholder": "Enter your company or clinic name",
+      "university": "University/Institution",
+      "universityPlaceholder": "Enter your university or institution",
+      "country": "Country",
+      "governorate": "Governorate/State",
+      "selectGovernorate": "Select governorate/state",
+      "password": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "passwordStrength": "Password Strength",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "consentLabel": "I agree to the terms and conditions",
+      "consentText": "By creating an account, you agree to our terms of service and privacy policy.",
+      "createAccount": "Create Account",
+      "creating": "Creating Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "login": "Sign In",
+      "securityNotice": "Your information is protected with industry-standard encryption.",
+      "success": "Account created successfully! Please check your email to verify your account.",
+      "emailAlreadyExists": "An account with this email already exists",
+      "rateLimitExceeded": "Too many registration attempts. Please try again later.",
+      "serverError": "Server error. Please try again later.",
+      "genericError": "Registration failed. Please try again.",
+      "passwordRequirements": "Password Requirements"
+    },
+    "login": {
+      "title": "Welcome Back",
+      "tagline": "Sign in to your account",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign In",
+      "signingIn": "Signing In",
+      "noAccount": "Don't have an account?",
+      "register": "Create Account",
+      "securityNotice": "Your information is protected with industry-standard encryption.",
+      "success": "Login successful! Welcome back.",
+      "emailNotVerified": "Please verify your email address before signing in",
+      "accountLocked": "Your account has been temporarily locked due to multiple failed attempts",
+      "rateLimitExceeded": "Too many login attempts. Please try again later.",
+      "invalidCredentials": "Invalid email or password",
+      "genericError": "Login failed. Please try again."
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "tagline": "Enter your email to receive a password reset link",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "sendResetLink": "Send Reset Link",
+      "sending": "Sending",
+      "backToLogin": "Back to Login",
+      "securityNotice": "Your information is protected with industry-standard encryption.",
+      "success": "Password reset link sent! Please check your email.",
+      "emailNotFound": "No account found with this email address",
+      "rateLimitExceeded": "Too many reset attempts. Please try again later.",
+      "invalidEmail": "Please enter a valid email address",
+      "genericError": "Failed to send reset link. Please try again.",
+      "secureReset": "Secure Password Reset",
+      "emailSent": {
+        "title": "Check Your Email",
+        "message": "We've sent a password reset link to your email address.",
+        "whatToDo": "What to do next",
+        "step1": "Check your email inbox for the reset link",
+        "step2": "Click the link to reset your password",
+        "step3": "Create a new strong password",
+        "tryAgain": "Try Again",
+        "backToLogin": "Back to Login"
+      }
+    },
+    "resetPassword": {
+      "title": "Create New Password",
+      "tagline": "Enter your new password below",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "resetPassword": "Reset Password",
+      "resetting": "Resetting",
+      "backToLogin": "Back to Login",
+      "securityNotice": "Your information is protected with industry-standard encryption.",
+      "success": {
+        "title": "Password Reset Successful",
+        "message": "Your password has been successfully reset.",
+        "whatNext": "What's next",
+        "step1": "You can now sign in to your account",
+        "step2": "Update your profile for a better experience",
+        "step3": "Explore products and start shopping",
+        "loginNow": "Login Now"
+      },
+      "invalidToken": "Invalid or expired reset token",
+      "tokenExpired": "Password reset link has expired",
+      "genericError": "Failed to reset password. Please try again."
+    },
+    "verifyEmail": {
+      "title": "Verify Your Email",
+      "tagline": "Please verify your email address to continue",
+      "verifying": "Verifying your email...",
+      "verifyingText": "Please wait while we verify your email address.",
+      "sending": "Sending...",
+      "resend": "Resend Verification Email",
+      "backToLogin": "Back to Login",
+      "retry": "Try Again",
+      "checkEmail": "Check your email",
+      "verificationSent": "We've sent a verification link to your email address.",
+      "whatToDo": "What to do next",
+      "step1": "Check your email inbox for the verification link",
+      "step2": "Click the link to verify your account",
+      "step3": "Return here to continue",
+      "description": "Verifying your email address for DentalKit account",
+      "resendEmail": "Resend Verification Email",
+      "resending": "Resending",
+      "successMessage": "Email verified successfully! You can now sign in.",
+      "alreadyVerified": "Your email is already verified.",
+      "invalidToken": "Invalid verification token",
+      "tokenExpired": "Verification link has expired",
+      "tokenExpiredMessage": "Your verification link has expired. Please request a new one.",
+      "genericError": "Failed to verify email. Please try again.",
+      "errorMessage": "We couldn't verify your email. Please try again later.",
+      "possibleReasons": "Possible reasons",
+      "reason1": "The verification link has expired",
+      "reason2": "The token is invalid or already used",
+      "reason3": "There was a temporary server issue",
+      "success": {
+        "seoTitle": "Email Verified - DentalKit",
+        "seoDescription": "Your email has been successfully verified for your DentalKit account",
+        "title": "Email Verified",
+        "message": "Your email has been verified successfully.",
+        "whatNext": "What's next",
+        "step1": "You can now sign in to your account",
+        "step2": "Complete your profile for a better experience",
+        "step3": "Explore products and start shopping",
+        "loginNow": "Login Now"
+      },
+      "expired": {
+        "seoTitle": "Verification Expired - DentalKit",
+        "seoDescription": "Your email verification link has expired. Please request a new one."
+      },
+      "error": {
+        "seoTitle": "Verification Error - DentalKit",
+        "seoDescription": "There was an error verifying your email. Please try again."
+      }
+    },
+    "verifyEmailSent": {
+      "title": "Check Your Email",
+      "message": "We've sent a verification link to your email address.",
+      "whatToDo": "What to do next",
+      "step1": "Check your email inbox for the verification link",
+      "step2": "Click the link to verify your account",
+      "step3": "Return here to continue",
+      "resendEmail": "Resend Verification Email",
+      "resending": "Resending",
+      "backToLogin": "Back to Login",
+      "checkSpam": "Don't forget to check your spam folder.",
+      "didntReceive": "Didn't receive the email?",
+      "resendLink": "Resend verification email",
+      "contactSupport": "Contact Support",
+      "noEmail": "Missing email address. Please go back and enter your email.",
+      "resendSuccess": "Verification email sent successfully!",
+      "resendError": "Failed to resend verification email. Please try again."
+    },
+    "mfa": {
+      "title": "Two-Factor Authentication",
+      "tagline": "Enter the 6-digit code from your authenticator app",
+      "authenticationCode": "Authentication Code",
+      "verifyCode": "Verify Code",
+      "verifyingCode": "Verifying Code",
+      "backToLogin": "Back to Login",
+      "codeExpiresIn": "Code expires in",
+      "instructions": {
+        "title": "How to get your code",
+        "step1": "Open your authenticator app",
+        "step2": "Find the code for this website",
+        "step3": "Enter the 6-digit code above"
+      },
+      "success": "Two-factor authentication successful!",
+      "invalidCode": "Invalid authentication code",
+      "rateLimitExceeded": "Too many attempts. Please try again later.",
+      "genericError": "Authentication failed. Please try again."
+    },
+    "common": {
+      "streamlinePractice": "Streamline your dental practice with our comprehensive e-commerce platform",
+      "secureRegistration": "Secure Registration",
+      "secureLogin": "Secure Login",
+      "sslEncrypted": "SSL Encrypted",
+      "securityCheckPassed": "Security check passed",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "and": "and",
+      "trustedPartner": "Trusted Partner",
+      "accountTemporarilyLocked": "Account temporarily locked",
+      "tryAgainIn": "Try again in {{time}}"
+    },
+    "validation": {
+      "email": {
+        "required": "Email is required",
+        "invalid": "Please enter a valid email address",
+        "tooLong": "Email address is too long"
+      },
+      "firstName": {
+        "required": "First name is required",
+        "min": "First name must be at least 2 characters",
+        "max": "First name must be less than 50 characters"
+      },
+      "lastName": {
+        "required": "Last name is required",
+        "min": "Last name must be at least 2 characters",
+        "max": "Last name must be less than 50 characters"
+      },
+      "phone": {
+        "required": "Phone number is required",
+        "invalid": "Please enter a valid phone number"
+      },
+      "company": {
+        "max": "Company name must be less than 100 characters"
+      },
+      "university": {
+        "max": "University name must be less than 100 characters"
+      },
+      "country": {
+        "required": "Country is required",
+        "invalid": "Please select a valid country"
+      },
+      "governorate": {
+        "required": "Governorate/State is required"
+      },
+      "password": {
+        "required": "Password is required",
+        "min": "Password must be at least 8 characters",
+        "tooLong": "Password must be less than 128 characters",
+        "lowercase": "Password must contain at least one lowercase letter",
+        "uppercase": "Password must contain at least one uppercase letter",
+        "number": "Password must contain at least one number",
+        "symbol": "Password must contain at least one special character",
+        "special": "Password must contain at least one special character",
+        "veryWeak": "Very Weak",
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "confirmPassword": {
+        "required": "Please confirm your password",
+        "match": "Passwords do not match"
+      },
+      "consent": {
+        "required": "You must agree to the terms and conditions"
+      },
+      "allFieldsRequired": "All required fields must be filled",
+      "mfaCode": {
+        "required": "Authentication code is required",
+        "length": "Authentication code must be 6 digits",
+        "numeric": "Authentication code must contain only numbers"
+      }
+    },
+    "countries": {
+      "EG": "Egypt",
+      "SA": "Saudi Arabia"
+    },
+    "governorates": {
+      "EG": {
+        "Alexandria": "Alexandria",
+        "Aswan": "Aswan",
+        "Asyut": "Asyut",
+        "Beheira": "Beheira",
+        "Beni Suef": "Beni Suef",
+        "Cairo": "Cairo",
+        "Dakahlia": "Dakahlia",
+        "Damietta": "Damietta",
+        "Faiyum": "Faiyum",
+        "Gharbia": "Gharbia",
+        "Giza": "Giza",
+        "Ismailia": "Ismailia",
+        "Kafr El Sheikh": "Kafr El Sheikh",
+        "Luxor": "Luxor",
+        "Matruh": "Matruh",
+        "Minya": "Minya",
+        "Monufia": "Monufia",
+        "New Valley": "New Valley",
+        "North Sinai": "North Sinai",
+        "Port Said": "Port Said",
+        "Qalyubia": "Qalyubia",
+        "Qena": "Qena",
+        "Red Sea": "Red Sea",
+        "Sharqia": "Sharqia",
+        "Sohag": "Sohag",
+        "South Sinai": "South Sinai",
+        "Suez": "Suez"
+      },
+      "SA": {
+        "Riyadh": "Riyadh",
+        "Jeddah": "Jeddah",
+        "Mecca": "Mecca",
+        "Medina": "Medina",
+        "Dammam": "Dammam",
+        "Taif": "Taif",
+        "Tabuk": "Tabuk",
+        "Abha": "Abha",
+        "Jizan": "Jizan",
+        "Najran": "Najran",
+        "Al Bahah": "Al Bahah",
+        "Al Jouf": "Al Jouf",
+        "Al Qassim": "Al Qassim",
+        "Hail": "Hail",
+        "Northern Borders": "Northern Borders",
+        "Eastern Province": "Eastern Province"
+      }
+    },
+    "brand": {
+      "name": "Dental Kit Store",
+      "tagline": "Professional Dental Equipment & Supplies"
+    }
+  }
+}

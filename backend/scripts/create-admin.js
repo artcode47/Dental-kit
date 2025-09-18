@@ -21,12 +21,10 @@ async function createAdmin() {
       return;
     }
 
-    // Create admin user
-    const hashedPassword = await bcrypt.hash('Admin123!', 12);
-    
+    // Create admin user - let the User model handle password hashing
     const admin = new User({
       email: 'admin@dentalstore.com',
-      password: hashedPassword,
+      password: 'Admin123!', // Plain password - will be hashed by pre-save middleware
       firstName: 'Admin',
       lastName: 'User',
       role: 'admin',

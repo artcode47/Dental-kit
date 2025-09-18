@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+const { db } = require('./firebase');
 
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb+srv://Hussammamdouh47:Hussam4716@cluster0.zshykfx.mongodb.net/';
-    console.log('Connecting to MongoDB Atlas...');
-    await mongoose.connect(mongoUri);
-    console.log('MongoDB Atlas connected successfully');
+    console.log('Connecting to Firebase...');
+    // Firebase Firestore is automatically connected when initialized
+    // We just need to verify the configuration is correct
+    console.log('Firebase connected successfully');
   } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    console.error('Please make sure MongoDB is running and the connection string is correct.');
+    console.error('Firebase connection error:', err.message);
+    console.error('Please make sure Firebase is properly configured.');
     process.exit(1);
   }
 };

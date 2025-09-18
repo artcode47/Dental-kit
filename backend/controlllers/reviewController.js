@@ -1,8 +1,12 @@
-const Review = require('../models/Review');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
+const ReviewService = require('../services/reviewService');
+const ProductService = require('../services/productService');
+const OrderService = require('../services/orderService');
 const { uploadMultipleImages, deleteMultipleImages } = require('../utils/cloudinary');
 const { uploadMultiple, handleUploadError, cleanupUploads } = require('../middleware/upload');
+
+const reviewService = new ReviewService();
+const productService = new ProductService();
+const orderService = new OrderService();
 
 // Get reviews for a product
 exports.getProductReviews = async (req, res) => {
@@ -10,48 +14,45 @@ exports.getProductReviews = async (req, res) => {
     const { productId } = req.params;
     const { page = 1, limit = 10, rating, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
-    const query = { product: productId, isApproved: true };
+    const filters = { productId, isApproved: true };
     if (rating) {
-      query.rating = parseInt(rating);
+      filters.rating = parseInt(rating);
     }
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const result = await reviewService.getReviews({
+      productId,
+      rating,
+      isApproved: true,
+      sortBy,
+      sortOrder,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
 
-    const reviews = await Review.find(query)
-      .populate('user', 'firstName lastName')
-      .populate('vendorResponse.respondedBy', 'firstName lastName')
-      .sort(sortOptions)
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Review.countDocuments(query);
+    // Get all reviews for rating distribution (without pagination)
+    const allReviewsResult = await reviewService.getReviews({
+      productId,
+      isApproved: true,
+      page: 1,
+      limit: 1000  // Get all reviews for distribution calculation
+    });
 
     // Get rating distribution
-    const ratingStats = await Review.aggregate([
-      { $match: { product: productId, isApproved: true } },
-      {
-        $group: {
-          _id: '$rating',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
     const ratingDistribution = {};
     for (let i = 1; i <= 5; i++) {
-      const stat = ratingStats.find(s => s._id === i);
-      ratingDistribution[i] = stat ? stat.count : 0;
+      const stat = allReviewsResult.reviews.filter(review => review.rating === i);
+      ratingDistribution[i] = stat.length;
     }
 
     res.json({
-      reviews,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total,
+      reviews: result.reviews,
+      totalPages: result.pagination.pages,
+      currentPage: result.pagination.page,
+      total: result.pagination.total,
       ratingDistribution,
     });
   } catch (error) {
+    console.error('Error in getProductReviews:', error);
     res.status(500).json({ message: 'Error fetching reviews', error: error.message });
   }
 };
@@ -62,35 +63,33 @@ exports.createReview = async (req, res) => {
     const { productId, orderId, rating, title, comment } = req.body;
 
     // Verify user has purchased the product
-    const order = await Order.findOne({
-      _id: orderId,
-      user: req.user._id,
-      status: 'delivered',
-      'items.product': productId
-    });
-
-    if (!order) {
+    const order = await orderService.getById(orderId);
+    if (!order || order.userId !== req.user.id || order.status !== 'delivered') {
       return res.status(400).json({ message: 'You can only review products you have purchased and received' });
     }
 
-    // Check if user already reviewed this product for this order
-    const existingReview = await Review.findOne({
-      user: req.user._id,
-      product: productId,
-      order: orderId
-    });
+    // Check if order contains the product
+    const orderItem = order.items.find(item => item.productId === productId);
+    if (!orderItem) {
+      return res.status(400).json({ message: 'Product not found in this order' });
+    }
 
-    if (existingReview) {
+    // Check if user already reviewed this product for this order
+    const existingReview = await reviewService.findOneBy('orderId', orderId);
+    if (existingReview && existingReview.productId === productId && existingReview.userId === req.user.id) {
       return res.status(400).json({ message: 'You have already reviewed this product for this order' });
     }
 
     const reviewData = {
-      user: req.user._id,
-      product: productId,
-      order: orderId,
+      userId: req.user.id,
+      productId,
+      orderId,
       rating,
       title,
-      comment
+      comment,
+      isApproved: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     // Handle image uploads if provided
@@ -98,19 +97,11 @@ exports.createReview = async (req, res) => {
       const imageResults = await uploadMultipleImages(req.files, 'reviews');
       reviewData.images = imageResults.map(result => ({
         public_id: result.public_id,
-        url: result.url,
+        url: result.url
       }));
     }
 
-    const review = await Review.create(reviewData);
-
-    // Auto-approve reviews (you can change this to require moderation)
-    review.isApproved = true;
-    review.isModerated = true;
-    await review.save();
-
-    await review.populate('user', 'firstName lastName');
-
+    const review = await reviewService.create(reviewData);
     res.status(201).json(review);
   } catch (error) {
     res.status(500).json({ message: 'Error creating review', error: error.message });
@@ -123,17 +114,13 @@ exports.updateReview = async (req, res) => {
     const { reviewId } = req.params;
     const { rating, title, comment } = req.body;
 
-    const review = await Review.findOne({
-      _id: reviewId,
-      user: req.user._id
-    });
-
+    const review = await reviewService.getById(reviewId);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
     }
 
-    if (review.isModerated) {
-      return res.status(400).json({ message: 'Cannot update moderated review' });
+    if (review.userId !== req.user.id) {
+      return res.status(403).json({ message: 'You can only update your own reviews' });
     }
 
     const updateData = {};
@@ -141,23 +128,20 @@ exports.updateReview = async (req, res) => {
     if (title !== undefined) updateData.title = title;
     if (comment !== undefined) updateData.comment = comment;
 
-    // Handle new image uploads
+    // Handle new image uploads if provided
     if (req.files && req.files.length > 0) {
       const imageResults = await uploadMultipleImages(req.files, 'reviews');
       const newImages = imageResults.map(result => ({
         public_id: result.public_id,
-        url: result.url,
+        url: result.url
       }));
-
-      updateData.images = [...review.images, ...newImages];
+      
+      // Combine with existing images
+      const existingImages = review.images || [];
+      updateData.images = [...existingImages, ...newImages];
     }
 
-    const updatedReview = await Review.findByIdAndUpdate(
-      reviewId,
-      updateData,
-      { new: true, runValidators: true }
-    ).populate('user', 'firstName lastName');
-
+    const updatedReview = await reviewService.update(reviewId, updateData);
     res.json(updatedReview);
   } catch (error) {
     res.status(500).json({ message: 'Error updating review', error: error.message });
@@ -169,145 +153,115 @@ exports.deleteReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
 
-    const review = await Review.findOne({
-      _id: reviewId,
-      user: req.user._id
-    });
-
+    const review = await reviewService.getById(reviewId);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
     }
 
-    // Delete images from Cloudinary
+    if (review.userId !== req.user.id) {
+      return res.status(403).json({ message: 'You can only delete your own reviews' });
+    }
+
+    // Delete images from Cloudinary if they exist
     if (review.images && review.images.length > 0) {
       const publicIds = review.images.map(img => img.public_id);
       await deleteMultipleImages(publicIds);
     }
 
-    await Review.findByIdAndDelete(reviewId);
+    await reviewService.delete(reviewId);
     res.json({ message: 'Review deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting review', error: error.message });
   }
 };
 
-// Vote review as helpful
-exports.voteReview = async (req, res) => {
+// Delete review image
+exports.deleteReviewImage = async (req, res) => {
   try {
-    const { reviewId } = req.params;
-    const { isHelpful } = req.body;
+    const { reviewId, imageId } = req.params;
 
-    const review = await Review.findById(reviewId);
+    const review = await reviewService.getById(reviewId);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
     }
 
-    if (isHelpful) {
-      review.helpfulVotes += 1;
+    if (review.userId !== req.user.id) {
+      return res.status(403).json({ message: 'You can only delete images from your own reviews' });
     }
-    review.totalVotes += 1;
 
-    await review.save();
-    res.json(review);
+    const image = review.images.find(img => img.public_id === imageId);
+    if (!image) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+
+    // Delete from Cloudinary
+    await deleteMultipleImages([image.public_id]);
+
+    // Remove from review
+    const updatedImages = review.images.filter(img => img.public_id !== imageId);
+    await reviewService.update(reviewId, { images: updatedImages });
+
+    res.json({ message: 'Image deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error voting on review', error: error.message });
+    res.status(500).json({ message: 'Error deleting image', error: error.message });
   }
 };
 
-// Flag review
-exports.flagReview = async (req, res) => {
+// Get user reviews
+exports.getUserReviews = async (req, res) => {
   try {
-    const { reviewId } = req.params;
-    const { reason } = req.body;
-
-    const review = await Review.findById(reviewId);
-    if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
-    }
-
-    // Check if user already flagged this review
-    const alreadyFlagged = review.flaggedBy.some(flag => 
-      flag.user.toString() === req.user._id.toString()
-    );
-
-    if (alreadyFlagged) {
-      return res.status(400).json({ message: 'You have already flagged this review' });
-    }
-
-    review.flaggedBy.push({
-      user: req.user._id,
-      reason
+    const { page = 1, limit = 10 } = req.query;
+    
+    const reviews = await reviewService.getAll({
+      filters: { userId: req.user.id },
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      limitCount: parseInt(limit) * 10
     });
 
-    if (review.flaggedBy.length >= 3) {
-      review.isFlagged = true;
-      review.flagReason = 'Multiple user flags';
-    }
-
-    await review.save();
-    res.json({ message: 'Review flagged successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error flagging review', error: error.message });
-  }
-};
-
-// Vendor response to review
-exports.addVendorResponse = async (req, res) => {
-  try {
-    const { reviewId } = req.params;
-    const { comment } = req.body;
-
-    const review = await Review.findById(reviewId);
-    if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
-    }
-
-    // Check if vendor already responded
-    if (review.vendorResponse && review.vendorResponse.comment) {
-      return res.status(400).json({ message: 'Vendor has already responded to this review' });
-    }
-
-    review.vendorResponse = {
-      comment,
-      respondedBy: req.user._id,
-      respondedAt: new Date()
-    };
-
-    await review.save();
-    await review.populate('vendorResponse.respondedBy', 'firstName lastName');
-
-    res.json(review);
-  } catch (error) {
-    res.status(500).json({ message: 'Error adding vendor response', error: error.message });
-  }
-};
-
-// Admin: Get all reviews for moderation
-exports.getAllReviews = async (req, res) => {
-  try {
-    const { page = 1, limit = 20, status, rating, productId } = req.query;
-
-    const query = {};
-    if (status === 'pending') query.isApproved = false;
-    if (status === 'approved') query.isApproved = true;
-    if (status === 'flagged') query.isFlagged = true;
-    if (rating) query.rating = parseInt(rating);
-    if (productId) query.product = productId;
-
-    const reviews = await Review.find(query)
-      .populate('user', 'firstName lastName email')
-      .populate('product', 'name images')
-      .populate('order', 'orderNumber')
-      .populate('vendorResponse.respondedBy', 'firstName lastName')
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Review.countDocuments(query);
+    // Apply pagination
+    const total = reviews.length;
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedReviews = reviews.slice(startIndex, endIndex);
 
     res.json({
-      reviews,
-      totalPages: Math.ceil(total / limit),
+      reviews: paginatedReviews,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      currentPage: parseInt(page),
+      total,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user reviews', error: error.message });
+  }
+};
+
+// Admin: Get all reviews
+exports.getAllReviews = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status, rating, productId } = req.query;
+    
+    const filters = {};
+    if (status) filters.isApproved = status === 'approved';
+    if (rating) filters.rating = parseInt(rating);
+    if (productId) filters.productId = productId;
+
+    const reviews = await reviewService.getAll({
+      filters,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      limitCount: parseInt(limit) * 10
+    });
+
+    // Apply pagination
+    const total = reviews.length;
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedReviews = reviews.slice(startIndex, endIndex);
+
+    res.json({
+      reviews: paginatedReviews,
+      totalPages: Math.ceil(total / parseInt(limit)),
       currentPage: parseInt(page),
       total,
     });
@@ -316,29 +270,28 @@ exports.getAllReviews = async (req, res) => {
   }
 };
 
-// Admin: Moderate review
-exports.moderateReview = async (req, res) => {
+// Admin: Approve/Reject review
+exports.approveReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
-    const { isApproved, moderationNotes } = req.body;
+    const { isApproved, adminNotes } = req.body;
 
-    const review = await Review.findById(reviewId);
+    const review = await reviewService.getById(reviewId);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
     }
 
-    review.isApproved = isApproved;
-    review.isModerated = true;
-    review.moderatedBy = req.user._id;
-    review.moderatedAt = new Date();
-    review.moderationNotes = moderationNotes;
+    const updateData = {
+      isApproved,
+      adminNotes,
+      approvedBy: req.user.id,
+      approvedAt: new Date()
+    };
 
-    await review.save();
-    await review.populate('user', 'firstName lastName');
-
-    res.json(review);
+    const updatedReview = await reviewService.update(reviewId, updateData);
+    res.json(updatedReview);
   } catch (error) {
-    res.status(500).json({ message: 'Error moderating review', error: error.message });
+    res.status(500).json({ message: 'Error approving review', error: error.message });
   }
 };
 
@@ -350,16 +303,11 @@ exports.uploadReviewImages = [
   async (req, res) => {
     try {
       if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ message: 'No image files provided' });
+        return res.status(400).json({ message: 'No images provided' });
       }
 
       const imageResults = await uploadMultipleImages(req.files, 'reviews');
-      const images = imageResults.map(result => ({
-        public_id: result.public_id,
-        url: result.url,
-      }));
-
-      res.json({ images });
+      res.json(imageResults);
     } catch (error) {
       res.status(500).json({ message: 'Error uploading images', error: error.message });
     }

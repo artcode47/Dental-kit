@@ -10,7 +10,7 @@ const CheckoutShippingForm = ({
   setUseDefaultAddresses,
   userProfile = null
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-white/20 dark:border-gray-700/20">

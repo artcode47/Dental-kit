@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - {{orderNumber}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .order-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #0d9488;
+        }
+        .button {
+            display: inline-block;
+            background: #0d9488;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎉 Order Confirmed!</h1>
+        <p>Thank you for your purchase</p>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{customerName}},</h2>
+        
+        <p>Your order has been successfully placed and confirmed. Here are your order details:</p>
+        
+        <div class="order-details">
+            <h3>Order Information</h3>
+            <p><strong>Order Number:</strong> {{orderNumber}}</p>
+            <p><strong>Order Date:</strong> {{orderDate}}</p>
+            <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
+            <p><strong>Shipping Method:</strong> {{shippingMethod}}</p>
+            
+            <h4>Items Ordered:</h4>
+            {{#each items}}
+            <div class="item">
+                <span>{{name}} (Qty: {{quantity}})</span>
+                <span>${{price}}</span>
+            </div>
+            {{/each}}
+            
+            <hr style="margin: 20px 0;">
+            
+            <div class="item">
+                <span>Subtotal:</span>
+                <span>${{subtotal}}</span>
+            </div>
+            <div class="item">
+                <span>Shipping:</span>
+                <span>${{shipping}}</span>
+            </div>
+            <div class="item">
+                <span>Tax:</span>
+                <span>${{tax}}</span>
+            </div>
+            <div class="item total">
+                <span>Total:</span>
+                <span>${{total}}</span>
+            </div>
+        </div>
+        
+        <h3>Shipping Address:</h3>
+        <p>
+            {{shippingAddress.firstName}} {{shippingAddress.lastName}}<br>
+            {{shippingAddress.address1}}<br>
+            {{#if shippingAddress.address2}}{{shippingAddress.address2}}<br>{{/if}}
+            {{shippingAddress.city}}, {{shippingAddress.state}} {{shippingAddress.zipCode}}<br>
+            {{shippingAddress.country}}
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{orderUrl}}" class="button">View Order Details</a>
+        </div>
+        
+        <p><strong>Estimated Delivery:</strong> {{estimatedDelivery}}</p>
+        
+        <p>We'll send you updates about your order status via email. You can also track your order through your account dashboard.</p>
+        
+        <p>If you have any questions, please don't hesitate to contact our customer support team.</p>
+        
+        <p>Thank you for choosing DentalKit!</p>
+        
+        <div class="footer">
+            <p>© 2024 DentalKit. All rights reserved.</p>
+            <p>This email was sent to {{customerEmail}}</p>
+        </div>
+    </div>
+</body>
+</html> 

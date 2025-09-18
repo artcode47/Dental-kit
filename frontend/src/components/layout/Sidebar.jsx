@@ -16,7 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Sidebar = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const { user } = useAuth();
   const { isRTL } = useLanguage();
   const location = useLocation();

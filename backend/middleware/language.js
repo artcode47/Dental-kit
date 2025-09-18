@@ -1,38 +1,41 @@
 const i18n = require('i18n');
+const UserService = require('../services/userService');
+
+const userService = new UserService();
 
 /**
  * Language detection middleware
- * Detects language from:
- * 1. Query parameter (lang)
- * 2. Accept-Language header
- * 3. User's saved preference
- * 4. Default to 'en'
+ * Detects user's preferred language from various sources
  */
 const languageDetection = (req, res, next) => {
-  // Get language from query parameter
-  let language = req.query.lang;
+  let language = null;
   
-  // If no query parameter, check Accept-Language header
+  // 1. Check query parameter
+  if (req.query.lang) {
+    language = req.query.lang.toLowerCase();
+  }
+  
+  // 2. Check Accept-Language header
   if (!language && req.headers['accept-language']) {
     const acceptLanguage = req.headers['accept-language'];
-    // Parse Accept-Language header and get the first language
     const languages = acceptLanguage.split(',').map(lang => {
-      const [code, quality = '1'] = lang.trim().split(';q=');
-      return { code: code.split('-')[0], quality: parseFloat(quality) };
+      const [code] = lang.split(';');
+      return code.trim().toLowerCase();
     });
     
-    // Sort by quality and find the first supported language
-    languages.sort((a, b) => b.quality - a.quality);
-    const supportedLanguage = languages.find(lang => 
-      ['en', 'ar', 'fr', 'es'].includes(lang.code)
-    );
+    // Find first supported language
+    const supportedLanguages = ['en', 'ar', 'fr', 'es'];
+    language = languages.find(lang => {
+      const baseLang = lang.split('-')[0];
+      return supportedLanguages.includes(baseLang);
+    });
     
-    if (supportedLanguage) {
-      language = supportedLanguage.code;
+    if (language) {
+      language = language.split('-')[0];
     }
   }
   
-  // If still no language, check user's saved preference
+  // 3. Check user's saved preference
   if (!language && req.user && req.user.language) {
     language = req.user.language;
   }
@@ -113,8 +116,7 @@ const getSupportedLanguages = () => {
  */
 const updateUserLanguage = async (userId, language) => {
   try {
-    const User = require('../models/User');
-    await User.findByIdAndUpdate(userId, { language });
+    await userService.update(userId, { language });
     return true;
   } catch (error) {
     console.error('Error updating user language:', error);

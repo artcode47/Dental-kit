@@ -26,20 +26,36 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ForgotPasswordSentPage from './pages/auth/ForgotPasswordSentPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import VerifyEmailSentPage from './pages/auth/VerifyEmailSentPage';
-import MFALoginPage from './pages/auth/MFALoginPage';
-import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import WishlistPage from './pages/WishlistPage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import OrdersPage from './pages/OrdersPage';
+import CategoriesPage from './pages/CategoriesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import HelpPage from './pages/HelpPage';
+import ShippingPage from './pages/ShippingPage';
+import ReturnsPage from './pages/ReturnsPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import WarrantyPage from './pages/WarrantyPage';
+
+// Import new error pages from the errors index
+import { 
+  ServerErrorPage,
+  MaintenancePage,
+  NetworkErrorPage
+} from './pages/errors';
 
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -110,6 +126,53 @@ function App() {
                             <ProductsPage />
                           </Layout>
                         } />
+                        <Route path="/categories" element={
+                          <Layout>
+                            <CategoriesPage />
+                          </Layout>
+                        } />
+                        
+                        {/* Informational Pages */}
+                        <Route path="/about" element={
+                          <Layout>
+                            <AboutPage />
+                          </Layout>
+                        } />
+                        <Route path="/contact" element={
+                          <Layout>
+                            <ContactPage />
+                          </Layout>
+                        } />
+                        <Route path="/help" element={
+                          <Layout>
+                            <HelpPage />
+                          </Layout>
+                        } />
+                        <Route path="/shipping" element={
+                          <Layout>
+                            <ShippingPage />
+                          </Layout>
+                        } />
+                        <Route path="/returns" element={
+                          <Layout>
+                            <ReturnsPage />
+                          </Layout>
+                        } />
+                        <Route path="/privacy" element={
+                          <Layout>
+                            <PrivacyPage />
+                          </Layout>
+                        } />
+                        <Route path="/terms" element={
+                          <Layout>
+                            <TermsPage />
+                          </Layout>
+                        } />
+                        <Route path="/warranty" element={
+                          <Layout>
+                            <WarrantyPage />
+                          </Layout>
+                        } />
                         
                         <Route path="/products/:id" element={
                           <Layout>
@@ -147,6 +210,13 @@ function App() {
                             </Layout>
                           </GuestRoute>
                         } />
+                        <Route path="/forgot-password/sent" element={
+                          <GuestRoute>
+                            <Layout showHeader={false} showFooter={false}>
+                              <ForgotPasswordSentPage />
+                            </Layout>
+                          </GuestRoute>
+                        } />
                         
                         <Route path="/reset-password" element={
                           <GuestRoute>
@@ -172,27 +242,19 @@ function App() {
                           </GuestRoute>
                         } />
                         
-                        <Route path="/mfa-login" element={
-                          <GuestRoute>
-                            <Layout showHeader={false} showFooter={false}>
-                              <MFALoginPage />
-                            </Layout>
-                          </GuestRoute>
-                        } />
-                        
                         {/* Protected Routes */}
-                        <Route path="/dashboard" element={
-                          <ProtectedRoute>
-                            <Layout showSidebar={true}>
-                              <DashboardPage />
-                            </Layout>
-                          </ProtectedRoute>
-                        } />
-                        
                         <Route path="/profile" element={
                           <ProtectedRoute>
                             <Layout>
                               <ProfilePage />
+                            </Layout>
+                          </ProtectedRoute>
+                        } />
+                        
+                        <Route path="/wishlist" element={
+                          <ProtectedRoute>
+                            <Layout>
+                              <WishlistPage />
                             </Layout>
                           </ProtectedRoute>
                         } />
@@ -327,6 +389,24 @@ function App() {
                         <Route path="/unauthorized" element={
                           <Layout>
                             <UnauthorizedPage />
+                          </Layout>
+                        } />
+                        
+                        <Route path="/server-error" element={
+                          <Layout>
+                            <ServerErrorPage />
+                          </Layout>
+                        } />
+                        
+                        <Route path="/maintenance" element={
+                          <Layout>
+                            <MaintenancePage />
+                          </Layout>
+                        } />
+                        
+                        <Route path="/network-error" element={
+                          <Layout>
+                            <NetworkErrorPage />
                           </Layout>
                         } />
                         

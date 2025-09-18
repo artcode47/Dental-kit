@@ -5,7 +5,7 @@ import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 import Button from '../ui/Button';
 
 const CartEmptyState = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const navigate = useNavigate();
 
   return (

@@ -691,22 +691,14 @@ orderSchema.index({ createdAt: -1 });
 ```
 
 ### Caching Strategy
-```javascript
-// Redis caching (recommended for production)
-const redis = require('redis');
-const client = redis.createClient();
 
-// Cache product data
-const cacheProduct = async (productId, productData) => {
-  await client.setex(`product:${productId}`, 3600, JSON.stringify(productData));
-};
+This project uses an in-house unified memory store (`services/unifiedStore.js`) for caching, CSRF tokens, rate limiting, and activity tracking. No external Redis is required.
 
-// Get cached product
-const getCachedProduct = async (productId) => {
-  const cached = await client.get(`product:${productId}`);
-  return cached ? JSON.parse(cached) : null;
-};
-```
+- Use `unifiedStore.getCache(key)` / `setCache(key, value, ttlMs)` for caching domain data
+- Use `unifiedStore.setCSRFToken(sessionId, token, ttlMs)` and related helpers for CSRF
+- Use `unifiedStore.incrementRateLimit(key, windowMs, max)` for simple rate limiter counters
+
+Refer to `E-COMMERCE_OPTIMIZATION_SETUP.md` for more details.
 
 ## 🔧 Troubleshooting
 

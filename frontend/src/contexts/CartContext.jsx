@@ -225,18 +225,52 @@ const cartReducer = (state, action) => {
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage on mount with proper error handling
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
+    const loadCartFromStorage = async () => {
       try {
-        const cartData = JSON.parse(savedCart);
-        dispatch({ type: 'SET_CART', payload: cartData });
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+          const cartData = JSON.parse(savedCart);
+          
+          // Validate cart structure
+          if (cartData && typeof cartData === 'object' && Array.isArray(cartData.items)) {
+            // Check if cart is not too old (7 days)
+            const cartAge = cartData.lastUpdated ? 
+              Date.now() - new Date(cartData.lastUpdated).getTime() : 
+              Infinity;
+            
+            if (cartAge < 7 * 24 * 60 * 60 * 1000) { // 7 days
+              dispatch({ type: 'SET_CART', payload: cartData });
+            } else {
+              // Cart is too old, clear it
+              localStorage.removeItem('cart');
+              dispatch({ type: 'CLEAR_CART' });
+            }
+          } else {
+            // Invalid cart structure, clear it
+            localStorage.removeItem('cart');
+            dispatch({ type: 'CLEAR_CART' });
+          }
+        }
       } catch (error) {
         console.error('Error loading cart from localStorage:', error);
         localStorage.removeItem('cart');
+        dispatch({ type: 'CLEAR_CART' });
       }
-    }
+    };
+
+    loadCartFromStorage();
+  }, []);
+
+  // Listen for logout events to clear cart
+  useEffect(() => {
+    const handleLogout = () => {
+      dispatch({ type: 'CLEAR_CART' });
+    };
+
+    window.addEventListener('userLogout', handleLogout);
+    return () => window.removeEventListener('userLogout', handleLogout);
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -266,9 +300,26 @@ export const CartProvider = ({ children }) => {
   // Note: Cart sync with backend is disabled since we're using localStorage-based cart management
   // If you need backend sync, implement the /cart/sync endpoint on the backend
 
+  // Race condition protection
+  const operationQueue = new Map();
+  
   const addToCart = async (product, quantity = 1, variantId = null) => {
+    const operationId = `${product._id || product.id}-${variantId || 'default'}`;
+    
+    // Check if operation is already in progress
+    if (operationQueue.has(operationId)) {
+      toast.error('Operation in progress, please wait...');
+      return;
+    }
+    
     try {
+      operationQueue.set(operationId, true);
       dispatch({ type: 'SET_UPDATING', payload: true });
+      
+      // Validate product data
+      if (!product || !(product._id || product.id)) {
+        throw new Error('Invalid product data');
+      }
       
       const cartItem = {
         id: `${product._id || product.id}-${variantId || 'default'}`,
@@ -277,16 +328,22 @@ export const CartProvider = ({ children }) => {
         name: product.name,
         price: variantId ? product.variants.find(v => v.id === variantId)?.price : product.price,
         originalPrice: variantId ? product.variants.find(v => v.id === variantId)?.originalPrice : product.originalPrice,
-        quantity,
+        quantity: Math.max(1, quantity), // Ensure quantity is at least 1
         image: product.images?.[0],
         category: product.category,
         brand: product.brand,
+        vendor: product.vendor?._id || product.vendor,
         sku: variantId ? product.variants.find(v => v.id === variantId)?.sku : product.sku,
         weight: variantId ? product.variants.find(v => v.id === variantId)?.weight : product.weight,
         dimensions: variantId ? product.variants.find(v => v.id === variantId)?.dimensions : product.dimensions,
         inStock: variantId ? product.variants.find(v => v.id === variantId)?.inStock : (product.stock > 0),
         maxQuantity: variantId ? product.variants.find(v => v.id === variantId)?.maxQuantity : product.stock
       };
+
+      // Validate cart item
+      if (!cartItem.price || cartItem.price <= 0) {
+        throw new Error('Invalid product price');
+      }
 
       dispatch({ type: 'ADD_ITEM', payload: cartItem });
       
@@ -295,12 +352,12 @@ export const CartProvider = ({ children }) => {
       
       toast.success(`${product.name} added to cart`);
       
-      // Note: Backend sync is disabled. If needed, implement the /cart/add endpoint
     } catch (error) {
-      toast.error('Failed to add item to cart');
+      toast.error(error.message || 'Failed to add item to cart');
       console.error('Add to cart error:', error);
     } finally {
       dispatch({ type: 'SET_UPDATING', payload: false });
+      operationQueue.delete(operationId);
     }
   };
 
@@ -356,6 +413,11 @@ export const CartProvider = ({ children }) => {
     } finally {
       dispatch({ type: 'SET_UPDATING', payload: false });
     }
+  };
+
+  const clearCartOnLogout = () => {
+    dispatch({ type: 'CLEAR_CART' });
+    localStorage.removeItem('cart');
   };
 
   const applyCoupon = async (couponCode) => {
@@ -500,6 +562,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     removeFromCart,
     clearCart,
+    clearCartOnLogout,
     applyCoupon,
     removeCoupon,
     applyGiftCard,

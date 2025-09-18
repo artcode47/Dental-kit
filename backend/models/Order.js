@@ -32,7 +32,7 @@ const orderItemSchema = new mongoose.Schema({
   vendor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Vendor',
-    required: true,
+    required: false,
   },
 });
 

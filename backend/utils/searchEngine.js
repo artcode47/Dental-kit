@@ -1,7 +1,13 @@
 const natural = require('natural');
-const Product = require('../models/Product');
-const User = require('../models/User');
-const Category = require('../models/Category');
+const ProductService = require('../services/productService');
+const UserService = require('../services/userService');
+const CategoryService = require('../services/categoryService');
+const OrderService = require('../services/orderService'); // Added OrderService import
+
+const productService = new ProductService();
+const userService = new UserService();
+const categoryService = new CategoryService();
+const orderService = new OrderService(); // Initialize OrderService
 
 // Initialize tokenizer and stemmer
 const tokenizer = new natural.WordTokenizer();
@@ -13,9 +19,21 @@ const searchIndex = new Map();
 // Initialize search index
 const initializeSearchIndex = async () => {
   try {
-    const products = await Product.find({ isActive: true })
-      .populate('category', 'name')
-      .populate('vendor', 'name');
+    // Use simplified query approach
+    let q = productService.collectionRef.where('isActive', '==', true);
+    q = q.limit(1000);
+    
+    const querySnapshot = await q.get();
+    const products = [];
+    
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      const convertedData = productService.convertTimestamps(data);
+      products.push({
+        id: doc.id,
+        ...convertedData
+      });
+    });
 
     products.forEach(product => {
       const searchableText = [
@@ -23,8 +41,8 @@ const initializeSearchIndex = async () => {
         product.description,
         product.shortDescription,
         product.brand,
-        product.category?.name,
-        product.vendor?.name,
+        product.categoryName,
+        product.vendorName,
         ...(product.tags || []),
         ...(product.searchKeywords || [])
       ].join(' ').toLowerCase();
@@ -32,7 +50,7 @@ const initializeSearchIndex = async () => {
       const tokens = tokenizer.tokenize(searchableText);
       const stems = tokens.map(token => stemmer.stem(token));
 
-      searchIndex.set(product._id.toString(), {
+      searchIndex.set(product.id, {
         product,
         tokens: new Set(tokens),
         stems: new Set(stems),
@@ -49,12 +67,10 @@ const initializeSearchIndex = async () => {
 // Update search index for a single product
 const updateProductInIndex = async (productId) => {
   try {
-    const product = await Product.findById(productId)
-      .populate('category', 'name')
-      .populate('vendor', 'name');
+    const product = await productService.getProductById(productId);
 
     if (!product) {
-      searchIndex.delete(productId.toString());
+      searchIndex.delete(productId);
       return;
     }
 
@@ -63,8 +79,8 @@ const updateProductInIndex = async (productId) => {
       product.description,
       product.shortDescription,
       product.brand,
-      product.category?.name,
-      product.vendor?.name,
+      product.categoryName,
+      product.vendorName,
       ...(product.tags || []),
       ...(product.searchKeywords || [])
     ].join(' ').toLowerCase();
@@ -72,7 +88,7 @@ const updateProductInIndex = async (productId) => {
     const tokens = tokenizer.tokenize(searchableText);
     const stems = tokens.map(token => stemmer.stem(token));
 
-    searchIndex.set(product._id.toString(), {
+    searchIndex.set(product.id, {
       product,
       tokens: new Set(tokens),
       stems: new Set(stems),
@@ -102,110 +118,87 @@ const advancedSearch = async (query, filters = {}, userId = null) => {
       limit = 20
     } = filters;
 
-    // Tokenize and stem the search query
-    const queryTokens = tokenizer.tokenize(query.toLowerCase());
-    const queryStems = queryTokens.map(token => stemmer.stem(token));
+    // Build search filters
+    const searchFilters = { isActive: true };
+    if (category) searchFilters.categoryId = category;
+    if (vendor) searchFilters.vendorId = vendor;
+    if (minPrice !== undefined) searchFilters.minPrice = minPrice;
+    if (maxPrice !== undefined) searchFilters.maxPrice = maxPrice;
+    if (inStock !== undefined) searchFilters.inStock = inStock;
+    if (isOnSale !== undefined) searchFilters.isOnSale = isOnSale;
+    if (isFeatured !== undefined) searchFilters.isFeatured = isFeatured;
 
-    // Score products based on search relevance
-    const scoredProducts = [];
+    // Get products from Firebase
+    const products = await productService.getAll({
+      filters: searchFilters,
+      sortBy,
+      sortOrder,
+      limitCount: limit * 10
+    });
 
-    for (const [productId, indexData] of searchIndex) {
-      const { product, tokens, stems } = indexData;
+    // Apply text search if query provided
+    let searchResults = products;
+    if (query && query.trim()) {
+      const queryTokens = tokenizer.tokenize(query.toLowerCase());
+      const queryStems = queryTokens.map(token => stemmer.stem(token));
 
-      // Skip if product is not active
-      if (!product.isActive) continue;
+      searchResults = products.filter(product => {
+        const indexEntry = searchIndex.get(product.id);
+        if (!indexEntry) return false;
 
-      // Apply filters
-      if (category && product.category.toString() !== category) continue;
-      if (vendor && product.vendor.toString() !== vendor) continue;
-      if (minPrice && product.price < minPrice) continue;
-      if (maxPrice && product.price > maxPrice) continue;
-      if (minRating && product.averageRating < minRating) continue;
-      if (maxRating && product.averageRating > maxRating) continue;
-      if (inStock && product.stock === 0) continue;
-      if (isOnSale && !product.isOnSale) continue;
-      if (isFeatured && !product.isFeatured) continue;
+        // Check for exact matches
+        const hasExactMatch = queryTokens.some(token => 
+          indexEntry.tokens.has(token)
+        );
 
-      // Calculate relevance score
-      let score = 0;
+        // Check for stemmed matches
+        const hasStemMatch = queryStems.some(stem => 
+          indexEntry.stems.has(stem)
+        );
 
-      // Exact matches get highest score
-      queryTokens.forEach(token => {
-        if (tokens.has(token)) score += 10;
-        if (product.name.toLowerCase().includes(token)) score += 15;
-        if (product.brand && product.brand.toLowerCase().includes(token)) score += 12;
+        return hasExactMatch || hasStemMatch;
       });
 
-      // Stemmed matches
-      queryStems.forEach(stem => {
-        if (stems.has(stem)) score += 5;
-      });
+      // Sort by relevance
+      searchResults.sort((a, b) => {
+        const aEntry = searchIndex.get(a.id);
+        const bEntry = searchIndex.get(b.id);
+        
+        if (!aEntry || !bEntry) return 0;
 
-      // Partial matches
-      queryTokens.forEach(token => {
-        if (token.length > 2) {
-          for (const productToken of tokens) {
-            if (productToken.includes(token) || token.includes(productToken)) {
-              score += 2;
-            }
-          }
-        }
-      });
-
-      // Boost popular products
-      score += Math.log(product.views + 1) * 0.5;
-      score += Math.log(product.totalSold + 1) * 0.3;
-      score += product.averageRating * 0.2;
-
-      if (score > 0) {
-        scoredProducts.push({
-          product,
-          score
-        });
-      }
-    }
-
-    // Sort products
-    if (sortBy === 'relevance') {
-      scoredProducts.sort((a, b) => b.score - a.score);
-    } else if (sortBy === 'price') {
-      scoredProducts.sort((a, b) => {
-        return sortOrder === 'asc' ? a.product.price - b.product.price : b.product.price - a.product.price;
-      });
-    } else if (sortBy === 'rating') {
-      scoredProducts.sort((a, b) => {
-        return sortOrder === 'asc' ? a.product.averageRating - b.product.averageRating : b.product.averageRating - a.product.averageRating;
-      });
-    } else if (sortBy === 'newest') {
-      scoredProducts.sort((a, b) => {
-        return sortOrder === 'asc' ? a.product.createdAt - b.product.createdAt : b.product.createdAt - a.product.createdAt;
+        const aScore = calculateRelevanceScore(aEntry, queryTokens, queryStems);
+        const bScore = calculateRelevanceScore(bEntry, queryTokens, queryStems);
+        
+        return bScore - aScore;
       });
     }
 
-    // Pagination
+    // Apply rating filter
+    if (minRating !== undefined || maxRating !== undefined) {
+      searchResults = searchResults.filter(product => {
+        const rating = product.averageRating || 0;
+        if (minRating !== undefined && rating < minRating) return false;
+        if (maxRating !== undefined && rating > maxRating) return false;
+        return true;
+      });
+    }
+
+    // Apply pagination
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const paginatedProducts = scoredProducts.slice(startIndex, endIndex);
+    const paginatedResults = searchResults.slice(startIndex, endIndex);
 
-    // Update user search history if userId provided
-    if (userId) {
-      await User.findByIdAndUpdate(userId, {
-        $push: {
-          searchHistory: {
-            query,
-            timestamp: new Date()
-          }
-        }
-      });
+    // Track search for recommendations
+    if (userId && query) {
+      await trackSearch(userId, query, searchResults.map(p => p.id));
     }
 
     return {
-      products: paginatedProducts.map(item => item.product),
-      total: scoredProducts.length,
-      totalPages: Math.ceil(scoredProducts.length / limit),
-      currentPage: page,
-      hasNextPage: endIndex < scoredProducts.length,
-      hasPrevPage: page > 1
+      products: paginatedResults,
+      total: searchResults.length,
+      page,
+      limit,
+      totalPages: Math.ceil(searchResults.length / limit)
     };
 
   } catch (error) {
@@ -214,42 +207,84 @@ const advancedSearch = async (query, filters = {}, userId = null) => {
   }
 };
 
+// Calculate relevance score for search results
+const calculateRelevanceScore = (indexEntry, queryTokens, queryStems) => {
+  let score = 0;
+
+  // Exact token matches (higher weight)
+  queryTokens.forEach(token => {
+    if (indexEntry.tokens.has(token)) {
+      score += 10;
+    }
+  });
+
+  // Stemmed matches (lower weight)
+  queryStems.forEach(stem => {
+    if (indexEntry.stems.has(stem)) {
+      score += 5;
+    }
+  });
+
+  // Boost score for products with higher ratings
+  if (indexEntry.product.averageRating) {
+    score += indexEntry.product.averageRating * 2;
+  }
+
+  // Boost score for featured products
+  if (indexEntry.product.isFeatured) {
+    score += 5;
+  }
+
+  return score;
+};
+
 // Get search suggestions
 const getSearchSuggestions = async (query, limit = 10) => {
   try {
-    const suggestions = new Set();
-    const queryLower = query.toLowerCase();
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
 
-    // Get suggestions from product names
-    const products = await Product.find({
-      name: { $regex: queryLower, $options: 'i' },
-      isActive: true
-    }).limit(limit);
+    const queryLower = query.toLowerCase();
+    const suggestions = new Set();
+
+    // Get products that match the query
+    const products = await productService.getAll({
+      filters: { isActive: true },
+      limitCount: 100
+    });
 
     products.forEach(product => {
-      suggestions.add(product.name);
+      const searchableText = [
+        product.name,
+        product.brand,
+        product.categoryName,
+        ...(product.tags || [])
+      ].join(' ').toLowerCase();
+
+      // Find matching words
+      const words = searchableText.split(/\s+/);
+      words.forEach(word => {
+        if (word.startsWith(queryLower) && word.length > queryLower.length) {
+          suggestions.add(word);
+        }
+      });
     });
 
-    // Get suggestions from categories
-    const categories = await Category.find({
-      name: { $regex: queryLower, $options: 'i' }
-    }).limit(limit);
+    // Get categories that match
+    const categories = await categoryService.getAll({
+      filters: { isActive: true },
+      limitCount: 50
+    });
 
     categories.forEach(category => {
-      suggestions.add(category.name);
-    });
-
-    // Get suggestions from brands
-    const brands = await Product.distinct('brand', {
-      brand: { $regex: queryLower, $options: 'i' },
-      isActive: true
-    });
-
-    brands.forEach(brand => {
-      if (brand) suggestions.add(brand);
+      if (category.name.toLowerCase().includes(queryLower)) {
+        suggestions.add(category.name);
+      }
     });
 
     return Array.from(suggestions).slice(0, limit);
+
   } catch (error) {
     console.error('Error getting search suggestions:', error);
     return [];
@@ -259,82 +294,71 @@ const getSearchSuggestions = async (query, limit = 10) => {
 // Get popular searches
 const getPopularSearches = async (limit = 10) => {
   try {
-    const popularSearches = await User.aggregate([
-      { $unwind: '$searchHistory' },
-      {
-        $group: {
-          _id: '$searchHistory.query',
-          count: { $sum: 1 },
-          lastSearched: { $max: '$searchHistory.timestamp' }
-        }
-      },
-      { $sort: { count: -1, lastSearched: -1 } },
-      { $limit: limit }
-    ]);
+    // This would typically come from a search analytics collection
+    // For now, return some default popular searches
+    const popularSearches = [
+      'dental floss',
+      'toothbrush',
+      'mouthwash',
+      'toothpaste',
+      'dental kit',
+      'oral hygiene',
+      'dental care',
+      'teeth whitening',
+      'dental tools',
+      'oral health'
+    ];
 
-    return popularSearches.map(item => ({
-      query: item._id,
-      count: item.count,
-      lastSearched: item.lastSearched
-    }));
+    return popularSearches.slice(0, limit);
+
   } catch (error) {
     console.error('Error getting popular searches:', error);
     return [];
   }
 };
 
-// Product recommendations based on user behavior
+// Get product recommendations for user
 const getProductRecommendations = async (userId, limit = 10) => {
   try {
-    const user = await User.findById(userId)
-      .populate('recentlyViewed.product')
-      .populate('searchHistory');
+    const user = await userService.getById(userId);
+    if (!user) {
+      return [];
+    }
 
-    if (!user) return [];
+    // Get user's recent orders
+    const recentOrders = await orderService.getUserOrders(userId, { limit: 5 });
+    
+    // Extract product IDs from recent orders
+    const recentProductIds = new Set();
+    recentOrders.orders.forEach(order => {
+      order.items.forEach(item => {
+        recentProductIds.add(item.productId);
+      });
+    });
 
-    const recommendations = new Map();
-
-    // Based on recently viewed products
-    const recentlyViewedCategories = new Set();
-    const recentlyViewedVendors = new Set();
-
-    user.recentlyViewed.forEach(item => {
-      if (item.product) {
-        recentlyViewedCategories.add(item.product.category.toString());
-        recentlyViewedVendors.add(item.product.vendor.toString());
+    // Get products from same categories as recent purchases
+    const recommendations = [];
+    for (const productId of recentProductIds) {
+      const product = await productService.getProductById(productId);
+      if (product && product.categoryId) {
+        const similarProducts = await productService.getProductsByCategory(product.categoryId, {
+          limitCount: 5
+        });
+        
+        similarProducts.forEach(similarProduct => {
+          if (similarProduct.id !== productId && !recentProductIds.has(similarProduct.id)) {
+            recommendations.push(similarProduct);
+          }
+        });
       }
-    });
+    }
 
-    // Find similar products
-    const similarProducts = await Product.find({
-      isActive: true,
-      $or: [
-        { category: { $in: Array.from(recentlyViewedCategories) } },
-        { vendor: { $in: Array.from(recentlyViewedVendors) } }
-      ],
-      _id: { $nin: user.recentlyViewed.map(item => item.product?._id).filter(Boolean) }
-    })
-    .populate('category', 'name')
-    .populate('vendor', 'name')
-    .limit(limit * 2);
+    // Remove duplicates and limit results
+    const uniqueRecommendations = recommendations.filter((product, index, self) => 
+      index === self.findIndex(p => p.id === product.id)
+    );
 
-    // Score recommendations
-    similarProducts.forEach(product => {
-      let score = 0;
-
-      if (recentlyViewedCategories.has(product.category.toString())) score += 5;
-      if (recentlyViewedVendors.has(product.vendor.toString())) score += 3;
-      score += product.averageRating * 2;
-      score += Math.log(product.views + 1);
-
-      recommendations.set(product._id.toString(), { product, score });
-    });
-
-    // Sort by score and return top recommendations
-    return Array.from(recommendations.values())
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit)
-      .map(item => item.product);
+    return uniqueRecommendations.slice(0, limit);
 
   } catch (error) {
     console.error('Error getting product recommendations:', error);
@@ -342,14 +366,31 @@ const getProductRecommendations = async (userId, limit = 10) => {
   }
 };
 
-// Initialize search index on startup
-initializeSearchIndex();
+// Track search for analytics
+const trackSearch = async (userId, query, productIds) => {
+  try {
+    // Update user's search history
+    await userService.update(userId, {
+      $push: {
+        searchHistory: {
+          query,
+          productIds,
+          timestamp: new Date()
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error tracking search:', error);
+  }
+};
 
+// Export functions
 module.exports = {
+  initializeSearchIndex,
+  updateProductInIndex,
   advancedSearch,
   getSearchSuggestions,
   getPopularSearches,
   getProductRecommendations,
-  updateProductInIndex,
-  initializeSearchIndex
+  trackSearch
 }; 

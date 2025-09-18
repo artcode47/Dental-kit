@@ -17,7 +17,7 @@ const CartItem = ({
   onRemoveItem, 
   updatingItem 
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const navigate = useNavigate();
 
   const formatPrice = (price) => {

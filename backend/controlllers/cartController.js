@@ -1,237 +1,156 @@
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
+const CartService = require('../services/cartService');
+const ProductService = require('../services/productService');
 
-// Get user's cart
+const cartService = new CartService();
+const productService = new ProductService();
+
+// Get user cart
 exports.getCart = async (req, res) => {
   try {
-    let cart = await Cart.findOne({ user: req.user._id })
-      .populate({
-        path: 'items.product',
-        select: 'name price images stock isActive sku vendor',
-        populate: {
-          path: 'vendor',
-          select: 'name logo'
-        }
-      });
-
-    if (!cart) {
-      cart = await Cart.create({ user: req.user._id, items: [] });
-    }
-
-    // Check if products are still available and active
-    const validItems = [];
-    for (const item of cart.items) {
-      if (item.product && item.product.isActive && item.product.stock > 0) {
-        // Update price if it changed
-        if (item.price !== item.product.price) {
-          item.price = item.product.price;
-        }
-        validItems.push(item);
-      }
-    }
-
-    // Remove invalid items
-    if (validItems.length !== cart.items.length) {
-      cart.items = validItems;
-      await cart.save();
-    }
-
-    res.json(cart);
+    const userId = req.user.id;
+    const cart = await cartService.getCartWithProducts(userId);
+    res.json({ cart });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching cart', error: error.message });
+    console.error('Get cart error:', error);
+    res.status(500).json({ message: 'Error fetching cart' });
   }
 };
 
 // Add item to cart
 exports.addToCart = async (req, res) => {
   try {
+    const userId = req.user.id;
     const { productId, quantity = 1 } = req.body;
 
-    // Validate product
-    const product = await Product.findById(productId)
-      .populate('vendor', 'name logo');
-    
+    if (!productId) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
+
+    // Get product details
+    const product = await productService.getProductById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    if (!product.isActive) {
-      return res.status(400).json({ message: 'Product is not available' });
-    }
-
+    // Check if product is in stock
     if (product.stock < quantity) {
       return res.status(400).json({ message: 'Insufficient stock' });
     }
 
-    // Get or create cart
-    let cart = await Cart.findOne({ user: req.user._id });
-    if (!cart) {
-      cart = new Cart({ user: req.user._id, items: [] });
-    }
-
-    // Add item to cart
-    await cart.addItem(productId, quantity, product.price);
-
-    // Populate product details
-    await cart.populate({
-      path: 'items.product',
-      select: 'name price images stock isActive sku vendor',
-      populate: {
-        path: 'vendor',
-        select: 'name logo'
-      }
+    const cart = await cartService.addToCart(userId, productId, quantity, {
+      price: product.price,
+      name: product.name,
+      image: product.images?.[0] || ''
     });
 
-    res.json(cart);
+    res.json({ cart });
   } catch (error) {
-    res.status(500).json({ message: 'Error adding item to cart', error: error.message });
+    console.error('Add to cart error:', error);
+    res.status(500).json({ message: 'Error adding item to cart' });
   }
 };
 
-// Update cart item quantity
+// Update cart item
 exports.updateCartItem = async (req, res) => {
   try {
+    const userId = req.user.id;
     const { productId } = req.params;
     const { quantity } = req.body;
 
-    if (!quantity || quantity < 1) {
-      return res.status(400).json({ message: 'Valid quantity is required' });
+    if (quantity < 0) {
+      return res.status(400).json({ message: 'Quantity must be positive' });
     }
 
-    const cart = await Cart.findOne({ user: req.user._id });
-    if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
-    }
-
-    // Check product stock
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    if (product.stock < quantity) {
-      return res.status(400).json({ message: 'Insufficient stock' });
-    }
-
-    // Update quantity
-    await cart.updateQuantity(productId, quantity);
-
-    // Populate product details
-    await cart.populate({
-      path: 'items.product',
-      select: 'name price images stock isActive sku vendor',
-      populate: {
-        path: 'vendor',
-        select: 'name logo'
-      }
-    });
-
-    res.json(cart);
+    const cart = await cartService.updateCartItem(userId, productId, quantity);
+    res.json({ cart });
   } catch (error) {
-    if (error.message === 'Item not found in cart') {
-      return res.status(404).json({ message: 'Item not found in cart' });
-    }
-    res.status(500).json({ message: 'Error updating cart item', error: error.message });
+    console.error('Update cart item error:', error);
+    res.status(500).json({ message: 'Error updating cart item' });
   }
 };
 
 // Remove item from cart
 exports.removeFromCart = async (req, res) => {
   try {
+    const userId = req.user.id;
     const { productId } = req.params;
 
-    const cart = await Cart.findOne({ user: req.user._id });
-    if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
-    }
-
-    await cart.removeItem(productId);
-
-    // Populate product details
-    await cart.populate({
-      path: 'items.product',
-      select: 'name price images stock isActive sku vendor',
-      populate: {
-        path: 'vendor',
-        select: 'name logo'
-      }
-    });
-
-    res.json(cart);
+    const cart = await cartService.removeFromCart(userId, productId);
+    res.json({ cart });
   } catch (error) {
-    res.status(500).json({ message: 'Error removing item from cart', error: error.message });
+    console.error('Remove from cart error:', error);
+    res.status(500).json({ message: 'Error removing item from cart' });
   }
 };
 
 // Clear cart
 exports.clearCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id });
-    if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
-    }
-
-    await cart.clearCart();
-    res.json({ message: 'Cart cleared successfully', cart });
+    const userId = req.user.id;
+    const cart = await cartService.clearCart(userId);
+    res.json({ cart });
   } catch (error) {
-    res.status(500).json({ message: 'Error clearing cart', error: error.message });
+    console.error('Clear cart error:', error);
+    res.status(500).json({ message: 'Error clearing cart' });
   }
 };
 
-// Get cart summary (for checkout)
-exports.getCartSummary = async (req, res) => {
+// Apply coupon
+exports.applyCoupon = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id })
-      .populate({
-        path: 'items.product',
-        select: 'name price images stock isActive sku vendor',
-        populate: {
-          path: 'vendor',
-          select: 'name logo'
-        }
-      });
+    const userId = req.user.id;
+    const { couponCode } = req.body;
 
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: 'Cart is empty' });
+    if (!couponCode) {
+      return res.status(400).json({ message: 'Coupon code is required' });
     }
 
-    // Validate all items
-    const validItems = [];
-    const invalidItems = [];
-
-    for (const item of cart.items) {
-      if (item.product && item.product.isActive && item.product.stock >= item.quantity) {
-        validItems.push(item);
-      } else {
-        invalidItems.push({
-          productId: item.product?._id,
-          name: item.product?.name,
-          reason: !item.product ? 'Product not found' : 
-                  !item.product.isActive ? 'Product not available' : 
-                  'Insufficient stock'
-        });
-      }
-    }
-
-    if (invalidItems.length > 0) {
-      return res.status(400).json({
-        message: 'Some items in your cart are no longer available',
-        invalidItems,
-        validItems
-      });
-    }
-
-    const summary = {
-      itemCount: cart.itemCount,
-      subtotal: cart.total,
-      tax: 0, // Calculate based on your tax rules
-      shipping: 0, // Calculate based on shipping method
-      total: cart.total,
-      items: validItems
-    };
-
-    res.json(summary);
+    const cart = await cartService.applyCoupon(userId, couponCode);
+    res.json({ cart });
   } catch (error) {
-    res.status(500).json({ message: 'Error getting cart summary', error: error.message });
+    console.error('Apply coupon error:', error);
+    res.status(500).json({ message: 'Error applying coupon' });
+  }
+};
+
+// Remove coupon
+exports.removeCoupon = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const cart = await cartService.removeCoupon(userId);
+    res.json({ cart });
+  } catch (error) {
+    console.error('Remove coupon error:', error);
+    res.status(500).json({ message: 'Error removing coupon' });
+  }
+};
+
+// Get cart item count
+exports.getCartItemCount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const count = await cartService.getCartItemCount(userId);
+    res.json({ count });
+  } catch (error) {
+    console.error('Get cart item count error:', error);
+    res.status(500).json({ message: 'Error getting cart item count' });
+  }
+};
+
+// Merge guest cart
+exports.mergeGuestCart = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { guestCartItems } = req.body;
+
+    if (!guestCartItems || !Array.isArray(guestCartItems)) {
+      return res.status(400).json({ message: 'Guest cart items are required' });
+    }
+
+    const cart = await cartService.mergeGuestCart(userId, guestCartItems);
+    res.json({ cart });
+  } catch (error) {
+    console.error('Merge guest cart error:', error);
+    res.status(500).json({ message: 'Error merging guest cart' });
   }
 }; 

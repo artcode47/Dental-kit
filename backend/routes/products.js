@@ -8,116 +8,87 @@ const { uploadMultiple, handleUploadError, cleanupUploads } = require('../middle
 const router = express.Router();
 
 // Get all products
-router.get('/', productController.getAllProducts);
+router.get('/', productController.getProducts);
 
-// Get featured products
-router.get('/featured', productController.getFeaturedProducts);
-
-// Get products on sale
-router.get('/on-sale', productController.getProductsOnSale);
-
-// Get all brands
-router.get('/brands', productController.getBrands);
-
-// Advanced search products
+// Search products
 router.get('/search', [
   query('q').notEmpty().withMessage('Search query is required'),
-  query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be between 1 and 50'),
 ], validate, productController.searchProducts);
 
-// Get search suggestions
-router.get('/search/suggestions', [
-  query('q').notEmpty().withMessage('Search query is required'),
+// Get related products
+router.get('/:id/related', [
+  param('id').notEmpty().withMessage('Product ID is required'),
   query('limit').optional().isInt({ min: 1, max: 20 }).withMessage('Limit must be between 1 and 20'),
-], validate, productController.getSearchSuggestions);
+], validate, productController.getRelatedProducts);
 
-// Get popular searches
-router.get('/search/popular', [
-  query('limit').optional().isInt({ min: 1, max: 20 }).withMessage('Limit must be between 1 and 20'),
-], validate, productController.getPopularSearches);
+// Get products by category
+router.get('/category/:categoryId', [
+  param('categoryId').notEmpty().withMessage('Category ID is required'),
+], validate, productController.getProductsByCategory);
 
-// Get product recommendations
-router.get('/recommendations', auth, [
-  query('limit').optional().isInt({ min: 1, max: 20 }).withMessage('Limit must be between 1 and 20'),
-], validate, productController.getProductRecommendations);
+// Get products by vendor
+router.get('/vendor/:vendorId', [
+  param('vendorId').notEmpty().withMessage('Vendor ID is required'),
+], validate, productController.getProductsByVendor);
+
+// Get brands (must be before /:id)
+router.get('/brands', productController.getBrands);
+
+// Get categories (must be before /:id)
+router.get('/categories', productController.getCategories);
+
+// Get category by ID (must be before /:id)
+router.get('/categories/:id', [
+  param('id').notEmpty().withMessage('Category ID is required'),
+], validate, productController.getCategory);
+
+// Upload multiple product images (admin only)
+router.post('/upload-images', auth, uploadMultiple, handleUploadError, cleanupUploads, productController.uploadProductImages);
 
 // Get single product
 router.get('/:id', [
-  param('id').isMongoId().withMessage('Invalid product ID'),
+  param('id').notEmpty().withMessage('Product ID is required'),
 ], validate, productController.getProduct);
 
-// Get product by slug
-router.get('/slug/:slug', [
-  param('slug').notEmpty().withMessage('Slug is required'),
-], validate, productController.getProductBySlug);
-
-// Create product
+// Create product (admin only)
 router.post('/', [
-  uploadMultiple,
-  handleUploadError,
-  cleanupUploads,
+  auth,
   body('name').notEmpty().trim().withMessage('Product name is required'),
   body('description').notEmpty().trim().withMessage('Product description is required'),
   body('price').isFloat({ min: 0 }).withMessage('Valid price is required'),
-  body('category').isMongoId().withMessage('Valid category ID is required'),
-  body('vendor').isMongoId().withMessage('Valid vendor ID is required'),
+  body('categoryId').notEmpty().withMessage('Category ID is required'),
+  body('vendorId').notEmpty().withMessage('Vendor ID is required'),
   body('stock').isInt({ min: 0 }).withMessage('Valid stock quantity is required'),
-  body('originalPrice').optional().isFloat({ min: 0 }).withMessage('Original price must be positive'),
   body('brand').optional().trim(),
-  body('shortDescription').optional().trim(),
-  body('weight').optional().isFloat({ min: 0 }).withMessage('Weight must be positive'),
-  body('salePercentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Sale percentage must be between 0 and 100'),
-  body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
-  body('isFeatured').optional().isBoolean().withMessage('isFeatured must be a boolean'),
-  body('isOnSale').optional().isBoolean().withMessage('isOnSale must be a boolean'),
-  body('tags').optional().isString().withMessage('Tags must be a comma-separated string'),
-  body('features').optional().isString().withMessage('Features must be a comma-separated string'),
-  body('metaTitle').optional().trim(),
-  body('metaDescription').optional().trim(),
+  body('images').optional().isArray().withMessage('Images must be an array'),
 ], validate, productController.createProduct);
 
-// Update product
+// Update product (admin only)
 router.put('/:id', [
-  uploadMultiple,
-  handleUploadError,
-  cleanupUploads,
-  param('id').isMongoId().withMessage('Invalid product ID'),
+  auth,
+  param('id').notEmpty().withMessage('Product ID is required'),
   body('name').optional().trim(),
   body('description').optional().trim(),
   body('price').optional().isFloat({ min: 0 }).withMessage('Valid price is required'),
-  body('category').optional().isMongoId().withMessage('Valid category ID is required'),
-  body('vendor').optional().isMongoId().withMessage('Valid vendor ID is required'),
+  body('categoryId').optional().notEmpty().withMessage('Category ID is required'),
+  body('vendorId').optional().notEmpty().withMessage('Vendor ID is required'),
   body('stock').optional().isInt({ min: 0 }).withMessage('Valid stock quantity is required'),
-  body('originalPrice').optional().isFloat({ min: 0 }).withMessage('Original price must be positive'),
   body('brand').optional().trim(),
-  body('shortDescription').optional().trim(),
-  body('weight').optional().isFloat({ min: 0 }).withMessage('Weight must be positive'),
-  body('salePercentage').optional().isFloat({ min: 0, max: 100 }).withMessage('Sale percentage must be between 0 and 100'),
-  body('isActive').optional().isBoolean().withMessage('isActive must be a boolean'),
-  body('isFeatured').optional().isBoolean().withMessage('isFeatured must be a boolean'),
-  body('isOnSale').optional().isBoolean().withMessage('isOnSale must be a boolean'),
-  body('tags').optional().isString().withMessage('Tags must be a comma-separated string'),
-  body('features').optional().isString().withMessage('Features must be a comma-separated string'),
-  body('metaTitle').optional().trim(),
-  body('metaDescription').optional().trim(),
+  body('images').optional().isArray().withMessage('Images must be an array'),
 ], validate, productController.updateProduct);
 
-// Delete product
+// Delete product (admin only)
 router.delete('/:id', [
-  param('id').isMongoId().withMessage('Invalid product ID'),
+  auth,
+  param('id').notEmpty().withMessage('Product ID is required'),
 ], validate, productController.deleteProduct);
 
-// Delete product image
-router.delete('/:productId/images/:imageId', [
-  param('productId').isMongoId().withMessage('Invalid product ID'),
-  param('imageId').notEmpty().withMessage('Image ID is required'),
-], validate, productController.deleteProductImage);
-
-// Upload product images
-router.post('/upload-images', [
-  uploadMultiple,
-  handleUploadError,
-  cleanupUploads,
-], productController.uploadProductImages);
+// Update product stock (admin only)
+router.patch('/:id/stock', [
+  auth,
+  param('id').notEmpty().withMessage('Product ID is required'),
+  body('quantity').isInt({ min: 0 }).withMessage('Valid quantity is required'),
+  body('operation').optional().isIn(['increase', 'decrease', 'set']).withMessage('Operation must be increase, decrease, or set'),
+], validate, productController.updateProductStock);
 
 module.exports = router; 

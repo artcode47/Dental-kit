@@ -14,25 +14,38 @@ router.get('/', cartController.getCart);
 
 // Add item to cart
 router.post('/add', [
-  body('productId').isMongoId().withMessage('Valid product ID is required'),
+  body('productId').notEmpty().withMessage('Product ID is required'),
   body('quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
 ], validate, cartController.addToCart);
 
 // Update cart item quantity
 router.put('/items/:productId', [
-  param('productId').isMongoId().withMessage('Valid product ID is required'),
-  body('quantity').isInt({ min: 1 }).withMessage('Quantity must be at least 1'),
+  param('productId').notEmpty().withMessage('Product ID is required'),
+  body('quantity').isInt({ min: 0 }).withMessage('Quantity must be at least 0'),
 ], validate, cartController.updateCartItem);
 
 // Remove item from cart
 router.delete('/items/:productId', [
-  param('productId').isMongoId().withMessage('Valid product ID is required'),
+  param('productId').notEmpty().withMessage('Product ID is required'),
 ], validate, cartController.removeFromCart);
 
 // Clear cart
 router.delete('/clear', cartController.clearCart);
 
-// Get cart summary (for checkout)
-router.get('/summary', cartController.getCartSummary);
+// Apply coupon
+router.post('/apply-coupon', [
+  body('couponCode').notEmpty().withMessage('Coupon code is required'),
+], validate, cartController.applyCoupon);
+
+// Remove coupon
+router.delete('/remove-coupon', cartController.removeCoupon);
+
+// Get cart item count
+router.get('/count', cartController.getCartItemCount);
+
+// Merge guest cart
+router.post('/merge-guest', [
+  body('guestCartItems').isArray().withMessage('Guest cart items must be an array'),
+], validate, cartController.mergeGuestCart);
 
 module.exports = router; 

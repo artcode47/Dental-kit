@@ -11,7 +11,7 @@ const StatsCard = ({
   format = 'number',
   currency = 'USD'
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
 
   const formatValue = (val) => {
     if (format === 'currency') {
@@ -92,30 +92,30 @@ const StatsCard = ({
   const colorClasses = getColorClasses();
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-all duration-200 h-full">
+      <div className="flex items-start justify-between h-full">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 truncate">
             {title}
           </p>
-          <p className={`text-2xl font-bold ${colorClasses.text} ${colorClasses.darkText}`}>
+          <p className={`text-xl sm:text-2xl lg:text-3xl font-bold ${colorClasses.text} ${colorClasses.darkText} mb-2`}>
             {formatValue(value)}
           </p>
           {change !== undefined && (
-            <div className="flex items-center mt-2">
-              <span className={`text-sm font-medium ${getChangeColor()}`}>
+            <div className="flex items-center flex-wrap gap-1">
+              <span className={`text-xs sm:text-sm font-medium ${getChangeColor()}`}>
                 {getChangeIcon()} {change > 0 ? '+' : ''}{change}%
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
-                {t('admin.dashboard.fromLastMonth')}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {t('dashboard.fromLastMonth')}
               </span>
             </div>
           )}
         </div>
         
         {Icon && (
-          <div className={`p-3 rounded-lg ${colorClasses.light} ${colorClasses.dark}`}>
-            <Icon className={`h-6 w-6 ${colorClasses.text} ${colorClasses.darkText}`} />
+          <div className={`p-2 sm:p-3 rounded-lg ${colorClasses.light} ${colorClasses.dark} flex-shrink-0 ml-3`}>
+            <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${colorClasses.text} ${colorClasses.darkText}`} />
           </div>
         )}
       </div>

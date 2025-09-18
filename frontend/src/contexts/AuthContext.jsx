@@ -10,10 +10,10 @@ const AuthContext = createContext();
 const initialState = {
   user: null,
   token: null,
+  refreshToken: null,
+  tokenId: null,
   isAuthenticated: false,
   isLoading: true,
-  isMFARequired: false,
-  mfaToken: null,
   userRole: null,
   permissions: [],
   lastActivity: null,
@@ -23,14 +23,7 @@ const initialState = {
   lockoutUntil: null,
   deviceInfo: null,
   registrationMessage: null,
-  loginHistory: [],
-  securitySettings: {
-    mfaEnabled: false,
-    mfaMethod: null,
-    passwordLastChanged: null,
-    lastLoginLocation: null,
-    trustedDevices: []
-  }
+  loginHistory: []
 };
 
 const authReducer = (state, action) => {
@@ -43,6 +36,8 @@ const authReducer = (state, action) => {
         ...state,
         user: action.payload.user,
         token: action.payload.token,
+        refreshToken: action.payload.refreshToken || null,
+        tokenId: action.payload.tokenId || null,
         isAuthenticated: true,
         isLoading: false,
         userRole: action.payload.user?.role || 'user',
@@ -60,26 +55,6 @@ const authReducer = (state, action) => {
         ...state,
         isLoading: false,
         registrationMessage: action.payload.message
-      };
-    
-    case 'MFA_REQUIRED':
-      return {
-        ...state,
-        isMFARequired: true,
-        mfaToken: action.payload.mfaToken,
-        isLoading: false
-      };
-    
-    case 'MFA_SUCCESS':
-      return {
-        ...state,
-        isMFARequired: false,
-        mfaToken: null,
-        isAuthenticated: true,
-        user: action.payload.user,
-        token: action.payload.token,
-        userRole: action.payload.user?.role || 'user',
-        permissions: action.payload.user?.permissions || []
       };
     
     case 'AUTH_FAILURE':
@@ -103,12 +78,6 @@ const authReducer = (state, action) => {
         user: { ...state.user, ...action.payload }
       };
     
-    case 'UPDATE_SECURITY_SETTINGS':
-      return {
-        ...state,
-        securitySettings: { ...state.securitySettings, ...action.payload }
-      };
-    
     case 'UPDATE_ACTIVITY':
       return {
         ...state,
@@ -121,7 +90,18 @@ const authReducer = (state, action) => {
         isAuthenticated: false,
         user: null,
         token: null,
+        refreshToken: null,
+        tokenId: null,
         sessionExpiry: null
+      };
+    
+    case 'TOKEN_REFRESHED':
+      return {
+        ...state,
+        token: action.payload.accessToken,
+        refreshToken: action.payload.refreshToken,
+        tokenId: action.payload.tokenId,
+        sessionExpiry: action.payload.sessionExpiry
       };
     
     default:
@@ -133,11 +113,12 @@ export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const { t } = useTranslation();
 
-  // Initialize auth state from stored token
+  // Initialize auth state from stored tokens
   useEffect(() => {
     const initializeAuth = async () => {
       const token = Cookies.get('authToken');
-      const mfaToken = Cookies.get('mfaToken');
+      const refreshTokenCookie = Cookies.get('refreshToken');
+      const tokenIdCookie = Cookies.get('tokenId');
       
       if (token) {
         try {
@@ -145,31 +126,38 @@ export const AuthProvider = ({ children }) => {
           const currentTime = Date.now() / 1000;
           
           if (decoded.exp < currentTime) {
-            // Token expired
+            if (refreshTokenCookie && tokenIdCookie) {
+              try {
+                const refreshed = await refreshToken();
+                if (refreshed) return;
+              } catch (refreshError) {
+                console.error('Token refresh failed:', refreshError);
+              }
+            }
             Cookies.remove('authToken');
+            Cookies.remove('refreshToken');
+            Cookies.remove('tokenId');
             dispatch({ type: 'LOGOUT' });
             return;
           }
           
-          // Set auth header
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
-          // Fetch user profile to get role and permissions
           try {
             const profileResponse = await api.get('/auth/profile');
             const userProfile = profileResponse.data.profile;
-            
             dispatch({
               type: 'AUTH_SUCCESS',
               payload: {
                 user: userProfile,
                 token,
+                refreshToken: refreshTokenCookie || null,
+                tokenId: tokenIdCookie || null,
                 sessionExpiry: new Date(decoded.exp * 1000).toISOString()
               }
             });
           } catch (profileError) {
             console.error('Failed to fetch user profile:', profileError);
-            // Fallback to basic user data if profile fetch fails
             dispatch({
               type: 'AUTH_SUCCESS',
               payload: {
@@ -179,6 +167,8 @@ export const AuthProvider = ({ children }) => {
                   role: 'user'
                 },
                 token,
+                refreshToken: refreshTokenCookie || null,
+                tokenId: tokenIdCookie || null,
                 sessionExpiry: new Date(decoded.exp * 1000).toISOString()
               }
             });
@@ -186,15 +176,11 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           console.error('Token verification failed:', error);
           Cookies.remove('authToken');
+          Cookies.remove('refreshToken');
+          Cookies.remove('tokenId');
           dispatch({ type: 'LOGOUT' });
         }
-      } else if (mfaToken) {
-        dispatch({
-          type: 'MFA_REQUIRED',
-          payload: { mfaToken }
-        });
       } else {
-        // No tokens found, user is not authenticated
         dispatch({ type: 'LOGOUT' });
       }
     };
@@ -214,30 +200,28 @@ export const AuthProvider = ({ children }) => {
         dispatch({ type: 'SESSION_EXPIRED' });
         toast.error(t('sessionExpired'));
         Cookies.remove('authToken');
+        Cookies.remove('refreshToken');
+        Cookies.remove('tokenId');
         dispatch({ type: 'LOGOUT' });
       }
     };
 
-    // Check immediately
     checkSession();
-    
-    // Then check every 5 minutes instead of every minute to reduce API calls
     const interval = setInterval(checkSession, 300000);
     return () => clearInterval(interval);
   }, [state.isAuthenticated, state.sessionExpiry, t]);
 
-  // Activity tracking - throttled to reduce unnecessary updates
+  // Activity tracking - throttled
   useEffect(() => {
     if (!state.isAuthenticated) return;
 
     let timeoutId = null;
     const updateActivity = () => {
-      if (timeoutId) return; // Throttle updates
-      
+      if (timeoutId) return;
       timeoutId = setTimeout(() => {
         dispatch({ type: 'UPDATE_ACTIVITY' });
         timeoutId = null;
-      }, 30000); // Only update every 30 seconds
+      }, 30000);
     };
 
     const events = ['mousedown', 'keypress', 'scroll', 'touchstart'];
@@ -249,47 +233,156 @@ export const AuthProvider = ({ children }) => {
       events.forEach(event => {
         document.removeEventListener(event, updateActivity);
       });
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [state.isAuthenticated]);
+
+  // Token refresh
+  const refreshToken = async () => {
+    try {
+      const currentRefreshToken = Cookies.get('refreshToken');
+      const currentTokenId = Cookies.get('tokenId');
+      
+      if (!currentRefreshToken || !currentTokenId) {
+        throw new Error('No refresh token or token ID available');
+      }
+
+      const response = await api.post('/auth/refresh-token', {
+        refreshToken: currentRefreshToken,
+        tokenId: currentTokenId
+      });
+
+      const { accessToken, refreshToken: newRefreshToken, tokenId: newTokenId } = response.data;
+      
+      if (accessToken && newRefreshToken && newTokenId) {
+        Cookies.set('authToken', accessToken, { 
+          expires: 7,
+          secure: import.meta.env.PROD,
+          sameSite: 'strict',
+          httpOnly: false
+        });
+        
+        Cookies.set('refreshToken', newRefreshToken, { 
+          expires: 7,
+          secure: import.meta.env.PROD,
+          sameSite: 'strict',
+          httpOnly: false
+        });
+        
+        Cookies.set('tokenId', newTokenId, { 
+          expires: 7,
+          secure: import.meta.env.PROD,
+          sameSite: 'strict',
+          httpOnly: false
+        });
+        
+        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        
+        const decoded = jwtDecode(accessToken);
+        dispatch({
+          type: 'TOKEN_REFRESHED',
+          payload: { 
+            accessToken,
+            refreshToken: newRefreshToken,
+            tokenId: newTokenId,
+            sessionExpiry: new Date(decoded.exp * 1000).toISOString()
+          }
+        });
+        
+        return true;
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      await logout();
+      return false;
+    }
+  };
+
+  // Auto-refresh token before expiry
+  useEffect(() => {
+    if (!state.isAuthenticated || !state.sessionExpiry) return;
+
+    const checkAndRefreshToken = async () => {
+      const now = new Date();
+      const expiry = new Date(state.sessionExpiry);
+      const timeUntilExpiry = expiry.getTime() - now.getTime();
+      
+      if (timeUntilExpiry > 0 && timeUntilExpiry < 5 * 60 * 1000) {
+        await refreshToken();
+      }
+    };
+
+    const interval = setInterval(checkAndRefreshToken, 60000);
+    return () => clearInterval(interval);
+  }, [state.isAuthenticated, state.sessionExpiry]);
 
   const login = async (credentials) => {
     try {
       dispatch({ type: 'AUTH_START' });
       
-      const response = await api.post('/auth/login', credentials);
+      const sanitizedCredentials = typeof credentials === 'object' ? {
+        email: credentials.email?.trim().toLowerCase(),
+        password: credentials.password
+      } : { email: arguments[0], password: arguments[1] };
       
-      // Backend returns { accessToken, user } on success
-      const { accessToken, user } = response.data;
-      
-      if (!accessToken) {
-        throw new Error('No access token received');
+      if (!sanitizedCredentials.email || !sanitizedCredentials.password) {
+        throw new Error('Invalid credentials');
       }
       
-      // Store token
+      const response = await api.post('/auth/login', sanitizedCredentials);
+      const { accessToken, refreshToken, tokenId, user } = response.data;
+      
+      if (!accessToken || !refreshToken || !tokenId) {
+        throw new Error('Incomplete authentication response received');
+      }
+      
+      try {
+        const decoded = jwtDecode(accessToken);
+        if (!decoded.exp || !decoded.id) {
+          throw new Error('Invalid token format');
+        }
+      } catch (decodeError) {
+        throw new Error('Invalid token received');
+      }
+      
       Cookies.set('authToken', accessToken, { 
-        expires: 7, // 7 days (matches backend refresh token expiry)
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        expires: 7,
+        secure: import.meta.env.PROD,
+        sameSite: 'strict',
+        httpOnly: false
+      });
+      Cookies.set('refreshToken', refreshToken, { 
+        expires: 7,
+        secure: import.meta.env.PROD,
+        sameSite: 'strict',
+        httpOnly: false
+      });
+      Cookies.set('tokenId', tokenId, { 
+        expires: 7,
+        secure: import.meta.env.PROD,
+        sameSite: 'strict',
+        httpOnly: false
       });
       
-      // Set auth header
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      const csrfToken = response.headers['x-csrf-token'];
+      if (csrfToken) {
+        Cookies.set('csrf-token', csrfToken, {
+          secure: import.meta.env.PROD,
+          sameSite: 'strict',
+          expires: 1
+        });
+      }
       
-      // Decode token to get user info
+      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       const decoded = jwtDecode(accessToken);
       
       dispatch({
         type: 'AUTH_SUCCESS',
         payload: { 
-          user: user || { 
-            id: decoded.id,
-            email: credentials.email, // Use email from login form
-            role: 'user' // Default role, can be updated later
-          }, 
-          token: accessToken, 
+          user: user || { id: decoded.id, email: sanitizedCredentials.email, role: decoded.role || 'user' }, 
+          token: accessToken,
+          refreshToken,
+          tokenId,
           sessionExpiry: new Date(decoded.exp * 1000).toISOString()
         }
       });
@@ -300,48 +393,7 @@ export const AuthProvider = ({ children }) => {
       const message = error.response?.data?.message || t('loginFailed');
       toast.error(message);
       dispatch({ type: 'AUTH_FAILURE' });
-      throw error;
-    }
-  };
-
-  const verifyMFA = async (mfaCode) => {
-    try {
-      const mfaToken = Cookies.get('mfaToken');
-      if (!mfaToken) {
-        throw new Error('MFA token not found');
-      }
-      
-      const response = await api.post('/auth/verify-mfa', {
-        mfaCode,
-        mfaToken
-      });
-      
-      const { token, user, sessionExpiry } = response.data;
-      
-      // Clear MFA token
-      Cookies.remove('mfaToken');
-      
-      // Store auth token
-      Cookies.set('authToken', token, { 
-        expires: new Date(sessionExpiry),
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-      
-      // Set auth header
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      dispatch({
-        type: 'MFA_SUCCESS',
-        payload: { user, token, sessionExpiry }
-      });
-      
-      toast.success(t('mfaVerificationSuccessful'));
-      return { success: true, user: user };
-    } catch (error) {
-      const message = error.response?.data?.message || t('mfaVerificationFailed');
-      toast.error(message);
-      throw error;
+      return { success: false, error: message };
     }
   };
 
@@ -353,12 +405,13 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Clear tokens
       Cookies.remove('authToken');
-      Cookies.remove('mfaToken');
+      Cookies.remove('refreshToken');
+      Cookies.remove('tokenId');
       
-      // Clear auth header
       delete api.defaults.headers.common['Authorization'];
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new CustomEvent('userLogout'));
       
       dispatch({ type: 'LOGOUT' });
       toast.success(t('loggedOutSuccessfully'));
@@ -369,24 +422,22 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'AUTH_LOADING' });
     try {
       const response = await api.post('/auth/register', userData);
-      
-      // Backend only returns a message, not user data
-      // The user needs to verify their email before they can login
-      toast.success(response.data.message || t('registrationSuccessful'));
-      
-      dispatch({ type: 'REGISTRATION_SUCCESS', payload: { message: response.data.message } });
-      return response.data;
+      const message = response.data?.message || t('registrationSuccessful');
+      toast.success(message);
+      dispatch({ type: 'REGISTRATION_SUCCESS', payload: { message } });
+      return { success: true, message };
     } catch (error) {
+      const status = error.response?.status;
       const message = error.response?.data?.message || t('registrationFailed');
       toast.error(message);
-      dispatch({ type: 'AUTH_FAILURE', payload: { error: message } });
-      throw error;
+      dispatch({ type: 'AUTH_FAILURE', payload: { error: message, status } });
+      return { success: false, error: message, status };
     }
   };
 
   const forgotPassword = async (email) => {
     try {
-      await api.post('/auth/forgot-password', { email });
+      await api.post('/auth/request-password-reset', { email });
       toast.success(t('passwordResetInstructionsSent'));
       return { success: true };
     } catch (error) {
@@ -396,9 +447,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const resetPassword = async (token, newPassword) => {
+  const resetPassword = async (token, email, password) => {
     try {
-      await api.post('/auth/reset-password', { token, newPassword });
+      await api.post('/auth/reset-password', { token, email, password });
       toast.success(t('passwordResetSuccessful'));
       return { success: true };
     } catch (error) {
@@ -488,59 +539,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const setupMFA = async (method) => {
-    try {
-      const response = await api.post('/auth/setup-mfa', { method });
-      return response.data;
-    } catch (error) {
-      const message = error.response?.data?.message || t('mfaSetupFailed');
-      toast.error(message);
-      throw error;
-    }
-  };
-
-  const verifyMFASetup = async (mfaCode) => {
-    try {
-      const response = await api.post('/auth/verify-mfa-setup', { mfaCode });
-      
-      dispatch({
-        type: 'UPDATE_SECURITY_SETTINGS',
-        payload: {
-          mfaEnabled: true,
-          mfaMethod: response.data.method
-        }
-      });
-      
-      toast.success(t('mfaSetupCompletedSuccessfully'));
-      return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || t('mfaVerificationFailed');
-      toast.error(message);
-      throw error;
-    }
-  };
-
-  const disableMFA = async (mfaCode) => {
-    try {
-      await api.delete('/auth/disable-mfa', { data: { mfaCode } });
-      
-      dispatch({
-        type: 'UPDATE_SECURITY_SETTINGS',
-        payload: {
-          mfaEnabled: false,
-          mfaMethod: null
-        }
-      });
-      
-      toast.success(t('mfaDisabledSuccessfully'));
-      return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || t('failedToDisableMfa');
-      toast.error(message);
-      throw error;
-    }
-  };
-
   const hasPermission = (permission) => {
     return state.permissions.includes(permission) || state.user?.role === 'admin';
   };
@@ -554,7 +552,6 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     register,
-    verifyMFA,
     forgotPassword,
     resetPassword,
     getProfile,
@@ -562,11 +559,9 @@ export const AuthProvider = ({ children }) => {
     uploadProfileImage,
     deleteAccount,
     changePassword,
-    setupMFA,
-    verifyMFASetup,
-    disableMFA,
     hasPermission,
-    hasRole
+    hasRole,
+    refreshToken
   };
 
   return (
@@ -579,7 +574,23 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    console.warn('useAuth called outside AuthProvider. Returning safe defaults.');
+    return {
+      ...initialState,
+      login: async () => ({ success: false }),
+      logout: async () => {},
+      register: async () => ({ success: false }),
+      forgotPassword: async () => ({ success: false }),
+      resetPassword: async () => ({ success: false }),
+      getProfile: async () => null,
+      updateProfile: async () => ({ success: false }),
+      uploadProfileImage: async () => ({ success: false }),
+      deleteAccount: async () => ({ success: false }),
+      changePassword: async () => ({ success: false }),
+      hasPermission: () => false,
+      hasRole: () => false,
+      refreshToken: async () => false
+    };
   }
   return context;
-}; 
+};

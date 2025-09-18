@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 // PDF Generator utility for invoices
 export class PDFGenerator {
@@ -13,31 +13,36 @@ export class PDFGenerator {
 
   // Generate invoice PDF
   generateInvoice(order) {
-    this.doc = new jsPDF();
-    this.currentY = 20;
+    try {
+      this.doc = new jsPDF();
+      this.currentY = 20;
 
-    // Add header
-    this.addHeader();
-    
-    // Add company info
-    this.addCompanyInfo();
-    
-    // Add invoice details
-    this.addInvoiceDetails(order);
-    
-    // Add billing and shipping addresses
-    this.addAddresses(order);
-    
-    // Add items table
-    this.addItemsTable(order);
-    
-    // Add totals
-    this.addTotals(order);
-    
-    // Add footer
-    this.addFooter();
+      // Add header
+      this.addHeader();
+      
+      // Add company info
+      this.addCompanyInfo();
+      
+      // Add invoice details
+      this.addInvoiceDetails(order);
+      
+      // Add billing and shipping addresses
+      this.addAddresses(order);
+      
+      // Add items table
+      this.addItemsTable(order);
+      
+      // Add totals
+      this.addTotals(order);
+      
+      // Add footer
+      this.addFooter();
 
-    return this.doc;
+      return this.doc;
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      throw new Error('Failed to generate invoice PDF');
+    }
   }
 
   // Add header with logo and title
@@ -129,15 +134,15 @@ export class PDFGenerator {
     this.doc.setFont('helvetica', 'normal');
     this.doc.setTextColor(75, 85, 99);
     
-    const billingAddress = [
-      `${order.billingAddress.firstName} ${order.billingAddress.lastName}`,
+    const billingAddress = order.billingAddress ? [
+      `${order.billingAddress.firstName || ''} ${order.billingAddress.lastName || ''}`,
       order.billingAddress.company || '',
-      order.billingAddress.address1,
+      order.billingAddress.address1 || '',
       order.billingAddress.address2 || '',
-      `${order.billingAddress.city}, ${order.billingAddress.state} ${order.billingAddress.zipCode}`,
-      order.billingAddress.country,
+      `${order.billingAddress.city || ''}, ${order.billingAddress.state || ''} ${order.billingAddress.zipCode || ''}`,
+      order.billingAddress.country || '',
       order.billingAddress.phone || ''
-    ].filter(line => line.trim());
+    ].filter(line => line.trim()) : ['No billing address provided'];
 
     billingAddress.forEach((line, index) => {
       this.doc.text(line, leftX, this.currentY + (index * 5));
@@ -152,15 +157,15 @@ export class PDFGenerator {
     this.doc.setFont('helvetica', 'normal');
     this.doc.setTextColor(75, 85, 99);
     
-    const shippingAddress = [
-      `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+    const shippingAddress = order.shippingAddress ? [
+      `${order.shippingAddress.firstName || ''} ${order.shippingAddress.lastName || ''}`,
       order.shippingAddress.company || '',
-      order.shippingAddress.address1,
+      order.shippingAddress.address1 || '',
       order.shippingAddress.address2 || '',
-      `${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}`,
-      order.shippingAddress.country,
+      `${order.shippingAddress.city || ''}, ${order.shippingAddress.state || ''} ${order.shippingAddress.zipCode || ''}`,
+      order.shippingAddress.country || '',
       order.shippingAddress.phone || ''
-    ].filter(line => line.trim());
+    ].filter(line => line.trim()) : ['No shipping address provided'];
 
     shippingAddress.forEach((line, index) => {
       this.doc.text(line, rightX, this.currentY + (index * 5));
@@ -171,39 +176,83 @@ export class PDFGenerator {
 
   // Add items table
   addItemsTable(order) {
-    const tableData = order.items.map(item => [
-      item.name,
-      item.quantity,
-      this.formatPrice(item.price),
-      this.formatPrice(item.total)
-    ]);
+    try {
+      const tableData = order.items.map(item => [
+        item.name || 'Unknown Item',
+        item.quantity || 0,
+        this.formatPrice(item.price || 0),
+        this.formatPrice(item.total || 0)
+      ]);
 
-    // Add header row
-    const headers = ['Item', 'Qty', 'Unit Price', 'Total'];
+      // Add header row
+      const headers = ['Item', 'Qty', 'Unit Price', 'Total'];
+      
+      autoTable(this.doc, {
+        startY: this.currentY,
+        head: [headers],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 10,
+          cellPadding: 5
+        },
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { cellWidth: 20, halign: 'center' },
+          2: { cellWidth: 30, halign: 'right' },
+          3: { cellWidth: 30, halign: 'right' }
+        }
+      });
+
+      this.currentY = this.doc.lastAutoTable?.finalY + 10 || this.currentY + 50;
+    } catch (error) {
+      console.error('Error creating table:', error);
+      // Fallback: create a simple text-based table
+      this.createSimpleTable(order);
+    }
+  }
+
+  // Fallback method for creating a simple table without autoTable
+  createSimpleTable(order) {
+    this.doc.setFontSize(12);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.setTextColor(0, 0, 0);
     
-    this.doc.autoTable({
-      startY: this.currentY,
-      head: [headers],
-      body: tableData,
-      theme: 'grid',
-      headStyles: {
-        fillColor: [59, 130, 246],
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 5
-      },
-      columnStyles: {
-        0: { cellWidth: 80 },
-        1: { cellWidth: 20, halign: 'center' },
-        2: { cellWidth: 30, halign: 'right' },
-        3: { cellWidth: 30, halign: 'right' }
-      }
+    // Headers
+    const headers = ['Item', 'Qty', 'Price', 'Total'];
+    const startX = this.margin;
+    const colWidth = 40;
+    
+    headers.forEach((header, index) => {
+      this.doc.text(header, startX + (index * colWidth), this.currentY);
     });
-
-    this.currentY = this.doc.lastAutoTable.finalY + 10;
+    
+    this.currentY += 10;
+    
+    // Items
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.setFontSize(10);
+    
+    order.items.forEach(item => {
+      const itemName = item.name || 'Unknown Item';
+      const quantity = item.quantity || 0;
+      const price = this.formatPrice(item.price || 0);
+      const total = this.formatPrice(item.total || 0);
+      
+      this.doc.text(itemName.substring(0, 15), startX, this.currentY);
+      this.doc.text(quantity.toString(), startX + colWidth, this.currentY);
+      this.doc.text(price, startX + (colWidth * 2), this.currentY);
+      this.doc.text(total, startX + (colWidth * 3), this.currentY);
+      
+      this.currentY += 6;
+    });
+    
+    this.currentY += 10;
   }
 
   // Add totals section

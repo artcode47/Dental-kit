@@ -56,12 +56,7 @@ router.delete('/addresses/:addressId', [
   param('addressId').notEmpty().withMessage('Address ID is required'),
 ], validate, userController.deleteAddress);
 
-router.patch('/addresses/:addressId/default', [
-  param('addressId').notEmpty().withMessage('Address ID is required'),
-], validate, userController.setDefaultAddress);
-
 // Preferences
-router.get('/preferences', userController.getPreferences);
 router.put('/preferences', [
   body('preferences.newsletter').optional().isBoolean().withMessage('Newsletter preference must be a boolean'),
   body('preferences.marketing').optional().isBoolean().withMessage('Marketing preference must be a boolean'),
@@ -73,16 +68,23 @@ router.put('/preferences', [
 ], validate, userController.updatePreferences);
 
 // Order history
-router.get('/orders', userController.getOrderHistory);
+router.get('/orders', userController.getOrders);
 router.get('/orders/:orderId', [
-  param('orderId').isMongoId().withMessage('Valid order ID is required'),
+  param('orderId').notEmpty().withMessage('Order ID is required'),
 ], validate, userController.getOrder);
 router.post('/orders/:orderId/cancel', [
-  param('orderId').isMongoId().withMessage('Valid order ID is required'),
+  param('orderId').notEmpty().withMessage('Order ID is required'),
   body('reason').optional().trim(),
 ], validate, userController.cancelOrder);
 
-// User statistics
-router.get('/stats', userController.getUserStats);
+// Reviews
+router.get('/reviews', userController.getReviews);
+
+// Wishlist
+router.get('/wishlist', userController.getWishlist);
+
+// Stats and activity
+router.get('/stats', userController.getStats);
+router.get('/activity', userController.getActivity);
 
 module.exports = router; 

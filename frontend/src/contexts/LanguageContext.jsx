@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import i18n from '../i18n';
 import Cookies from 'js-cookie';
+import { getParam, syncParam } from '../utils/urlBuilder';
 
 const LanguageContext = createContext();
 
@@ -43,15 +44,18 @@ export const LanguageProvider = ({ children }) => {
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [isRTL, setIsRTL] = useState(false);
 
-  // Initialize language
+  // Initialize language (from URL > cookie > browser)
   useEffect(() => {
+    const urlLang = getParam('lang');
     const savedLanguage = Cookies.get('language');
     const browserLanguage = navigator.language.split('-')[0];
     
     // Determine initial language
     let initialLanguage = 'en';
     
-    if (savedLanguage && languages[savedLanguage]) {
+    if (urlLang && languages[urlLang]) {
+      initialLanguage = urlLang;
+    } else if (savedLanguage && languages[savedLanguage]) {
       initialLanguage = savedLanguage;
     } else if (languages[browserLanguage]) {
       initialLanguage = browserLanguage;
@@ -63,6 +67,8 @@ export const LanguageProvider = ({ children }) => {
   // Apply language changes
   useEffect(() => {
     if (currentLanguage) {
+      // Sync URL param
+      syncParam('lang', currentLanguage);
       // Change i18n language
       i18n.changeLanguage(currentLanguage);
       

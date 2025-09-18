@@ -1,28 +1,38 @@
-const Category = require('../models/Category');
+const CategoryService = require('../services/categoryService');
+const ProductService = require('../services/productService');
 const { uploadImage, deleteImage } = require('../utils/cloudinary');
 const { uploadSingle, handleUploadError, cleanupUploads } = require('../middleware/upload');
+
+const categoryService = new CategoryService();
+const productService = new ProductService();
 
 // Get all categories
 exports.getAllCategories = async (req, res) => {
   try {
     const { page = 1, limit = 10, isActive } = req.query;
-    const query = {};
     
+    const filters = {};
     if (isActive !== undefined) {
-      query.isActive = isActive === 'true';
+      filters.isActive = isActive === 'true';
     }
 
-    const categories = await Category.find(query)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .sort({ createdAt: -1 });
+    const result = await categoryService.getAll({
+      filters,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      limitCount: parseInt(limit) * 10 // Get more to filter client-side
+    });
 
-    const total = await Category.countDocuments(query);
+    // Apply pagination
+    const total = result.length;
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedCategories = result.slice(startIndex, endIndex);
 
     res.json({
-      categories,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
+      categories: paginatedCategories,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      currentPage: parseInt(page),
       total,
     });
   } catch (error) {
@@ -33,7 +43,7 @@ exports.getAllCategories = async (req, res) => {
 // Get single category
 exports.getCategory = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await categoryService.getById(req.params.id);
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
@@ -46,7 +56,7 @@ exports.getCategory = async (req, res) => {
 // Get category by slug
 exports.getCategoryBySlug = async (req, res) => {
   try {
-    const category = await Category.findOne({ slug: req.params.slug });
+    const category = await categoryService.getCategoryBySlug(req.params.slug);
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
@@ -56,19 +66,36 @@ exports.getCategoryBySlug = async (req, res) => {
   }
 };
 
+// Get products for a category by slug (public)
+exports.getProductsByCategorySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { limit = 12 } = req.query;
+    const category = await categoryService.getCategoryBySlug(slug);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    const productsResult = await productService.getProducts({ category: category.id, limit: parseInt(limit) });
+    res.json(productsResult.products || productsResult || []);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching category products', error: error.message });
+  }
+};
+
 // Create category
 exports.createCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, nameAr, description } = req.body;
 
     // Check if category already exists
-    const existingCategory = await Category.findOne({ name });
+    const existingCategory = await categoryService.findOneBy('name', name);
     if (existingCategory) {
       return res.status(400).json({ message: 'Category with this name already exists' });
     }
 
     const categoryData = {
       name,
+      nameAr,
       description,
     };
 
@@ -81,7 +108,7 @@ exports.createCategory = async (req, res) => {
       };
     }
 
-    const category = await Category.create(categoryData);
+    const category = await categoryService.create(categoryData);
     res.status(201).json(category);
   } catch (error) {
     res.status(500).json({ message: 'Error creating category', error: error.message });
@@ -91,8 +118,8 @@ exports.createCategory = async (req, res) => {
 // Update category
 exports.updateCategory = async (req, res) => {
   try {
-    const { name, description, isActive } = req.body;
-    const category = await Category.findById(req.params.id);
+    const { name, nameAr, description, isActive } = req.body;
+    const category = await categoryService.getById(req.params.id);
 
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
@@ -100,14 +127,15 @@ exports.updateCategory = async (req, res) => {
 
     // Check if name is being changed and if it already exists
     if (name && name !== category.name) {
-      const existingCategory = await Category.findOne({ name, _id: { $ne: req.params.id } });
-      if (existingCategory) {
+      const existingCategory = await categoryService.findOneBy('name', name);
+      if (existingCategory && existingCategory.id !== req.params.id) {
         return res.status(400).json({ message: 'Category with this name already exists' });
       }
     }
 
     const updateData = {};
     if (name) updateData.name = name;
+    if (nameAr !== undefined) updateData.nameAr = nameAr;
     if (description !== undefined) updateData.description = description;
     if (isActive !== undefined) updateData.isActive = isActive;
 
@@ -125,11 +153,7 @@ exports.updateCategory = async (req, res) => {
       };
     }
 
-    const updatedCategory = await Category.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedCategory = await categoryService.update(req.params.id, updateData);
 
     res.json(updatedCategory);
   } catch (error) {
@@ -140,7 +164,7 @@ exports.updateCategory = async (req, res) => {
 // Delete category
 exports.deleteCategory = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await categoryService.getById(req.params.id);
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
@@ -150,7 +174,7 @@ exports.deleteCategory = async (req, res) => {
       await deleteImage(category.image.public_id);
     }
 
-    await Category.findByIdAndDelete(req.params.id);
+    await categoryService.delete(req.params.id);
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting category', error: error.message });
@@ -160,15 +184,16 @@ exports.deleteCategory = async (req, res) => {
 // Toggle category status
 exports.toggleCategoryStatus = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await categoryService.getById(req.params.id);
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    category.isActive = !category.isActive;
-    await category.save();
+    const updatedCategory = await categoryService.update(req.params.id, {
+      isActive: !category.isActive
+    });
 
-    res.json(category);
+    res.json(updatedCategory);
   } catch (error) {
     res.status(500).json({ message: 'Error toggling category status', error: error.message });
   }

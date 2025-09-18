@@ -1,360 +1,290 @@
-const Order = require('../models/Order');
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
-const User = require('../models/User');
+const OrderService = require('../services/orderService');
+const CartService = require('../services/cartService');
+const ProductService = require('../services/productService');
 
-// Create order from cart (checkout)
+const orderService = new OrderService();
+const cartService = new CartService();
+const productService = new ProductService();
+
+// Get user orders
+exports.getUserOrders = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      status,
+      sortBy,
+      sortOrder
+    };
+
+    const result = await orderService.getUserOrders(userId, options);
+    res.json(result);
+  } catch (error) {
+    console.error('Get user orders error:', error);
+    res.status(500).json({ message: 'Error fetching orders' });
+  }
+};
+
+// Get order by ID
+exports.getOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const order = await orderService.getOrderById(id);
+    
+    // Check if user owns this order
+    if (order.userId !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    res.json({ order });
+  } catch (error) {
+    console.error('Get order error:', error);
+    res.status(404).json({ message: 'Order not found' });
+  }
+};
+
+// Create order
 exports.createOrder = async (req, res) => {
   try {
-    const {
-      shippingAddress,
-      billingAddress,
-      paymentMethod,
-      shippingMethod,
-      customerNotes,
-      useDefaultAddresses = true
-    } = req.body;
+    const userId = req.user.id;
+    const orderData = req.body;
 
-    // Get user's cart
-    const cart = await Cart.findOne({ user: req.user._id })
-      .populate({
-        path: 'items.product',
-        select: 'name price stock isActive sku vendor',
-        populate: {
-          path: 'vendor',
-          select: 'name'
-        }
-      });
-
-    if (!cart || cart.items.length === 0) {
+    // Use cart items from request body (frontend local storage)
+    const cartItems = orderData.items || [];
+    
+    if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
-    // Validate cart items
-    const validItems = [];
-    const invalidItems = [];
-
-    for (const item of cart.items) {
-      if (item.product && item.product.isActive && item.product.stock >= item.quantity) {
-        validItems.push({
-          product: item.product._id,
-          name: item.product.name,
-          sku: item.product.sku,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.price * item.quantity,
-          vendor: item.product.vendor._id
-        });
-      } else {
-        invalidItems.push({
-          productId: item.product?._id,
-          name: item.product?.name,
-          reason: !item.product ? 'Product not found' : 
-                  !item.product.isActive ? 'Product not available' : 
-                  'Insufficient stock'
+    // Validate products and stock
+    const validatedItems = [];
+    for (const item of cartItems) {
+      const product = await productService.getProductById(item.productId);
+      
+      if (!product || !product.isActive) {
+        return res.status(400).json({ 
+          message: `Product ${item.name || item.productId} is no longer available` 
         });
       }
-    }
-
-    if (invalidItems.length > 0) {
-      return res.status(400).json({
-        message: 'Some items in your cart are no longer available',
-        invalidItems
+      
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ 
+          message: `Insufficient stock for ${product.name}` 
+        });
+      }
+      
+      validatedItems.push({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+        name: item.name,
+        image: item.image
       });
     }
 
-    // Get user for default addresses
-    const user = await User.findById(req.user._id);
-    let finalShippingAddress = shippingAddress;
-    let finalBillingAddress = billingAddress;
-
-    if (useDefaultAddresses) {
-      const defaultShipping = user.addresses.find(addr => addr.isDefault && ['shipping', 'both'].includes(addr.type));
-      const defaultBilling = user.addresses.find(addr => addr.isDefault && ['billing', 'both'].includes(addr.type));
-
-      if (!finalShippingAddress && defaultShipping) {
-        finalShippingAddress = defaultShipping;
-      }
-      if (!finalBillingAddress && defaultBilling) {
-        finalBillingAddress = defaultBilling;
-      }
-    }
-
-    if (!finalShippingAddress) {
-      return res.status(400).json({ message: 'Shipping address is required' });
-    }
-
-    if (!finalBillingAddress) {
-      return res.status(400).json({ message: 'Billing address is required' });
-    }
-
-    // Calculate totals
-    const subtotal = validItems.reduce((sum, item) => sum + item.total, 0);
-    const tax = 0; // Calculate based on your tax rules
-    const shipping = 0; // Calculate based on shipping method
-    const total = subtotal + tax + shipping;
-
-    // Generate order number
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    const orderNumber = `DENTAL-${year}${month}${day}-${random}`;
+    // Calculate totals from order summary or cart items
+    const orderSummary = orderData.orderSummary || {};
+    const subtotal = orderSummary.subtotal || cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = orderSummary.tax || 0;
+    const shipping = orderSummary.shipping || 0;
+    const discount = orderSummary.discount || 0;
+    const total = orderSummary.total || subtotal + tax + shipping - discount;
 
     // Create order
-    const order = new Order({
-      orderNumber,
-      user: req.user._id,
-      items: validItems,
+    const order = await orderService.createOrder({
+      userId,
+      items: validatedItems,
       subtotal,
       tax,
       shipping,
+      discount,
       total,
-      shippingAddress: finalShippingAddress,
-      billingAddress: finalBillingAddress,
-      paymentMethod,
-      shippingMethod,
-      customerNotes,
-      status: 'pending',
-      paymentStatus: 'pending',
-      shippingStatus: 'pending'
+      shippingAddress: orderData.shippingAddress,
+      billingAddress: orderData.billingAddress,
+      paymentMethod: orderData.paymentMethod,
+      notes: orderData.customerNotes || orderData.notes
     });
-
-    await order.save();
 
     // Update product stock
-    for (const item of validItems) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: -item.quantity }
+    for (const item of validatedItems) {
+      await productService.updateStock(item.productId, item.quantity, 'decrease');
+    }
+
+    // Send order confirmation email (non-blocking)
+    try {
+      const sendEmail = require('../utils/email');
+      const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/orders/${order.id}`;
+      await sendEmail({
+        to: req.user.email,
+        subject: `Your order ${order.id} is confirmed`,
+        template: 'order-confirmation',
+        context: {
+          customerName: `${orderData?.shippingAddress?.firstName || req.user.firstName || ''} ${orderData?.shippingAddress?.lastName || req.user.lastName || ''}`.trim() || req.user.email,
+          orderNumber: order.id,
+          orderDate: new Date(order.createdAt || Date.now()).toLocaleString(),
+          paymentMethod: orderData.paymentMethod,
+          shippingMethod: orderData.shippingMethod || 'standard',
+          items: validatedItems,
+          subtotal: subtotal.toFixed(2),
+          shipping: shipping.toFixed(2),
+          tax: tax.toFixed(2),
+          total: total.toFixed(2),
+          shippingAddress: orderData.shippingAddress || {},
+          orderUrl,
+          estimatedDelivery: new Date(Date.now() + (orderData.shippingMethod === 'express' ? 2 : orderData.shippingMethod === 'overnight' ? 1 : 5) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+          customerEmail: req.user.email
+        }
       });
+    } catch (emailErr) {
+      console.warn('Order confirmation email failed:', emailErr.message);
     }
 
-    // Clear cart
-    await cart.clearCart();
+    // Note: Cart clearing is handled by frontend after successful order
 
-    // Populate order details
-    await order.populate([
-      {
-        path: 'items.product',
-        select: 'name images sku'
-      },
-      {
-        path: 'items.vendor',
-        select: 'name logo'
+    res.status(201).json({ order });
+  } catch (error) {
+    console.error('Create order error:', error);
+    res.status(500).json({ message: 'Error creating order' });
+  }
+};
+
+// Cancel order
+exports.cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { reason } = req.body;
+
+    const order = await orderService.getOrderById(id);
+    
+    // Check if user owns this order
+    if (order.userId !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const updatedOrder = await orderService.cancelOrder(id, reason);
+
+    // Restore product stock if order was cancelled
+    if (updatedOrder.status === 'cancelled') {
+      for (const item of order.items) {
+        await productService.updateStock(item.productId, item.quantity, 'increase');
       }
-    ]);
+    }
 
-    res.status(201).json(order);
+    res.json({ order: updatedOrder });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating order', error: error.message });
+    console.error('Cancel order error:', error);
+    res.status(500).json({ message: 'Error cancelling order' });
   }
 };
 
-// Get all orders (admin)
-exports.getAllOrders = async (req, res) => {
-  try {
-    const {
-      page = 1,
-      limit = 20,
-      status,
-      paymentStatus,
-      shippingStatus,
-      search,
-      startDate,
-      endDate
-    } = req.query;
-
-    const query = {};
-
-    if (status) query.status = status;
-    if (paymentStatus) query.paymentStatus = paymentStatus;
-    if (shippingStatus) query.shippingStatus = shippingStatus;
-
-    if (search) {
-      query.$or = [
-        { orderNumber: { $regex: search, $options: 'i' } },
-        { 'shippingAddress.firstName': { $regex: search, $options: 'i' } },
-        { 'shippingAddress.lastName': { $regex: search, $options: 'i' } },
-        { 'shippingAddress.email': { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
-    }
-
-    const orders = await Order.find(query)
-      .populate('user', 'firstName lastName email')
-      .populate('items.product', 'name images sku')
-      .populate('items.vendor', 'name logo')
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Order.countDocuments(query);
-
-    res.json({
-      orders,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching orders', error: error.message });
-  }
-};
-
-// Get single order (admin)
-exports.getOrder = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id)
-      .populate('user', 'firstName lastName email phone')
-      .populate('items.product', 'name images sku description')
-      .populate('items.vendor', 'name logo');
-
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching order', error: error.message });
-  }
-};
-
-// Update order status (admin)
+// Update order status (admin only)
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { status, paymentStatus, shippingStatus, adminNotes } = req.body;
     const { id } = req.params;
+    const { status, trackingNumber, estimatedDelivery } = req.body;
 
-    const order = await Order.findById(id);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
     }
 
-    const updateData = {};
-    if (status) {
-      updateData.status = status;
-      if (status === 'confirmed') updateData.confirmedAt = new Date();
-      if (status === 'processing') updateData.processedAt = new Date();
-      if (status === 'cancelled') updateData.cancelledAt = new Date();
-      if (status === 'refunded') updateData.refundedAt = new Date();
+    const additionalData = {};
+    if (trackingNumber) {
+      additionalData.trackingNumber = trackingNumber;
+    }
+    if (estimatedDelivery) {
+      additionalData.estimatedDelivery = new Date(estimatedDelivery);
     }
 
-    if (paymentStatus) {
-      updateData.paymentStatus = paymentStatus;
-      if (paymentStatus === 'paid') updateData.paymentDate = new Date();
-    }
-
-    if (shippingStatus) {
-      updateData.shippingStatus = shippingStatus;
-      if (shippingStatus === 'shipped') updateData.shippedAt = new Date();
-      if (shippingStatus === 'delivered') updateData.deliveredAt = new Date();
-    }
-
-    if (adminNotes) {
-      updateData.adminNotes = adminNotes;
-    }
-
-    const updatedOrder = await Order.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    ).populate([
-      {
-        path: 'user',
-        select: 'firstName lastName email phone'
-      },
-      {
-        path: 'items.product',
-        select: 'name images sku'
-      },
-      {
-        path: 'items.vendor',
-        select: 'name logo'
-      }
-    ]);
-
-    res.json(updatedOrder);
+    const order = await orderService.updateOrderStatus(id, status, additionalData);
+    res.json({ order });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating order', error: error.message });
+    console.error('Update order status error:', error);
+    res.status(500).json({ message: 'Error updating order status' });
   }
 };
 
-// Add tracking information (admin)
-exports.addTrackingInfo = async (req, res) => {
-  try {
-    const { trackingNumber, trackingUrl, estimatedDelivery } = req.body;
-    const { id } = req.params;
-
-    const order = await Order.findById(id);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    order.trackingNumber = trackingNumber;
-    order.trackingUrl = trackingUrl;
-    order.estimatedDelivery = estimatedDelivery;
-    order.shippingStatus = 'shipped';
-    order.shippedAt = new Date();
-
-    await order.save();
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: 'Error adding tracking info', error: error.message });
-  }
-};
-
-// Get order statistics (admin)
+// Get order statistics
 exports.getOrderStats = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const userId = req.user.id;
+    const stats = await orderService.getOrderStats(userId);
+    res.json({ stats });
+  } catch (error) {
+    console.error('Get order stats error:', error);
+    res.status(500).json({ message: 'Error fetching order statistics' });
+  }
+};
 
-    const query = {};
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
+// Get recent orders
+exports.getRecentOrders = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 5 } = req.query;
+    
+    const orders = await orderService.getRecentOrders(userId, parseInt(limit));
+    res.json({ orders });
+  } catch (error) {
+    console.error('Get recent orders error:', error);
+    res.status(500).json({ message: 'Error fetching recent orders' });
+  }
+};
+
+// Admin: Get all orders
+exports.getAllOrders = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
     }
 
-    const [
-      totalOrders,
-      pendingOrders,
-      completedOrders,
-      cancelledOrders,
-      totalRevenue,
-      averageOrderValue
-    ] = await Promise.all([
-      Order.countDocuments(query),
-      Order.countDocuments({ ...query, status: 'pending' }),
-      Order.countDocuments({ ...query, status: 'delivered' }),
-      Order.countDocuments({ ...query, status: 'cancelled' }),
-      Order.aggregate([
-        { $match: { ...query, status: 'delivered', paymentStatus: 'paid' } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
-      ]),
-      Order.aggregate([
-        { $match: { ...query, status: 'delivered', paymentStatus: 'paid' } },
-        { $group: { _id: null, average: { $avg: '$total' } } }
-      ])
-    ]);
+    const {
+      status,
+      page = 1,
+      limit = 20,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
 
-    const stats = {
-      totalOrders,
-      pendingOrders,
-      completedOrders,
-      cancelledOrders,
-      totalRevenue: totalRevenue[0]?.total || 0,
-      averageOrderValue: averageOrderValue[0]?.average || 0
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sortBy,
+      sortOrder
     };
 
-    res.json(stats);
+    const result = await orderService.getOrdersByStatus(status, options);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching order stats', error: error.message });
+    console.error('Get all orders error:', error);
+    res.status(500).json({ message: 'Error fetching orders' });
+  }
+};
+
+// Admin: Get order analytics
+exports.getOrderAnalytics = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { startDate, endDate } = req.query;
+    const options = { startDate, endDate };
+
+    const analytics = await orderService.getOrderAnalytics(options);
+    res.json({ analytics });
+  } catch (error) {
+    console.error('Get order analytics error:', error);
+    res.status(500).json({ message: 'Error fetching order analytics' });
   }
 }; 

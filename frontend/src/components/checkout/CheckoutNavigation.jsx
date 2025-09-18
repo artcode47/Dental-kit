@@ -11,7 +11,7 @@ const CheckoutNavigation = ({
   onPlaceOrder, 
   placingOrder 
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
     <div className="flex justify-between">

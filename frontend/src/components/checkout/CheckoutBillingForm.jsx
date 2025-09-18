@@ -10,13 +10,13 @@ const CheckoutBillingForm = ({
   setSameAsShipping,
   userProfile = null
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-white/20 dark:border-gray-700/20">
       {/* Header */}
       <div className="flex items-center mb-4 sm:mb-6">
-        <CreditCardIcon className="w-6 h-6 sm:w-8 sm:h-8 text-teal-600 mr-2 sm:mr-3" />
+        <CreditCardIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mr-2 sm:mr-3" />
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
             {t('checkout.billing.title')}
@@ -27,6 +27,16 @@ const CheckoutBillingForm = ({
         </div>
       </div>
 
+      {/* Help/Explanation */}
+      <div className="mb-4 sm:mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
+        <p className="text-sm sm:text-base text-blue-800 dark:text-blue-200 font-medium mb-1">
+          {t('checkout.billing.helpTitle')}
+        </p>
+        <p className="text-xs sm:text-sm text-blue-800/90 dark:text-blue-200/90">
+          {t('checkout.billing.helpDescription')}
+        </p>
+      </div>
+
       <div className="space-y-4 sm:space-y-6">
         {/* Same as Shipping */}
         <div className="flex items-center">
@@ -35,7 +45,7 @@ const CheckoutBillingForm = ({
             id="sameAsShipping"
             checked={sameAsShipping}
             onChange={(e) => setSameAsShipping(e.target.checked)}
-            className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
           <label htmlFor="sameAsShipping" className="ml-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
             {t('checkout.billing.sameAsShipping')}

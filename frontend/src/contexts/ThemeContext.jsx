@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { getParam, syncParam } from '../utils/urlBuilder';
 
 const ThemeContext = createContext();
 
@@ -213,8 +214,9 @@ export const ThemeProvider = ({ children }) => {
   const [systemTheme, setSystemTheme] = useState('light');
   const [isSystemTheme, setIsSystemTheme] = useState(false);
 
-  // Initialize theme
+  // Initialize theme (from URL > cookie > system)
   useEffect(() => {
+    const urlTheme = getParam('theme');
     const savedTheme = Cookies.get('theme');
     const savedSystemPreference = Cookies.get('systemTheme');
     
@@ -237,7 +239,11 @@ export const ThemeProvider = ({ children }) => {
     mediaQuery.addEventListener('change', handleSystemThemeChange);
     
     // Set initial theme
-    if (savedSystemPreference === 'true') {
+    if (urlTheme) {
+      setIsSystemTheme(false);
+      setCurrentTheme(urlTheme);
+      applyTheme(urlTheme);
+    } else if (savedSystemPreference === 'true') {
       setIsSystemTheme(true);
       setCurrentTheme(detectedSystemTheme);
       applyTheme(detectedSystemTheme);
@@ -286,6 +292,7 @@ export const ThemeProvider = ({ children }) => {
     setCurrentTheme(theme);
     setIsSystemTheme(false);
     applyTheme(theme);
+    syncParam('theme', theme);
     
     // Save preferences
     Cookies.set('theme', theme, { expires: 365 });
@@ -301,6 +308,7 @@ export const ThemeProvider = ({ children }) => {
     setIsSystemTheme(true);
     setCurrentTheme(systemTheme);
     applyTheme(systemTheme);
+    syncParam('theme', systemTheme);
     
     // Save preferences
     Cookies.remove('theme');

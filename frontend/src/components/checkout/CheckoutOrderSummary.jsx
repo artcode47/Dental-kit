@@ -3,7 +3,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { ShoppingCartIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const CheckoutOrderSummary = ({ cart, orderSummary }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
@@ -33,26 +33,26 @@ const CheckoutOrderSummary = ({ cart, orderSummary }) => {
 
       {/* Cart Items */}
       <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-        {cart.items.map((item) => (
-          <div key={item.product._id} className="flex items-center space-x-2 sm:space-x-3">
+        {cart.map((item) => (
+          <div key={item.productId} className="flex items-center space-x-2 sm:space-x-3">
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
               <img
-                src={item.product.images[0]}
-                alt={item.product.name}
+                src={item.image || '/placeholder-product.svg'}
+                alt={item.name}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">
-                {item.product.name}
+                {item.name}
               </h4>
               <p className="text-xs text-gray-600 dark:text-gray-300">
                 {t('cart.quantity')}: {item.quantity}
               </p>
               <div className="flex items-center mt-1">
-                {item.product.originalPrice && item.product.originalPrice > item.price && (
+                {item.originalPrice && item.originalPrice > item.price && (
                   <span className="text-xs text-gray-500 line-through mr-2">
-                    {formatPrice(item.product.originalPrice)}
+                    {formatPrice(item.originalPrice)}
                   </span>
                 )}
                 <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">

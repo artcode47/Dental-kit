@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from '../../hooks/useTranslation';
 
 const ProductDescription = ({ product }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
     <div className="prose max-w-none dark:prose-invert">

@@ -1,31 +1,40 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { useSecurity } from '../../hooks/useSecurity';
+import Seo from '../../components/seo/Seo';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import AnimatedSection from '../../components/animations/AnimatedSection';
 import { 
   EyeIcon, 
   EyeSlashIcon, 
   ArrowLeftIcon, 
   CheckCircleIcon,
-  ArrowRightIcon,
   ShieldCheckIcon,
   LockClosedIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  StarIcon,
+  TruckIcon,
+  UserGroupIcon,
+  KeyIcon
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
 
 const ResetPasswordPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
+  const { t: tSeo } = useTranslation('ecommerce');
   const { resetPassword } = useAuth();
   const { isDark } = useTheme();
+  const { currentLanguage } = useLanguage();
   const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -107,19 +116,19 @@ const ResetPasswordPage = () => {
     switch (strength) {
       case 0:
       case 1:
-        return { label: 'Very Weak', color: 'bg-red-500', textColor: 'text-red-600' };
+        return { label: t('validation.password.veryWeak'), color: 'bg-red-500', textColor: 'text-red-600' };
       case 2:
-        return { label: 'Weak', color: 'bg-orange-500', textColor: 'text-orange-600' };
+        return { label: t('validation.password.weak'), color: 'bg-orange-500', textColor: 'text-orange-600' };
       case 3:
-        return { label: 'Medium', color: 'bg-yellow-500', textColor: 'text-yellow-600' };
+        return { label: t('validation.password.medium'), color: 'bg-yellow-500', textColor: 'text-yellow-600' };
       case 4:
-        return { label: 'Strong', color: 'bg-blue-500', textColor: 'text-blue-600' };
+        return { label: t('validation.password.strong'), color: 'bg-blue-500', textColor: 'text-blue-600' };
       case 5:
-        return { label: 'Very Strong', color: 'bg-green-500', textColor: 'text-green-600' };
+        return { label: t('validation.password.strong'), color: 'bg-green-500', textColor: 'text-green-600' };
       default:
-        return { label: 'Very Weak', color: 'bg-red-500', textColor: 'text-red-600' };
+        return { label: t('validation.password.veryWeak'), color: 'bg-red-500', textColor: 'text-red-600' };
     }
-  }, []);
+  }, [t]);
 
   const strengthInfo = getStrengthInfo(passwordStrength);
 
@@ -154,28 +163,28 @@ const ResetPasswordPage = () => {
         throw new Error(t('validation.password.weak'));
       }
 
-      await resetPassword(token, sanitizedPassword);
+      await resetPassword(token, email, sanitizedPassword);
       setIsSuccess(true);
-      toast.success(t('auth.resetPassword.success.title'));
+      toast.success(t('resetPassword.success.title'));
     } catch (error) {
       console.error('Reset password error:', error);
       
       if (error.response?.status === 400) {
         setError('password', { 
           type: 'manual', 
-          message: t('auth.resetPassword.error.title') 
+          message: t('resetPassword.error.title') 
         });
-        toast.error(t('auth.resetPassword.error.title'));
+        toast.error(t('resetPassword.error.title'));
       } else if (error.response?.status === 410) {
         setError('password', { 
           type: 'manual', 
-          message: t('auth.resetPassword.error.message') 
+          message: t('resetPassword.error.message') 
         });
-        toast.error(t('auth.resetPassword.error.message'));
+        toast.error(t('resetPassword.error.message'));
       } else if (error.response?.status === 429) {
-        toast.error(t('auth.resetPassword.error.rateLimitExceeded'));
+        toast.error(t('resetPassword.error.rateLimitExceeded'));
       } else {
-        toast.error(t('auth.resetPassword.error.genericError'));
+        toast.error(t('resetPassword.error.genericError'));
       }
     } finally {
       setIsSubmitting(false);
@@ -184,10 +193,7 @@ const ResetPasswordPage = () => {
 
   // Get logo path based on theme
   const getLogoPath = useCallback(() => {
-    if (isDark()) {
-      return '/Logo Page Darkmode.png';
-    }
-    return '/Logo Page Lightmode.png';
+    return isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png';
   }, [isDark]);
 
   // Handle key press for form submission
@@ -204,113 +210,144 @@ const ResetPasswordPage = () => {
     };
   }, [reset]);
 
+  // Success state
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
-        {/* Left Section - Branding/Marketing */}
-        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 to-teal-600 items-center justify-center p-8 relative overflow-hidden">
-          {/* Background pattern for visual interest */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
-            <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12"></div>
-            <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white rounded-full"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+        <Seo
+          title={tSeo('seo.resetPasswordSuccess.title', 'Password Reset Success - DentalKit')}
+          description={tSeo('seo.resetPasswordSuccess.description', 'Your password has been successfully reset')}
+          type="website"
+          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
+          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
+        />
+        
+        <div className="min-h-screen flex">
+          {/* Left Section - Branding & Features */}
+          <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+              <div className="absolute inset-0 bg-black/20"></div>
+              
+              {/* Animated Background Elements */}
+              <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+              <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
-          <div className="text-center text-white relative z-10 max-w-md">
-            <div className="mb-8">
+            <div className="relative z-10 w-full flex flex-col justify-center items-center text-center p-8 xl:p-12 text-white">
+              <AnimatedSection animation="fadeInUp" delay={0}>
+                <div className="mb-8 max-w-lg">
               <img
                 src={getLogoPath()}
                 alt="DentalKit Logo"
-                className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
+                    className="w-24 h-24 mx-auto mb-6 drop-shadow-2xl"
                 loading="eager"
               />
-              <h1 className="text-5xl font-bold mb-4 tracking-tight">
-                DentalKit
+                  <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                    {t('brand.name')}
               </h1>
-            </div>
-            
-            <div className="space-y-4 text-lg leading-relaxed">
-              <p className="font-medium">
-                Your trusted partner for modern dental supplies.
-              </p>
-              <p className="opacity-90">
-                Streamline your practice with our innovative solutions.
+                  <p className="text-xl xl:text-2xl text-blue-100 leading-relaxed">
+                    {t('brand.tagline')}
               </p>
             </div>
-            
-            {/* Security badges */}
-            <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
-              <div className="flex items-center space-x-2">
-                <ShieldCheckIcon className="w-5 h-5" />
-                <span>Secure Reset</span>
+              </AnimatedSection>
+
+              <AnimatedSection animation="fadeInUp" delay={200}>
+                <div className="grid grid-cols-2 gap-4 xl:gap-6 max-w-lg">
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <CheckCircleIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-green-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">✓</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Reset</div>
+                  </div>
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <ShieldCheckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-yellow-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">100%</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Secure</div>
+                  </div>
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <TruckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-green-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">24/7</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Support</div>
+                  </div>
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <StarIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-purple-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">5★</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Rating</div>
               </div>
-              <div className="flex items-center space-x-2">
-                <LockClosedIcon className="w-5 h-5" />
-                <span>SSL Encrypted</span>
               </div>
-            </div>
+              </AnimatedSection>
           </div>
         </div>
 
         {/* Right Section - Success Message */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-          <div className="w-full max-w-md">
-            {/* Mobile logo for smaller screens */}
-            <div className="lg:hidden text-center mb-8">
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12">
+            <div className="w-full max-w-md xl:max-w-lg">
+              {/* Mobile Logo */}
+              <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
+                <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
               <img
                 src={getLogoPath()}
-                alt={t('brand.name')}
-                className="w-16 h-16 mx-auto mb-4"
+                    alt="DentalKit Logo"
+                    className="w-16 h-16 mx-auto mb-4 drop-shadow-md"
                 loading="eager"
               />
-            </div>
-
-            {/* Success Container */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-green-100 dark:bg-green-900/20 rounded-full">
-                  <CheckCircleIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                    {t('brand.name')}
+                  </h1>
+                  <p className="text-sm sm:text-base text-blue-100">
+                    {t('brand.tagline')}
+                  </p>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  {t('auth.resetPassword.success.title')}
+              </AnimatedSection>
+
+              {/* Success Container */}
+              <AnimatedSection animation="fadeInUp" delay={200}>
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    {t('resetPassword.success.title')}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {t('auth.resetPassword.success.message')}
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                  {t('resetPassword.success.message')}
                 </p>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                  <h3 className="font-medium text-green-900 dark:text-green-100 mb-3">
-                    {t('auth.resetPassword.success.whatNext')}:
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 sm:p-6">
+                      <h3 className="font-semibold text-green-900 dark:text-green-100 mb-3 text-sm sm:text-base">
+                    {t('resetPassword.success.whatNext')}:
                   </h3>
                   <ul className="text-sm text-green-800 dark:text-green-200 space-y-2">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      {t('auth.resetPassword.success.step1')}
+                      {t('resetPassword.success.step1')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      {t('auth.resetPassword.success.step2')}
+                      {t('resetPassword.success.step2')}
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      {t('auth.resetPassword.success.step3')}
+                      {t('resetPassword.success.step3')}
                     </li>
                   </ul>
                 </div>
 
                 <Link to="/login">
                   <Button
-                    variant="primary"
                     size="lg"
                     fullWidth
-                    className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
                   >
-                    {t('auth.resetPassword.success.login')}
+                        {t('resetPassword.success.loginNow')}
                   </Button>
                 </Link>
               </div>
+                </div>
+              </AnimatedSection>
             </div>
           </div>
         </div>
@@ -318,90 +355,119 @@ const ResetPasswordPage = () => {
     );
   }
 
+  // Invalid token/email state
   if (!token || !email) {
     return (
-      <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
-        {/* Left Section - Branding/Marketing */}
-        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 to-teal-600 items-center justify-center p-8 relative overflow-hidden">
-          {/* Background pattern for visual interest */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
-            <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12"></div>
-            <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white rounded-full"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+        <Seo
+          title={tSeo('seo.resetPasswordError.title', 'Reset Link Invalid - DentalKit')}
+          description={tSeo('seo.resetPasswordError.description', 'The password reset link is invalid or expired')}
+          type="website"
+          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
+          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
+        />
+        
+        <div className="min-h-screen flex">
+          {/* Left Section - Branding & Features */}
+          <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+              <div className="absolute inset-0 bg-black/20"></div>
+              
+              {/* Animated Background Elements */}
+              <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+              <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
-          <div className="text-center text-white relative z-10 max-w-md">
-            <div className="mb-8">
+            <div className="relative z-10 w-full flex flex-col justify-center items-center text-center p-8 xl:p-12 text-white">
+              <AnimatedSection animation="fadeInUp" delay={0}>
+                <div className="mb-8 max-w-lg">
               <img
                 src={getLogoPath()}
                 alt="DentalKit Logo"
-                className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
+                    className="w-24 h-24 mx-auto mb-6 drop-shadow-2xl"
                 loading="eager"
               />
-              <h1 className="text-5xl font-bold mb-4 tracking-tight">
-                DentalKit
+                  <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                    {t('brand.name')}
               </h1>
-            </div>
-            
-            <div className="space-y-4 text-lg leading-relaxed">
-              <p className="font-medium">
-                Your trusted partner for modern dental supplies.
-              </p>
-              <p className="opacity-90">
-                Streamline your practice with our innovative solutions.
+                  <p className="text-xl xl:text-2xl text-blue-100 leading-relaxed">
+                    {t('brand.tagline')}
               </p>
             </div>
-            
-            {/* Security badges */}
-            <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
-              <div className="flex items-center space-x-2">
-                <ShieldCheckIcon className="w-5 h-5" />
-                <span>Secure Reset</span>
+              </AnimatedSection>
+
+              <AnimatedSection animation="fadeInUp" delay={200}>
+                <div className="grid grid-cols-2 gap-4 xl:gap-6 max-w-lg">
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <ExclamationTriangleIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-red-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">!</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Invalid</div>
+                  </div>
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <KeyIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-blue-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">New</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Link</div>
+                  </div>
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <ShieldCheckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-yellow-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">100%</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Secure</div>
+                  </div>
+                  <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                    <TruckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-green-400" />
+                    <div className="text-2xl xl:text-3xl font-bold">24/7</div>
+                    <div className="text-sm xl:text-base text-blue-100 font-medium">Support</div>
               </div>
-              <div className="flex items-center space-x-2">
-                <LockClosedIcon className="w-5 h-5" />
-                <span>SSL Encrypted</span>
               </div>
-            </div>
+              </AnimatedSection>
           </div>
         </div>
 
         {/* Right Section - Error Message */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-          <div className="w-full max-w-md">
-            {/* Mobile logo for smaller screens */}
-            <div className="lg:hidden text-center mb-8">
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12">
+            <div className="w-full max-w-md xl:max-w-lg">
+              {/* Mobile Logo */}
+              <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
+                <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
               <img
                 src={getLogoPath()}
                 alt="DentalKit Logo"
-                className="w-16 h-16 mx-auto mb-4"
+                    className="w-16 h-16 mx-auto mb-4 drop-shadow-md"
                 loading="eager"
               />
-            </div>
-
-            {/* Error Container */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-red-100 dark:bg-red-900/20 rounded-full">
-                  <ExclamationTriangleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                    {t('brand.name')}
+                  </h1>
+                  <p className="text-sm sm:text-base text-blue-100">
+                    {t('brand.tagline')}
+                  </p>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                  {t('auth.resetPassword.error.title')}
+              </AnimatedSection>
+
+              {/* Error Container */}
+              <AnimatedSection animation="fadeInUp" delay={200}>
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <ExclamationTriangleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    {t('resetPassword.error.title')}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {t('auth.resetPassword.error.message')}
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                  {t('resetPassword.error.message')}
                 </p>
               </div>
 
-              <div className="space-y-6">
+                  <div className="space-y-4">
                 <Link to="/forgot-password">
                   <Button
-                    variant="primary"
                     size="lg"
                     fullWidth
-                    className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
                   >
-                    {t('auth.resetPassword.error.requestNewLink')}
+                    {t('resetPassword.error.requestNewLink')}
                   </Button>
                 </Link>
 
@@ -410,13 +476,15 @@ const ResetPasswordPage = () => {
                     variant="ghost"
                     size="lg"
                     fullWidth
-                    className="flex items-center justify-center text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
+                        className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                   >
                     <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                    {t('auth.resetPassword.error.backToLogin')}
+                    {t('resetPassword.error.backToLogin')}
                   </Button>
                 </Link>
               </div>
+                </div>
+              </AnimatedSection>
             </div>
           </div>
         </div>
@@ -424,78 +492,132 @@ const ResetPasswordPage = () => {
     );
   }
 
+  // Main reset password form
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
-      {/* Left Section - Branding/Marketing */}
-      <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-teal-500 to-teal-600 items-center justify-center p-8 relative overflow-hidden">
-        {/* Background pattern for visual interest */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16"></div>
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12"></div>
-          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white rounded-full"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+      <Seo
+        title={tSeo('seo.resetPassword.title', 'Reset Password - DentalKit')}
+        description={tSeo('seo.resetPassword.description', 'Create a new password for your DentalKit account')}
+        type="website"
+        locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
+        themeColor={isDark ? '#0B1220' : '#FFFFFF'}
+      />
+      
+      <div className="min-h-screen flex">
+        {/* Left Section - Branding & Features */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+            <div className="absolute inset-0 bg-black/20"></div>
+            
+            {/* Animated Background Elements */}
+            <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
         </div>
         
-        <div className="text-center text-white relative z-10 max-w-md">
-          <div className="mb-8">
+          <div className="relative z-10 w-full flex flex-col justify-center items-center text-center p-8 xl:p-12 text-white">
+            <AnimatedSection animation="fadeInUp" delay={0}>
+              <div className="mb-8 max-w-lg">
             <img
               src={getLogoPath()}
               alt="DentalKit Logo"
-              className="w-24 h-24 mx-auto mb-6 filter brightness-0 invert"
+                  className="w-24 h-24 mx-auto mb-6 drop-shadow-2xl"
               loading="eager"
             />
-            <h1 className="text-5xl font-bold mb-4 tracking-tight">
-              DentalKit
+                <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                  {t('brand.name')}
             </h1>
-          </div>
-          
-          <div className="space-y-4 text-lg leading-relaxed">
-            <p className="font-medium">
-              Your trusted partner for modern dental supplies.
-            </p>
-            <p className="opacity-90">
-              Streamline your practice with our innovative solutions.
+                <p className="text-xl xl:text-2xl text-blue-100 leading-relaxed">
+                  {t('brand.tagline')}
             </p>
           </div>
-          
-          {/* Security badges */}
-          <div className="mt-12 flex justify-center space-x-6 text-sm opacity-80">
-            <div className="flex items-center space-x-2">
-              <ShieldCheckIcon className="w-5 h-5" />
-              <span>Secure Reset</span>
+            </AnimatedSection>
+
+            <AnimatedSection animation="fadeInUp" delay={200}>
+              <div className="grid grid-cols-2 gap-4 xl:gap-6 max-w-lg">
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <KeyIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-blue-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">New</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Password</div>
+                </div>
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <ShieldCheckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-yellow-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">100%</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Secure</div>
+                </div>
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <TruckIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-green-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">24/7</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Support</div>
+                </div>
+                <div className="text-center p-4 xl:p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300">
+                  <StarIcon className="w-8 h-8 xl:w-10 xl:h-10 mx-auto mb-3 text-purple-400" />
+                  <div className="text-2xl xl:text-3xl font-bold">5★</div>
+                  <div className="text-sm xl:text-base text-blue-100 font-medium">Rating</div>
             </div>
-            <div className="flex items-center space-x-2">
-              <LockClosedIcon className="w-5 h-5" />
-              <span>SSL Encrypted</span>
             </div>
-          </div>
+            </AnimatedSection>
         </div>
       </div>
 
       {/* Right Section - Reset Password Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-md">
-          {/* Mobile logo for smaller screens */}
-          <div className="lg:hidden text-center mb-8">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12">
+          <div className="w-full max-w-md xl:max-w-lg">
+            {/* Mobile Logo */}
+            <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
+              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
             <img
               src={getLogoPath()}
-              alt={t('brand.name')}
-              className="w-16 h-16 mx-auto mb-4"
+                  alt="DentalKit Logo"
+                  className="w-16 h-16 mx-auto mb-4 drop-shadow-md"
               loading="eager"
             />
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  {t('brand.name')}
+                </h1>
+                <p className="text-sm sm:text-base text-blue-100">
+                  {t('brand.tagline')}
+                </p>
           </div>
 
-          {/* Form Container */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-3">
-                <ArrowRightIcon className="w-6 h-6 text-teal-500 mr-2" />
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {t('auth.resetPassword.title')}
-                </h2>
+              {/* Mobile Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <KeyIcon className="w-6 h-6 mx-auto mb-2 text-blue-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">New</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Password</div>
+                </div>
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <ShieldCheckIcon className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">100%</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Secure</div>
+                </div>
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <TruckIcon className="w-6 h-6 mx-auto mb-2 text-green-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">24/7</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Support</div>
+                </div>
+                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                  <StarIcon className="w-6 h-6 mx-auto mb-2 text-purple-400" />
+                  <div className="text-lg font-bold text-gray-900 dark:text-white">5★</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Rating</div>
+                </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-300">
-                {t('auth.resetPassword.tagline')}
+            </AnimatedSection>
+
+            {/* Reset Password Form Container */}
+            <AnimatedSection animation="fadeInUp" delay={200}>
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                {/* Header */}
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <KeyIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    {t('resetPassword.title')}
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                {t('resetPassword.tagline')}
               </p>
               {email && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -507,44 +629,44 @@ const ResetPasswordPage = () => {
             {/* Reset Password Form */}
             <form 
               onSubmit={handleSubmit(onSubmit)} 
-              className="space-y-6"
+                  className="space-y-4 sm:space-y-6"
               noValidate
               autoComplete="off"
             >
               {/* New Password Field */}
-              <div className="space-y-2">
+                  <div>
                 <Input
-                  label={t('auth.resetPassword.newPassword')}
+                  label={t('resetPassword.newPassword')}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder={t('auth.resetPassword.newPasswordPlaceholder')}
+                  placeholder={t('resetPassword.newPasswordPlaceholder')}
                   {...register('password')}
                   error={errors.password?.message}
                   fullWidth
                   disabled={isSubmitting}
                   autoComplete="new-password"
-                  aria-describedby={errors.password ? 'password-error' : undefined}
-                  onKeyPress={handleKeyPress}
+                      leftIcon={<LockClosedIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
                   rightIcon={
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="focus:outline-none focus:ring-2 focus:ring-teal-500 rounded"
+                          className="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                            <EyeSlashIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       ) : (
-                        <EyeIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                            <EyeIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       )}
                     </button>
                   }
+                      className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
                 />
 
                 {/* Password Strength Indicator */}
                 {password && (
-                  <div className="space-y-2">
+                      <div className="mt-3 space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">{t('auth.register.passwordStrength')}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('register.passwordStrength')}</span>
                       <span className={`font-medium ${strengthInfo.textColor}`}>
                         {strengthInfo.label}
                       </span>
@@ -556,7 +678,7 @@ const ResetPasswordPage = () => {
                       ></div>
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                      <p>{t('auth.register.passwordRequirements')}</p>
+                      <p>{t('register.passwordRequirements')}</p>
                       <ul className="grid grid-cols-2 gap-1">
                         <li className={`flex items-center ${password.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
                           <CheckCircleIcon className="w-3 h-3 mr-1" />
@@ -585,71 +707,74 @@ const ResetPasswordPage = () => {
               </div>
 
               {/* Confirm Password Field */}
+                  <div>
               <Input
-                                  label={t('auth.resetPassword.confirmPassword')}
+                                  label={t('resetPassword.confirmPassword')}
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder={t('auth.resetPassword.confirmPasswordPlaceholder')}
+                  placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                 {...register('confirmPassword')}
                 error={errors.confirmPassword?.message}
                 fullWidth
                 disabled={isSubmitting}
                 autoComplete="new-password"
-                aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
-                onKeyPress={handleKeyPress}
+                      leftIcon={<LockClosedIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
                 rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="focus:outline-none focus:ring-2 focus:ring-teal-500 rounded"
+                          className="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                     aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
                     {showConfirmPassword ? (
-                      <EyeSlashIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                            <EyeSlashIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     ) : (
-                      <EyeIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                            <EyeIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     )}
                   </button>
                 }
+                      className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
               />
+                  </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                variant="primary"
                 size="lg"
                 fullWidth
                 loading={isSubmitting}
                 disabled={!isValid || isSubmitting || !canProceed || passwordStrength < 4}
-                className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <LoadingSpinner size="sm" className="mr-2" />
-                    {t('auth.resetPassword.resetting')}...
+                        <span>{t('resetPassword.resetting')}</span>
                   </div>
                 ) : (
-                  t('auth.resetPassword.resetPassword')
+                      <span>{t('resetPassword.resetPassword')}</span>
                 )}
               </Button>
             </form>
 
             {/* Back to Login Link */}
-            <div className="mt-8 text-center">
+                <div className="mt-4 sm:mt-6 text-center">
               <Link 
                 to="/login" 
-                className="text-sm text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300 transition-colors duration-200 flex items-center justify-center"
+                    className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200 flex items-center justify-center"
               >
                 <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                {t('auth.resetPassword.backToLogin')}
+                {t('resetPassword.backToLogin')}
               </Link>
             </div>
 
             {/* Security Notice */}
-            <div className="mt-6 text-center">
+                <div className="mt-3 sm:mt-4 text-center">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t('auth.resetPassword.securityNotice')}
+                {t('resetPassword.securityNotice')}
               </p>
             </div>
+              </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
@@ -658,3 +783,5 @@ const ResetPasswordPage = () => {
 };
 
 export default ResetPasswordPage; 
+
+

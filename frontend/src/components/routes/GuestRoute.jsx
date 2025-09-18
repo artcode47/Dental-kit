@@ -5,7 +5,7 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 
 const GuestRoute = ({ 
   children, 
-  redirectTo = '/dashboard',
+  redirectTo = '/',
   fallback = null 
 }) => {
   const { isAuthenticated, isLoading, userRole } = useAuth();
@@ -19,16 +19,14 @@ const GuestRoute = ({
   // If user is authenticated, redirect to appropriate dashboard
   if (isAuthenticated) {
     let redirectPath = redirectTo;
-    
-    // Redirect to role-specific dashboard
+    // Redirect to role-specific landing pages that actually exist
     if (userRole === 'admin' || userRole === 'super_admin') {
       redirectPath = '/admin/dashboard';
     } else if (userRole === 'vendor') {
       redirectPath = '/vendor/dashboard';
     } else {
-      redirectPath = '/dashboard';
+      redirectPath = '/profile';
     }
-    
     return <Navigate to={redirectPath} replace />;
   }
 

@@ -1,7 +1,11 @@
-const GiftCard = require('../models/GiftCard');
-const User = require('../models/User');
-const Order = require('../models/Order');
+const GiftCardService = require('../services/giftCardService');
+const UserService = require('../services/userService');
+const OrderService = require('../services/orderService');
 const sendEmail = require('../utils/email');
+
+const giftCardService = new GiftCardService();
+const userService = new UserService();
+const orderService = new OrderService();
 
 // Create a new gift card
 exports.createGiftCard = async (req, res) => {
@@ -22,22 +26,26 @@ exports.createGiftCard = async (req, res) => {
     // Check if recipient exists if email provided
     let issuedTo = null;
     if (issuedToEmail) {
-      issuedTo = await User.findOne({ email: issuedToEmail });
+      issuedTo = await userService.getUserByEmail(issuedToEmail);
     }
 
     // Create gift card
-    const giftCard = new GiftCard({
+    const giftCardData = {
       amount,
       balance: amount,
       type,
-      issuedBy: req.user._id,
-      issuedTo: issuedTo?._id,
+      issuedBy: req.user.id,
+      issuedTo: issuedTo?.id,
       issuedToEmail,
       message,
-      expiresAt: expiresAt ? new Date(expiresAt) : null
-    });
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+      status: 'active',
+      code: await giftCardService.generateUniqueCode(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
 
-    await giftCard.save();
+    const giftCard = await giftCardService.create(giftCardData);
 
     // Send email to recipient if email provided
     if (issuedToEmail) {
@@ -58,7 +66,7 @@ exports.createGiftCard = async (req, res) => {
     res.status(201).json({
       message: 'Gift card created successfully',
       giftCard: {
-        id: giftCard._id,
+        id: giftCard.id,
         code: giftCard.code,
         amount: giftCard.amount,
         balance: giftCard.balance,
@@ -78,9 +86,7 @@ exports.getGiftCardByCode = async (req, res) => {
   try {
     const { code } = req.params;
 
-    const giftCard = await GiftCard.findOne({ code: code.toUpperCase() })
-      .populate('issuedBy', 'firstName lastName email')
-      .populate('issuedTo', 'firstName lastName email');
+    const giftCard = await giftCardService.getGiftCardByCode(code.toUpperCase());
 
     if (!giftCard) {
       return res.status(404).json({ message: 'Gift card not found' });
@@ -88,25 +94,21 @@ exports.getGiftCardByCode = async (req, res) => {
 
     // Check if expired
     if (giftCard.expiresAt && giftCard.expiresAt < new Date()) {
+      await giftCardService.update(giftCard.id, { status: 'expired' });
       giftCard.status = 'expired';
-      await giftCard.save();
     }
 
     res.json({
       giftCard: {
-        id: giftCard._id,
+        id: giftCard.id,
         code: giftCard.code,
         amount: giftCard.amount,
         balance: giftCard.balance,
         type: giftCard.type,
         status: giftCard.status,
-        issuedBy: giftCard.issuedBy,
-        issuedTo: giftCard.issuedTo,
-        issuedToEmail: giftCard.issuedToEmail,
-        message: giftCard.message,
         expiresAt: giftCard.expiresAt,
-        usedAt: giftCard.usedAt,
-        createdAt: giftCard.createdAt
+        issuedToEmail: giftCard.issuedToEmail,
+        message: giftCard.message
       }
     });
 
@@ -115,213 +117,159 @@ exports.getGiftCardByCode = async (req, res) => {
   }
 };
 
-// Use gift card
-exports.useGiftCard = async (req, res) => {
+// Apply gift card to order
+exports.applyGiftCard = async (req, res) => {
   try {
-    const { code, amount, orderId } = req.body;
+    const { code, orderId } = req.body;
 
-    if (!code || !amount || !orderId) {
-      return res.status(400).json({ message: 'Code, amount, and order ID are required' });
-    }
-
-    const giftCard = await GiftCard.findOne({ code: code.toUpperCase() });
+    const giftCard = await giftCardService.getGiftCardByCode(code.toUpperCase());
     if (!giftCard) {
-      return res.status(404).json({ message: 'Gift card not found' });
+      return res.status(404).json({ message: 'Invalid gift card code' });
     }
 
-    // Use the gift card
-    await giftCard.useCard(amount, orderId, req.user._id);
+    const order = await orderService.getById(orderId);
+    if (!order || order.userId !== req.user.id) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Validate gift card
+    if (giftCard.status !== 'active') {
+      return res.status(400).json({ message: 'Gift card is not active' });
+    }
+
+    if (giftCard.expiresAt && giftCard.expiresAt < new Date()) {
+      return res.status(400).json({ message: 'Gift card has expired' });
+    }
+
+    if (giftCard.balance <= 0) {
+      return res.status(400).json({ message: 'Gift card has no balance' });
+    }
+
+    // Calculate discount amount
+    const discountAmount = Math.min(giftCard.balance, order.total);
+    const newBalance = giftCard.balance - discountAmount;
+
+    // Update gift card balance
+    await giftCardService.update(giftCard.id, {
+      balance: newBalance,
+      status: newBalance <= 0 ? 'used' : 'active'
+    });
+
+    // Update order
+    const updatedOrder = await orderService.update(orderId, {
+      giftCardDiscount: discountAmount,
+      total: order.total - discountAmount
+    });
 
     res.json({
-      message: 'Gift card used successfully',
-      remainingBalance: giftCard.balance,
-      status: giftCard.status
+      message: 'Gift card applied successfully',
+      order: updatedOrder,
+      discountAmount,
+      remainingBalance: newBalance
     });
 
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: 'Error applying gift card', error: error.message });
   }
 };
 
-// Get user's gift cards
-exports.getUserGiftCards = async (req, res) => {
-  try {
-    const { status, type } = req.query;
-    const query = {};
-
-    // Filter by issued by or issued to the user
-    query.$or = [
-      { issuedBy: req.user._id },
-      { issuedTo: req.user._id },
-      { issuedToEmail: req.user.email }
-    ];
-
-    if (status) query.status = status;
-    if (type) query.type = type;
-
-    const giftCards = await GiftCard.find(query)
-      .populate('issuedBy', 'firstName lastName')
-      .populate('issuedTo', 'firstName lastName')
-      .sort({ createdAt: -1 });
-
-    res.json({ giftCards });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching gift cards', error: error.message });
-  }
-};
-
-// Get gift card usage history
-exports.getGiftCardHistory = async (req, res) => {
-  try {
-    const { giftCardId } = req.params;
-
-    const giftCard = await GiftCard.findById(giftCardId)
-      .populate('usageHistory.order', 'orderNumber total createdAt')
-      .populate('issuedBy', 'firstName lastName')
-      .populate('issuedTo', 'firstName lastName');
-
-    if (!giftCard) {
-      return res.status(404).json({ message: 'Gift card not found' });
-    }
-
-    // Check if user has access to this gift card
-    const hasAccess = giftCard.issuedBy._id.toString() === req.user._id.toString() ||
-                     giftCard.issuedTo?._id.toString() === req.user._id.toString() ||
-                     giftCard.issuedToEmail === req.user.email;
-
-    if (!hasAccess) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    res.json({ giftCard });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching gift card history', error: error.message });
-  }
-};
-
-// Cancel gift card
-exports.cancelGiftCard = async (req, res) => {
-  try {
-    const { giftCardId } = req.params;
-
-    const giftCard = await GiftCard.findById(giftCardId);
-    if (!giftCard) {
-      return res.status(404).json({ message: 'Gift card not found' });
-    }
-
-    // Only issuer can cancel
-    if (giftCard.issuedBy.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Only the issuer can cancel this gift card' });
-    }
-
-    if (giftCard.status !== 'active') {
-      return res.status(400).json({ message: 'Gift card cannot be cancelled' });
-    }
-
-    giftCard.status = 'cancelled';
-    await giftCard.save();
-
-    res.json({ message: 'Gift card cancelled successfully' });
-
-  } catch (error) {
-    res.status(500).json({ message: 'Error cancelling gift card', error: error.message });
-  }
-};
-
-// Admin: Get all gift cards
+// Get all gift cards (admin)
 exports.getAllGiftCards = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      status,
-      type,
-      search
-    } = req.query;
+    const { page = 1, limit = 20, status, type } = req.query;
 
-    const query = {};
+    const filters = {};
+    if (status) filters.status = status;
+    if (type) filters.type = type;
 
-    if (status) query.status = status;
-    if (type) query.type = type;
-    if (search) {
-      query.$or = [
-        { code: { $regex: search, $options: 'i' } },
-        { issuedToEmail: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const giftCards = await GiftCard.find(query)
-      .populate('issuedBy', 'firstName lastName email')
-      .populate('issuedTo', 'firstName lastName email')
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await GiftCard.countDocuments(query);
-
-    res.json({
-      giftCards,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total
+    const giftCards = await giftCardService.getAll({
+      filters,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      limitCount: parseInt(limit) * 10
     });
 
+    // Apply pagination
+    const total = giftCards.length;
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedGiftCards = giftCards.slice(startIndex, endIndex);
+
+    res.json({
+      giftCards: paginatedGiftCards,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      currentPage: parseInt(page),
+      total,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching gift cards', error: error.message });
   }
 };
 
-// Admin: Get gift card statistics
+// Get single gift card
+exports.getGiftCard = async (req, res) => {
+  try {
+    const giftCard = await giftCardService.getById(req.params.id);
+    if (!giftCard) {
+      return res.status(404).json({ message: 'Gift card not found' });
+    }
+    res.json(giftCard);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching gift card', error: error.message });
+  }
+};
+
+// Update gift card
+exports.updateGiftCard = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const giftCard = await giftCardService.getById(id);
+    if (!giftCard) {
+      return res.status(404).json({ message: 'Gift card not found' });
+    }
+
+    const updatedGiftCard = await giftCardService.update(id, updateData);
+    res.json(updatedGiftCard);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating gift card', error: error.message });
+  }
+};
+
+// Delete gift card
+exports.deleteGiftCard = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const giftCard = await giftCardService.getById(id);
+    if (!giftCard) {
+      return res.status(404).json({ message: 'Gift card not found' });
+    }
+
+    await giftCardService.delete(id);
+    res.json({ message: 'Gift card deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting gift card', error: error.message });
+  }
+};
+
+// Get gift card statistics
 exports.getGiftCardStats = async (req, res) => {
   try {
-    const stats = await GiftCard.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalIssued: { $sum: '$amount' },
-          totalUsed: { $sum: { $subtract: ['$amount', '$balance'] } },
-          totalActive: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, '$balance', 0] } },
-          totalExpired: { $sum: { $cond: [{ $eq: ['$status', 'expired'] }, '$balance', 0] } },
-          count: { $sum: 1 },
-          activeCount: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] } },
-          usedCount: { $sum: { $cond: [{ $eq: ['$status', 'used'] }, 1, 0] } },
-          expiredCount: { $sum: { $cond: [{ $eq: ['$status', 'expired'] }, 1, 0] } }
-        }
-      }
-    ]);
-
-    const monthlyStats = await GiftCard.aggregate([
-      {
-        $group: {
-          _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' }
-          },
-          issued: { $sum: '$amount' },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { '_id.year': -1, '_id.month': -1 } },
-      { $limit: 12 }
-    ]);
-
-    res.json({
-      overall: stats[0] || {
-        totalIssued: 0,
-        totalUsed: 0,
-        totalActive: 0,
-        totalExpired: 0,
-        count: 0,
-        activeCount: 0,
-        usedCount: 0,
-        expiredCount: 0
-      },
-      monthly: monthlyStats
-    });
-
+    const stats = await giftCardService.getGiftCardStats();
+    res.json(stats);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching gift card statistics', error: error.message });
+    res.status(500).json({ message: 'Error fetching gift card stats', error: error.message });
+  }
+};
+
+// Generate unique gift card code
+exports.generateGiftCardCode = async (req, res) => {
+  try {
+    const code = await giftCardService.generateUniqueCode();
+    res.json({ code });
+  } catch (error) {
+    res.status(500).json({ message: 'Error generating gift card code', error: error.message });
   }
 }; 

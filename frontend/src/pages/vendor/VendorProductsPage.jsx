@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Layout from '../../components/layout/Layout';
 
 const VendorProductsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
 
   return (
     <Layout showSidebar={true}>

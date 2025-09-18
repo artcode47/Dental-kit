@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { toast } from 'react-hot-toast';
+import { handleApiErrorNavigation } from '../utils/errorNavigation';
 
 // Security configuration
 const SECURITY_CONFIG = {
@@ -10,7 +11,7 @@ const SECURITY_CONFIG = {
 
 // Create axios instance with enhanced security
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     // Update CSRF token if provided
-    const newCSRFToken = response.headers['x-csrf-token'];
+    const newCSRFToken = response.headers['x-csrf-token'] || response.headers['X-CSRF-Token'];
     if (newCSRFToken) {
       csrfToken = newCSRFToken;
       Cookies.set('csrf-token', newCSRFToken, { 
@@ -99,13 +100,26 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
-      // Clear invalid token
-      Cookies.remove('authToken');
-      Cookies.remove('csrf-token');
+      // Don't redirect for certain endpoints that might not be implemented yet
+      const skipRedirectEndpoints = [
+        '/users/stats',
+        '/users/activity',
+        '/orders',
+        '/orders/checkout',
+        '/wishlist'
+      ];
       
-      // Redirect to login if not already there
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      const shouldSkipRedirect = skipRedirectEndpoints.some(endpoint => 
+        originalRequest.url.includes(endpoint)
+      );
+      
+      if (!shouldSkipRedirect) {
+        // Clear invalid token
+        Cookies.remove('authToken');
+        Cookies.remove('csrf-token');
+        
+        // Navigate to unauthorized page
+        handleApiErrorNavigation(error);
       }
       
       return Promise.reject(error);
@@ -113,13 +127,64 @@ api.interceptors.response.use(
     
     // Handle 403 Forbidden
     if (error.response?.status === 403) {
-      toast.error('Access denied. You do not have permission to perform this action.');
+      const errorData = error.response?.data;
+      
+      // Handle CSRF token errors specifically
+      if (errorData?.error === 'CSRF_TOKEN_MISSING' || errorData?.error === 'CSRF_TOKEN_INVALID') {
+        // Attempt to refresh CSRF token then retry once without logging out
+        try {
+          await api.get('/health');
+          const refreshedToken = Cookies.get('csrf-token');
+          if (refreshedToken && !originalRequest._retriedAfterCsrf) {
+            originalRequest._retriedAfterCsrf = true;
+            originalRequest.headers = originalRequest.headers || {};
+            originalRequest.headers[SECURITY_CONFIG.CSRF_TOKEN_HEADER] = refreshedToken;
+            return api(originalRequest);
+          }
+        } catch (_) {
+          // fallthrough to default handling
+        }
+        toast.error('Security token expired. Please try again.');
+      } else if (errorData?.message?.includes('Admin privileges required')) {
+        // Handle admin access denied specifically
+        toast.error('Access denied. Admin privileges required for this action.');
+        
+        // Don't redirect to login for admin access errors, just show the error
+        // The user might want to contact an admin or try a different action
+      } else {
+        toast.error('Access denied. You do not have permission to perform this action.');
+        // Navigate to unauthorized page for general access denied
+        handleApiErrorNavigation(error);
+      }
+      
       return Promise.reject(error);
     }
     
     // Handle 404 Not Found
     if (error.response?.status === 404) {
-      toast.error('Resource not found.');
+      const url = originalRequest?.url || '';
+      // Do NOT navigate for optional/auxiliary endpoints to avoid crashing the app
+      const skipRedirectEndpoints404 = [
+        '/notifications',
+        '/users/stats',
+        '/users/activity',
+        '/orders',
+        '/wishlist'
+      ];
+      // Also skip admin management endpoints to avoid kicking admins to 404 route on data races
+      const adminEndpointsToSkip = [
+        '/admin/users',
+        '/admin/products',
+        '/admin/orders',
+        '/admin/categories',
+        '/admin/vendors'
+      ];
+      const shouldSkip404Redirect = skipRedirectEndpoints404.some((endpoint) => url.includes(endpoint)) ||
+        adminEndpointsToSkip.some((endpoint) => url.includes(endpoint));
+      if (!shouldSkip404Redirect) {
+        toast.error('Resource not found.');
+        handleApiErrorNavigation(error);
+      }
       return Promise.reject(error);
     }
     
@@ -146,15 +211,19 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
-    // Handle 500 Server Error
+    // Handle 500 Server Error and other server errors
     if (error.response?.status >= 500) {
       toast.error('Server error. Please try again later.');
+      // Navigate to server error page
+      handleApiErrorNavigation(error);
       return Promise.reject(error);
     }
     
     // Handle network errors
     if (!error.response) {
       toast.error('Network error. Please check your connection.');
+      // Navigate to network error page
+      handleApiErrorNavigation(error);
       return Promise.reject(error);
     }
     
@@ -175,9 +244,9 @@ export const endpoints = {
     logout: '/auth/logout',
     verify: '/auth/verify',
     refresh: '/auth/refresh',
-    forgotPassword: '/auth/forgot-password',
+    forgotPassword: '/auth/request-password-reset',
     resetPassword: '/auth/reset-password',
-    changePassword: '/auth/change-password',
+    changePassword: '/auth/update-password',
     profile: '/auth/profile',
     setupMFA: '/auth/setup-mfa',
     verifyMFASetup: '/auth/verify-mfa-setup',

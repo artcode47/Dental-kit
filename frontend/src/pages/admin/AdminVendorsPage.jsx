@@ -28,7 +28,7 @@ import Input from '../../components/ui/Input';
 import { toast } from 'react-hot-toast';
 
 const AdminVendorsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const [vendors, setVendors] = useState([]);
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

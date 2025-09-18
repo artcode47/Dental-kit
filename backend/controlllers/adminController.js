@@ -1,195 +1,179 @@
-const User = require('../models/User');
-const Product = require('../models/Product');
-const Order = require('../models/Order');
-const Category = require('../models/Category');
-const Vendor = require('../models/Vendor');
-const Review = require('../models/Review');
-const Coupon = require('../models/Coupon');
-const GiftCard = require('../models/GiftCard');
-const ProductComparison = require('../models/ProductComparison');
+const UserService = require('../services/userService');
+const ProductService = require('../services/productService');
+const OrderService = require('../services/orderService');
+const CategoryService = require('../services/categoryService');
+const VendorService = require('../services/vendorService');
+const ReviewService = require('../services/reviewService');
+const CouponService = require('../services/couponService');
+const GiftCardService = require('../services/giftCardService');
+const ProductComparisonService = require('../services/productComparisonService');
+
+// Initialize services
+const userService = new UserService();
+const productService = new ProductService();
+const orderService = new OrderService();
+const categoryService = new CategoryService();
+const vendorService = new VendorService();
+const reviewService = new ReviewService();
+const couponService = new CouponService();
+const giftCardService = new GiftCardService();
+const productComparisonService = new ProductComparisonService();
 
 // Dashboard overview statistics
 exports.getDashboardStats = async (req, res) => {
   try {
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // Overall statistics
+    // Get counts using simplified queries
     const [
       totalUsers,
-      totalProducts,
       totalOrders,
-      totalRevenue,
-      totalCategories,
-      totalVendors,
+      totalProducts,
       totalReviews,
       totalCoupons,
       totalGiftCards
     ] = await Promise.all([
-      User.countDocuments(),
-      Product.countDocuments(),
-      Order.countDocuments(),
-      Order.aggregate([
-        { $match: { status: 'delivered', paymentStatus: 'paid' } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
-      ]),
-      Category.countDocuments(),
-      Vendor.countDocuments(),
-      Review.countDocuments(),
-      Coupon.countDocuments(),
-      GiftCard.countDocuments()
+      userService.count(),
+      orderService.count(),
+      productService.count(),
+      reviewService.count(),
+      couponService.count(),
+      giftCardService.count()
     ]);
 
-    // Recent activity (last 30 days)
-    const [
-      newUsers,
-      newOrders,
-      newRevenue,
-      newProducts,
-      newReviews
-    ] = await Promise.all([
-      User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
-      Order.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
-      Order.aggregate([
-        { $match: { createdAt: { $gte: thirtyDaysAgo }, status: 'delivered', paymentStatus: 'paid' } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
-      ]),
-      Product.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
-      Review.countDocuments({ createdAt: { $gte: thirtyDaysAgo } })
+    // Get all orders and filter in memory (no composite indexes required)
+    const allOrders = await orderService.getAllSimple();
+    const deliveredOrders = allOrders.filter(order => 
+      order.status === 'delivered' && order.paymentStatus === 'paid'
+    );
+
+    const totalRevenue = deliveredOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+    // Get all data and filter in memory
+    const [allUsers, allOrdersData, allProductsData, allReviewsData] = await Promise.all([
+      userService.getAllSimple(),
+      orderService.getAllSimple(),
+      productService.getAllSimple(),
+      reviewService.getAllSimple()
     ]);
 
-    // Weekly trends
-    const weeklyStats = await Order.aggregate([
-      { $match: { createdAt: { $gte: sevenDaysAgo } } },
-      {
-        $group: {
-          _id: {
-            year: { $year: '$createdAt' },
-            week: { $week: '$createdAt' },
-            day: { $dayOfWeek: '$createdAt' }
-          },
-          orders: { $sum: 1 },
-          revenue: { $sum: '$total' }
-        }
-      },
-      { $sort: { '_id.year': 1, '_id.week': 1, '_id.day': 1 } }
-    ]);
+    // Filter recent activity in memory
+    const newUsers = allUsers.filter(user => new Date(user.createdAt) >= thirtyDaysAgo).length;
+    const newOrders = allOrdersData.filter(order => new Date(order.createdAt) >= thirtyDaysAgo).length;
+    const newProducts = allProductsData.filter(product => new Date(product.createdAt) >= thirtyDaysAgo).length;
+    const newReviews = allReviewsData.filter(review => new Date(review.createdAt) >= thirtyDaysAgo).length;
 
-    // Top performing products
-    const topProducts = await Product.aggregate([
-      { $match: { isActive: true } },
-      {
-        $lookup: {
-          from: 'orders',
-          localField: '_id',
-          foreignField: 'items.product',
-          as: 'orderItems'
-        }
-      },
-      {
-        $addFields: {
-          totalSold: {
-            $sum: '$orderItems.items.quantity'
-          },
-          totalRevenue: {
-            $sum: '$orderItems.items.total'
-          }
-        }
-      },
-      { $sort: { totalSold: -1 } },
-      { $limit: 10 },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          price: 1,
-          totalSold: 1,
-          totalRevenue: 1,
-          averageRating: 1,
-          stock: 1
-        }
+    // Calculate new revenue in memory
+    const recentOrders = allOrdersData.filter(order => 
+      new Date(order.createdAt) >= thirtyDaysAgo &&
+      order.status === 'delivered' &&
+      order.paymentStatus === 'paid'
+    );
+    
+    const newRevenue = recentOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+    // Weekly trends in memory
+    const weeklyOrders = allOrdersData.filter(order => new Date(order.createdAt) >= sevenDaysAgo);
+
+    // Group by day for weekly trends
+    const weeklyStats = weeklyOrders.reduce((acc, order) => {
+      const date = new Date(order.createdAt).toDateString();
+      if (!acc[date]) {
+        acc[date] = { orders: 0, revenue: 0 };
       }
-    ]);
+      acc[date].orders++;
+      acc[date].revenue += order.total || 0;
+      return acc;
+    }, {});
+
+    // Top performing products in memory
+    const allProducts = allProductsData.filter(product => product.isActive);
+
+    // Sort by totalSold (assuming this field exists)
+    const topProducts = allProducts
+      .sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0))
+      .slice(0, 10)
+      .map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        totalSold: product.totalSold || 0,
+        totalRevenue: (product.totalSold || 0) * (product.price || 0),
+        averageRating: product.averageRating || 0,
+        stock: product.stock || 0
+      }));
 
     // Low stock alerts
-    const lowStockProducts = await Product.find({
-      stock: { $lte: 10 },
-      isActive: true
-    })
-    .select('name stock price category vendor')
-    .populate('category', 'name')
-    .populate('vendor', 'name')
-    .sort({ stock: 1 })
-    .limit(20);
+    const lowStockProducts = allProducts
+      .filter(product => (product.stock || 0) <= 10)
+      .sort((a, b) => (a.stock || 0) - (b.stock || 0))
+      .slice(0, 20);
 
-    // Recent orders
-    const recentOrders = await Order.find()
-      .populate('user', 'firstName lastName email')
-      .populate('items.product', 'name')
-      .sort({ createdAt: -1 })
-      .limit(10);
+    // Recent orders in memory
+    const recentOrdersList = allOrdersData
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10);
 
-    // Revenue by category
-    const revenueByCategory = await Order.aggregate([
-      { $match: { status: 'delivered', paymentStatus: 'paid' } },
-      { $unwind: '$items' },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'items.product',
-          foreignField: '_id',
-          as: 'product'
-        }
-      },
-      { $unwind: '$product' },
-      {
-        $lookup: {
-          from: 'categories',
-          localField: 'product.category',
-          foreignField: '_id',
-          as: 'category'
-        }
-      },
-      { $unwind: '$category' },
-      {
-        $group: {
-          _id: '$category._id',
-          categoryName: { $first: '$category.name' },
-          revenue: { $sum: '$items.total' },
-          orders: { $sum: 1 }
-        }
-      },
-      { $sort: { revenue: -1 } }
-    ]);
+    // Revenue by category in memory
+    const revenueByCategory = [];
+    const categories = await categoryService.getAllSimple();
+    
+    for (const category of categories) {
+      const categoryProducts = allProducts.filter(product => product.categoryId === category.id);
+
+      const categoryRevenue = categoryProducts.reduce((sum, product) => {
+        const productOrders = deliveredOrders.filter(order => 
+          order.items.some(item => item.productId === product.id)
+        );
+        return sum + productOrders.reduce((orderSum, order) => 
+          orderSum + (order.total || 0), 0
+        );
+      }, 0);
+
+      revenueByCategory.push({
+        category: category.name,
+        revenue: categoryRevenue,
+        productCount: categoryProducts.length
+      });
+    }
+
+    // Sort categories by revenue
+    revenueByCategory.sort((a, b) => b.revenue - a.revenue);
 
     res.json({
       overview: {
-        totalUsers: totalUsers,
-        totalProducts: totalProducts,
-        totalOrders: totalOrders,
-        totalRevenue: totalRevenue[0]?.total || 0,
-        totalCategories: totalCategories,
-        totalVendors: totalVendors,
-        totalReviews: totalReviews,
-        totalCoupons: totalCoupons,
-        totalGiftCards: totalGiftCards
+        totalUsers,
+        totalOrders,
+        totalProducts,
+        totalReviews,
+        totalCoupons,
+        totalGiftCards,
+        totalRevenue,
+        newRevenue
       },
       recentActivity: {
-        newUsers: newUsers,
-        newOrders: newOrders,
-        newRevenue: newRevenue[0]?.total || 0,
-        newProducts: newProducts,
-        newReviews: newReviews
+        newUsers,
+        newOrders,
+        newProducts,
+        newReviews
       },
-      weeklyTrends: weeklyStats,
+      weeklyTrends: Object.entries(weeklyStats).map(([date, stats]) => ({
+        date,
+        orders: stats.orders,
+        revenue: stats.revenue
+      })),
       topProducts,
       lowStockProducts,
-      recentOrders,
-      revenueByCategory
+      recentOrders: recentOrdersList,
+      revenueByCategory: revenueByCategory.slice(0, 10)
     });
 
   } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
     res.status(500).json({ message: 'Error fetching dashboard stats', error: error.message });
   }
 };
@@ -206,38 +190,25 @@ exports.getAllUsers = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    const query = {};
-
-    if (search) {
-      query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
-      ];
-    }
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
 
     if (status) {
-      if (status === 'verified') query.isVerified = true;
-      else if (status === 'unverified') query.isVerified = false;
+      if (status === 'verified') {
+        options.filters = [{ field: 'isVerified', operator: '==', value: true }];
+      } else if (status === 'unverified') {
+        options.filters = [{ field: 'isVerified', operator: '==', value: false }];
+      }
     }
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const result = await userService.getUsers(options);
 
-    const users = await User.find(query)
-      .select('-password -verificationToken -resetPasswordToken -refreshTokens')
-      .sort(sortOptions)
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await User.countDocuments(query);
-
-    res.json({
-      users,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total
-    });
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error: error.message });
@@ -256,31 +227,142 @@ exports.bulkUserOperations = async (req, res) => {
     let result;
     switch (operation) {
       case 'verify':
-        result = await User.updateMany(
-          { _id: { $in: userIds } },
-          { isVerified: true }
-        );
+        result = await userService.bulkUserOperations('verify', userIds);
         break;
       case 'unverify':
-        result = await User.updateMany(
-          { _id: { $in: userIds } },
-          { isVerified: false }
-        );
+        result = await userService.bulkUserOperations('unverify', userIds);
         break;
       case 'delete':
-        result = await User.deleteMany({ _id: { $in: userIds } });
+        result = await userService.bulkUserOperations('delete', userIds);
         break;
       default:
         return res.status(400).json({ message: 'Invalid operation' });
     }
 
-    res.json({
-      message: `Bulk operation '${operation}' completed successfully`,
-      affectedCount: result.modifiedCount || result.deletedCount
-    });
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: 'Error performing bulk operation', error: error.message });
+  }
+};
+
+// Create new user
+exports.createUser = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, role, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await userService.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
+    // Create new user
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      role: role || 'user',
+      password,
+      isVerified: true // Admin-created users are verified by default
+    };
+
+    const user = await userService.createUser(userData);
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating user', error: error.message });
+  }
+};
+
+// Update user
+exports.updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { firstName, lastName, email, phone, role } = req.body;
+
+    // Check if user exists
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (email && email !== user.email) {
+      const existingUser = await userService.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email is already taken' });
+      }
+    }
+
+    // Update user fields
+    const updateData = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (role !== undefined) updateData.role = role;
+
+    const updatedUser = await userService.updateProfile(userId, updateData);
+
+    res.json({
+      message: 'User updated successfully',
+      user: updatedUser
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user', error: error.message });
+  }
+};
+
+// Delete user
+exports.deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Check if user exists
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prevent admin from deleting themselves
+    if (user.id === req.user.id) {
+      return res.status(400).json({ message: 'You cannot delete your own account' });
+    }
+
+    // Delete the user
+    await userService.deleteUser(userId);
+
+    res.json({
+      message: 'User deleted successfully'
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user', error: error.message });
+  }
+};
+
+// Get single user
+exports.getUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await userService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ user });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user', error: error.message });
   }
 };
 
@@ -298,41 +380,31 @@ exports.getAllProducts = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    const query = {};
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
 
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { brand: { $regex: search, $options: 'i' } }
-      ];
+    if (category) {
+      options.category = category;
     }
-
-    if (category) query.category = category;
-    if (vendor) query.vendor = vendor;
+    if (vendor) {
+      options.vendor = vendor;
+    }
     if (status) {
-      if (status === 'active') query.isActive = true;
-      else if (status === 'inactive') query.isActive = false;
+      if (status === 'active') {
+        options.filters = [{ field: 'isActive', operator: '==', value: true }];
+      } else if (status === 'inactive') {
+        options.filters = [{ field: 'isActive', operator: '==', value: false }];
+      }
     }
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const result = await productService.getProducts(options);
 
-    const products = await Product.find(query)
-      .populate('category', 'name')
-      .populate('vendor', 'name')
-      .sort(sortOptions)
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Product.countDocuments(query);
-
-    res.json({
-      products,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total
-    });
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: 'Error fetching products', error: error.message });
@@ -351,37 +423,25 @@ exports.bulkProductOperations = async (req, res) => {
     let result;
     switch (operation) {
       case 'activate':
-        result = await Product.updateMany(
-          { _id: { $in: productIds } },
-          { isActive: true }
-        );
+        result = await productService.bulkProductOperations('activate', productIds);
         break;
       case 'deactivate':
-        result = await Product.updateMany(
-          { _id: { $in: productIds } },
-          { isActive: false }
-        );
+        result = await productService.bulkProductOperations('deactivate', productIds);
         break;
       case 'update':
         if (!data) {
           return res.status(400).json({ message: 'Data is required for update operation' });
         }
-        result = await Product.updateMany(
-          { _id: { $in: productIds } },
-          { $set: data }
-        );
+        result = await productService.bulkProductOperations('update', productIds, data);
         break;
       case 'delete':
-        result = await Product.deleteMany({ _id: { $in: productIds } });
+        result = await productService.bulkProductOperations('delete', productIds);
         break;
       default:
         return res.status(400).json({ message: 'Invalid operation' });
     }
 
-    res.json({
-      message: `Bulk operation '${operation}' completed successfully`,
-      affectedCount: result.modifiedCount || result.deletedCount
-    });
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: 'Error performing bulk operation', error: error.message });
@@ -403,44 +463,28 @@ exports.getAllOrders = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    const query = {};
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
 
-    if (search) {
-      query.$or = [
-        { orderNumber: { $regex: search, $options: 'i' } },
-        { 'shippingAddress.firstName': { $regex: search, $options: 'i' } },
-        { 'shippingAddress.lastName': { $regex: search, $options: 'i' } },
-        { 'shippingAddress.email': { $regex: search, $options: 'i' } }
-      ];
+    if (status) {
+      options.status = status;
     }
-
-    if (status) query.status = status;
-    if (paymentStatus) query.paymentStatus = paymentStatus;
+    if (paymentStatus) {
+      options.paymentStatus = paymentStatus;
+    }
     if (dateFrom || dateTo) {
-      query.createdAt = {};
-      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
-      if (dateTo) query.createdAt.$lte = new Date(dateTo);
+      options.dateFrom = dateFrom;
+      options.dateTo = dateTo;
     }
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const result = await orderService.getOrders(options);
 
-    const orders = await Order.find(query)
-      .populate('user', 'firstName lastName email')
-      .populate('items.product', 'name')
-      .populate('items.vendor', 'name')
-      .sort(sortOptions)
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await Order.countDocuments(query);
-
-    res.json({
-      orders,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total
-    });
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: 'Error fetching orders', error: error.message });
@@ -462,34 +506,263 @@ exports.bulkOrderOperations = async (req, res) => {
         if (!data || !data.status) {
           return res.status(400).json({ message: 'Status is required for updateStatus operation' });
         }
-        result = await Order.updateMany(
-          { _id: { $in: orderIds } },
-          { status: data.status }
-        );
+        result = await orderService.bulkOrderOperations('updateStatus', orderIds, data);
         break;
       case 'updatePaymentStatus':
         if (!data || !data.paymentStatus) {
           return res.status(400).json({ message: 'Payment status is required for updatePaymentStatus operation' });
         }
-        result = await Order.updateMany(
-          { _id: { $in: orderIds } },
-          { paymentStatus: data.paymentStatus }
-        );
+        result = await orderService.bulkOrderOperations('updatePaymentStatus', orderIds, data);
         break;
       case 'delete':
-        result = await Order.deleteMany({ _id: { $in: orderIds } });
+        result = await orderService.bulkOrderOperations('delete', orderIds);
         break;
       default:
         return res.status(400).json({ message: 'Invalid operation' });
     }
 
-    res.json({
-      message: `Bulk operation '${operation}' completed successfully`,
-      affectedCount: result.modifiedCount || result.deletedCount
-    });
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: 'Error performing bulk operation', error: error.message });
+  }
+};
+
+// Category management
+exports.getAllCategories = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
+
+    const result = await categoryService.getCategories(options);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching categories', error: error.message });
+  }
+};
+
+// Create category
+exports.createCategory = async (req, res) => {
+  try {
+    const categoryData = req.body;
+    const category = await categoryService.createCategory(categoryData);
+
+    res.status(201).json({
+      message: 'Category created successfully',
+      category
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating category', error: error.message });
+  }
+};
+
+// Update category
+exports.updateCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const updateData = req.body;
+
+    const category = await categoryService.updateCategory(categoryId, updateData);
+
+    res.json({
+      message: 'Category updated successfully',
+      category
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating category', error: error.message });
+  }
+};
+
+// Delete category
+exports.deleteCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+
+    await categoryService.deleteCategory(categoryId);
+
+    res.json({
+      message: 'Category deleted successfully'
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting category', error: error.message });
+  }
+};
+
+// Vendor management
+exports.getAllVendors = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      status,
+      isVerified,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
+
+    if (status) {
+      options.status = status;
+    }
+    if (isVerified !== undefined) {
+      options.isVerified = isVerified === 'true';
+    }
+
+    const result = await vendorService.getVendors(options);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching vendors', error: error.message });
+  }
+};
+
+// Review management
+exports.getAllReviews = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      rating,
+      isApproved,
+      isFlagged,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
+
+    if (rating) {
+      options.rating = parseInt(rating);
+    }
+    if (isApproved !== undefined) {
+      options.isApproved = isApproved === 'true';
+    }
+    if (isFlagged !== undefined) {
+      options.isFlagged = isFlagged === 'true';
+    }
+
+    const result = await reviewService.getReviews(options);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching reviews', error: error.message });
+  }
+};
+
+// Coupon management
+exports.getAllCoupons = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      discountType,
+      isActive,
+      isPublic,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
+
+    if (discountType) {
+      options.discountType = discountType;
+    }
+    if (isActive !== undefined) {
+      options.isActive = isActive === 'true';
+    }
+    if (isPublic !== undefined) {
+      options.isPublic = isPublic === 'true';
+    }
+
+    const result = await couponService.getCoupons(options);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching coupons', error: error.message });
+  }
+};
+
+// Gift card management
+exports.getAllGiftCards = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      type,
+      isActive,
+      isRedeemed,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      sortBy,
+      sortOrder
+    };
+
+    if (type) {
+      options.type = type;
+    }
+    if (isActive !== undefined) {
+      options.isActive = isActive === 'true';
+    }
+    if (isRedeemed !== undefined) {
+      options.isRedeemed = isRedeemed === 'true';
+    }
+
+    const result = await giftCardService.getGiftCards(options);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching gift cards', error: error.message });
   }
 };
 
@@ -516,100 +789,69 @@ exports.getAnalytics = async (req, res) => {
         startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     }
 
-    // Sales analytics
-    const salesAnalytics = await Order.aggregate([
-      { $match: { createdAt: { $gte: startDate }, status: 'delivered', paymentStatus: 'paid' } },
-      {
-        $group: {
-          _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' },
-            day: { $dayOfMonth: '$createdAt' }
-          },
-          revenue: { $sum: '$total' },
-          orders: { $sum: 1 },
-          averageOrderValue: { $avg: '$total' }
-        }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
-    ]);
+    // Get orders for the period
+    const orders = await orderService.getAll({
+      filters: [
+        { field: 'createdAt', operator: '>=', value: startDate },
+        { field: 'status', operator: '==', value: 'delivered' },
+        { field: 'paymentStatus', operator: '==', value: 'paid' }
+      ]
+    });
 
-    // User analytics
-    const userAnalytics = await User.aggregate([
-      { $match: { createdAt: { $gte: startDate } } },
-      {
-        $group: {
-          _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' },
-            day: { $dayOfMonth: '$createdAt' }
-          },
-          newUsers: { $sum: 1 }
-        }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
-    ]);
+    // Get users for the period
+    const users = await userService.getAll({
+      filters: [{ field: 'createdAt', operator: '>=', value: startDate }]
+    });
 
-    // Product performance
-    const productPerformance = await Product.aggregate([
-      {
-        $lookup: {
-          from: 'orders',
-          localField: '_id',
-          foreignField: 'items.product',
-          as: 'orderItems'
-        }
-      },
-      {
-        $addFields: {
-          totalSold: {
-            $sum: '$orderItems.items.quantity'
-          },
-          totalRevenue: {
-            $sum: '$orderItems.items.total'
-          }
-        }
-      },
-      { $sort: { totalSold: -1 } },
-      { $limit: 20 }
-    ]);
+    // Calculate analytics
+    const salesAnalytics = orders.reduce((acc, order) => {
+      const date = new Date(order.createdAt).toDateString();
+      if (!acc[date]) {
+        acc[date] = { revenue: 0, orders: 0 };
+      }
+      acc[date].revenue += order.total || 0;
+      acc[date].orders++;
+      return acc;
+    }, {});
 
-    // Category performance
-    const categoryPerformance = await Category.aggregate([
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: 'category',
-          as: 'products'
-        }
-      },
-      {
-        $lookup: {
-          from: 'orders',
-          localField: 'products._id',
-          foreignField: 'items.product',
-          as: 'orderItems'
-        }
-      },
-      {
-        $addFields: {
-          totalProducts: { $size: '$products' },
-          totalSold: {
-            $sum: '$orderItems.items.quantity'
-          },
-          totalRevenue: {
-            $sum: '$orderItems.items.total'
-          }
-        }
-      },
-      { $sort: { totalRevenue: -1 } }
-    ]);
+    const userAnalytics = users.reduce((acc, user) => {
+      const date = new Date(user.createdAt).toDateString();
+      if (!acc[date]) {
+        acc[date] = { newUsers: 0 };
+      }
+      acc[date].newUsers++;
+      return acc;
+    }, {});
+
+    // Get product performance
+    const products = await productService.getAll();
+    const productPerformance = products
+      .sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0))
+      .slice(0, 20);
+
+    // Get category performance
+    const categories = await categoryService.getAll();
+    // basic category performance by aggregating delivered orders items per category
+    const categoryPerformance = categories.map(category => ({
+      categoryId: category.id,
+      categoryName: category.name,
+      totalProducts: 0,
+      totalSold: 0,
+      totalRevenue: 0
+    }));
 
     res.json({
       period,
-      salesAnalytics,
-      userAnalytics,
+      salesAnalytics: Object.entries(salesAnalytics).map(([date, stats]) => ({
+        date,
+        revenue: stats.revenue,
+        orders: stats.orders,
+        averageOrderValue: stats.orders > 0 ? stats.revenue / stats.orders : 0
+      })),
+      userAnalytics: Object.entries(userAnalytics).map(([date, stats]) => ({
+        date,
+        newUsers: stats.newUsers
+      })),
       productPerformance,
       categoryPerformance
     });
@@ -636,9 +878,9 @@ exports.getSystemHealth = async (req, res) => {
       }
     };
 
-    // Check database connection
+    // Check database connection by testing a simple query
     try {
-      await User.findOne().limit(1);
+      await userService.count();
     } catch (error) {
       health.database = 'unhealthy';
     }

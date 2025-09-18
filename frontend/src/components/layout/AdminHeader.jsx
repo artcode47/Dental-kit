@@ -16,7 +16,7 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import ThemeToggle from '../common/ThemeToggle';
 
 const AdminHeader = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const { user, logout } = useAuth();
   const { isRTL } = useLanguage();
   const { currentTheme } = useTheme();
@@ -54,7 +54,7 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50">
+    <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50 relative z-50">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left side */}
@@ -86,7 +86,7 @@ const AdminHeader = () => {
               </div>
               <input
                 type="text"
-                placeholder={t('admin.header.searchPlaceholder')}
+                placeholder={t('header.searchPlaceholder')}
                 className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
               />
             </div>
@@ -120,13 +120,13 @@ const AdminHeader = () => {
                   <div className="py-2">
                     <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
                       <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {t('admin.header.notifications')}
+                        {t('header.notifications')}
                       </h3>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       <div className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-                          {t('admin.header.noNotifications')}
+                          {t('header.noNotifications')}
                         </p>
                       </div>
                     </div>
@@ -177,7 +177,7 @@ const AdminHeader = () => {
                         className="flex items-center w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                       >
                         <UserCircleIcon className="h-4 w-4 mr-3 text-gray-400" />
-                        {t('admin.header.profile')}
+                        {t('header.profile')}
                       </button>
                       
                       <button
@@ -188,7 +188,7 @@ const AdminHeader = () => {
                         className="flex items-center w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                       >
                         <CogIcon className="h-4 w-4 mr-3 text-gray-400" />
-                        {t('admin.header.settings')}
+                        {t('header.settings')}
                       </button>
                     </div>
                     
@@ -201,7 +201,7 @@ const AdminHeader = () => {
                         className="flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       >
                         <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3" />
-                        {t('admin.header.logout')}
+                        {t('header.logout')}
                       </button>
                     </div>
                   </div>
@@ -220,7 +220,7 @@ const AdminHeader = () => {
           </div>
           <input
             type="text"
-            placeholder={t('admin.header.searchPlaceholder')}
+            placeholder={t('header.searchPlaceholder')}
             className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200"
           />
         </div>

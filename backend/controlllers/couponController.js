@@ -1,31 +1,35 @@
-const Coupon = require('../models/Coupon');
-const User = require('../models/User');
-const Order = require('../models/Order');
+const CouponService = require('../services/couponService');
+const UserService = require('../services/userService');
+const OrderService = require('../services/orderService');
+
+const couponService = new CouponService();
+const userService = new UserService();
+const orderService = new OrderService();
 
 // Validate and apply coupon
 exports.validateCoupon = async (req, res) => {
   try {
     const { code, orderAmount = 0 } = req.body;
 
-    const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+    const coupon = await couponService.getCouponByCode(code.toUpperCase());
     if (!coupon) {
       return res.status(404).json({ message: 'Invalid coupon code' });
     }
 
-    if (!coupon.isValid()) {
+    if (!couponService.isValid(coupon)) {
       return res.status(400).json({ message: 'Coupon has expired or is no longer valid' });
     }
 
-    if (!coupon.canUserUse(req.user._id, orderAmount)) {
+    if (!couponService.canUserUse(coupon, req.user.id, orderAmount)) {
       return res.status(400).json({ message: 'Coupon cannot be applied to this order' });
     }
 
-    const discountAmount = coupon.calculateDiscount(orderAmount);
+    const discountAmount = couponService.calculateDiscount(coupon, orderAmount);
     const finalAmount = orderAmount - discountAmount;
 
     res.json({
       coupon: {
-        id: coupon._id,
+        id: coupon.id,
         code: coupon.code,
         name: coupon.name,
         description: coupon.description,
@@ -47,37 +51,38 @@ exports.applyCoupon = async (req, res) => {
   try {
     const { code, orderId } = req.body;
 
-    const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+    const coupon = await couponService.getCouponByCode(code.toUpperCase());
     if (!coupon) {
       return res.status(404).json({ message: 'Invalid coupon code' });
     }
 
-    const order = await Order.findOne({ _id: orderId, user: req.user._id });
-    if (!order) {
+    const order = await orderService.getById(orderId);
+    if (!order || order.userId !== req.user.id) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    if (!coupon.isValid()) {
+    if (!couponService.isValid(coupon)) {
       return res.status(400).json({ message: 'Coupon has expired or is no longer valid' });
     }
 
-    if (!coupon.canUserUse(req.user._id, order.subtotal)) {
+    if (!couponService.canUserUse(coupon, req.user.id, order.subtotal)) {
       return res.status(400).json({ message: 'Coupon cannot be applied to this order' });
     }
 
-    const discountAmount = coupon.calculateDiscount(order.subtotal);
+    const discountAmount = couponService.calculateDiscount(coupon, order.subtotal);
     
     // Update order with discount
-    order.discount = discountAmount;
-    order.total = order.subtotal + order.tax + order.shipping - discountAmount;
-    await order.save();
+    const updatedOrder = await orderService.update(orderId, {
+      discount: discountAmount,
+      total: order.subtotal + order.tax + order.shipping - discountAmount
+    });
 
     // Apply coupon usage
-    await coupon.applyCoupon(req.user._id, orderId, discountAmount);
+    await couponService.applyCoupon(coupon.id, req.user.id, orderId, discountAmount);
 
     res.json({
       message: 'Coupon applied successfully',
-      order,
+      order: updatedOrder,
       discountAmount,
     });
   } catch (error) {
@@ -90,27 +95,30 @@ exports.getAllCoupons = async (req, res) => {
   try {
     const { page = 1, limit = 20, isActive, isPublic } = req.query;
 
-    const query = {};
+    const filters = {};
     if (isActive !== undefined) {
-      query.isActive = isActive === 'true';
+      filters.isActive = isActive === 'true';
     }
     if (isPublic !== undefined) {
-      query.isPublic = isPublic === 'true';
+      filters.isPublic = isPublic === 'true';
     }
 
-    const coupons = await Coupon.find(query)
-      .populate('applicableUsers', 'firstName lastName email')
-      .populate('applicableProducts', 'name sku')
-      .populate('applicableCategories', 'name')
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+    const coupons = await couponService.getAll({
+      filters,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+      limitCount: parseInt(limit) * 10
+    });
 
-    const total = await Coupon.countDocuments(query);
+    // Apply pagination
+    const total = coupons.length;
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedCoupons = coupons.slice(startIndex, endIndex);
 
     res.json({
-      coupons,
-      totalPages: Math.ceil(total / limit),
+      coupons: paginatedCoupons,
+      totalPages: Math.ceil(total / parseInt(limit)),
       currentPage: parseInt(page),
       total,
     });
@@ -119,27 +127,20 @@ exports.getAllCoupons = async (req, res) => {
   }
 };
 
-// Get single coupon (admin)
+// Get single coupon
 exports.getCoupon = async (req, res) => {
   try {
-    const coupon = await Coupon.findById(req.params.id)
-      .populate('applicableUsers', 'firstName lastName email')
-      .populate('applicableProducts', 'name sku')
-      .populate('applicableCategories', 'name')
-      .populate('usageHistory.user', 'firstName lastName email')
-      .populate('usageHistory.order', 'orderNumber total');
-
+    const coupon = await couponService.getById(req.params.id);
     if (!coupon) {
       return res.status(404).json({ message: 'Coupon not found' });
     }
-
     res.json(coupon);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching coupon', error: error.message });
   }
 };
 
-// Create coupon (admin)
+// Create coupon
 exports.createCoupon = async (req, res) => {
   try {
     const {
@@ -148,23 +149,22 @@ exports.createCoupon = async (req, res) => {
       description,
       discountType,
       discountValue,
-      maxUses,
-      maxUsesPerUser,
-      validFrom,
-      validUntil,
       minimumOrderAmount,
       maximumDiscountAmount,
+      usageLimit,
+      userUsageLimit,
+      validFrom,
+      validUntil,
+      isPublic,
+      isActive,
       applicableProducts,
       applicableCategories,
       excludedProducts,
-      excludedCategories,
-      applicableUsers,
-      userGroups,
-      isPublic
+      excludedCategories
     } = req.body;
 
     // Check if coupon code already exists
-    const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
+    const existingCoupon = await couponService.getCouponByCode(code.toUpperCase());
     if (existingCoupon) {
       return res.status(400).json({ message: 'Coupon code already exists' });
     }
@@ -175,179 +175,116 @@ exports.createCoupon = async (req, res) => {
       description,
       discountType,
       discountValue,
-      maxUses: maxUses || null,
-      maxUsesPerUser: maxUsesPerUser || 1,
-      validFrom: new Date(validFrom),
-      validUntil: new Date(validUntil),
       minimumOrderAmount: minimumOrderAmount || 0,
-      maximumDiscountAmount: maximumDiscountAmount || null,
+      maximumDiscountAmount: maximumDiscountAmount || 0,
+      usageLimit: usageLimit || 0,
+      userUsageLimit: userUsageLimit || 1,
+      validFrom: validFrom ? new Date(validFrom) : new Date(),
+      validUntil: validUntil ? new Date(validUntil) : null,
+      isPublic: isPublic !== undefined ? isPublic : true,
+      isActive: isActive !== undefined ? isActive : true,
       applicableProducts: applicableProducts || [],
       applicableCategories: applicableCategories || [],
       excludedProducts: excludedProducts || [],
       excludedCategories: excludedCategories || [],
-      applicableUsers: applicableUsers || [],
-      userGroups: userGroups || ['all'],
-      isPublic: isPublic !== undefined ? isPublic : true,
+      usageCount: 0,
+      totalDiscountGiven: 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
-    const coupon = await Coupon.create(couponData);
-
-    await coupon.populate([
-      { path: 'applicableUsers', select: 'firstName lastName email' },
-      { path: 'applicableProducts', select: 'name sku' },
-      { path: 'applicableCategories', select: 'name' }
-    ]);
-
+    const coupon = await couponService.create(couponData);
     res.status(201).json(coupon);
   } catch (error) {
     res.status(500).json({ message: 'Error creating coupon', error: error.message });
   }
 };
 
-// Update coupon (admin)
+// Update coupon
 exports.updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Don't allow updating code if coupon has been used
-    if (updateData.code) {
-      const coupon = await Coupon.findById(id);
-      if (coupon && coupon.usedCount > 0) {
-        return res.status(400).json({ message: 'Cannot update code of a used coupon' });
-      }
-      updateData.code = updateData.code.toUpperCase();
-    }
-
-    // Convert date strings to Date objects
-    if (updateData.validFrom) updateData.validFrom = new Date(updateData.validFrom);
-    if (updateData.validUntil) updateData.validUntil = new Date(updateData.validUntil);
-
-    const coupon = await Coupon.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    ).populate([
-      { path: 'applicableUsers', select: 'firstName lastName email' },
-      { path: 'applicableProducts', select: 'name sku' },
-      { path: 'applicableCategories', select: 'name' }
-    ]);
-
+    const coupon = await couponService.getById(id);
     if (!coupon) {
       return res.status(404).json({ message: 'Coupon not found' });
     }
 
-    res.json(coupon);
+    // If code is being updated, check if it already exists
+    if (updateData.code && updateData.code !== coupon.code) {
+      const existingCoupon = await couponService.getCouponByCode(updateData.code.toUpperCase());
+      if (existingCoupon) {
+        return res.status(400).json({ message: 'Coupon code already exists' });
+      }
+      updateData.code = updateData.code.toUpperCase();
+    }
+
+    const updatedCoupon = await couponService.update(id, updateData);
+    res.json(updatedCoupon);
   } catch (error) {
     res.status(500).json({ message: 'Error updating coupon', error: error.message });
   }
 };
 
-// Delete coupon (admin)
+// Delete coupon
 exports.deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const coupon = await Coupon.findById(id);
+    
+    const coupon = await couponService.getById(id);
     if (!coupon) {
       return res.status(404).json({ message: 'Coupon not found' });
     }
 
-    if (coupon.usedCount > 0) {
-      return res.status(400).json({ message: 'Cannot delete a coupon that has been used' });
-    }
-
-    await Coupon.findByIdAndDelete(id);
+    await couponService.delete(id);
     res.json({ message: 'Coupon deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting coupon', error: error.message });
   }
 };
 
-// Toggle coupon status (admin)
+// Toggle coupon status
 exports.toggleCouponStatus = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const coupon = await Coupon.findById(id);
+    
+    const coupon = await couponService.getById(id);
     if (!coupon) {
       return res.status(404).json({ message: 'Coupon not found' });
     }
 
-    coupon.isActive = !coupon.isActive;
-    await coupon.save();
+    const updatedCoupon = await couponService.update(id, {
+      isActive: !coupon.isActive
+    });
 
-    res.json(coupon);
+    res.json(updatedCoupon);
   } catch (error) {
     res.status(500).json({ message: 'Error toggling coupon status', error: error.message });
   }
 };
 
-// Get coupon statistics (admin)
+// Get coupon usage statistics
 exports.getCouponStats = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-
-    const query = {};
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
+    const { id } = req.params;
+    
+    const coupon = await couponService.getById(id);
+    if (!coupon) {
+      return res.status(404).json({ message: 'Coupon not found' });
     }
 
-    const [
-      totalCoupons,
-      activeCoupons,
-      expiredCoupons,
-      totalUsage,
-      totalDiscountGiven
-    ] = await Promise.all([
-      Coupon.countDocuments(query),
-      Coupon.countDocuments({ ...query, isActive: true }),
-      Coupon.countDocuments({ ...query, validUntil: { $lt: new Date() } }),
-      Coupon.aggregate([
-        { $match: query },
-        { $group: { _id: null, total: { $sum: '$usedCount' } } }
-      ]),
-      Coupon.aggregate([
-        { $match: query },
-        { $group: { _id: null, total: { $sum: '$totalDiscountGiven' } } }
-      ])
-    ]);
-
-    const stats = {
-      totalCoupons,
-      activeCoupons,
-      expiredCoupons,
-      totalUsage: totalUsage[0]?.total || 0,
-      totalDiscountGiven: totalDiscountGiven[0]?.total || 0,
-    };
-
+    const stats = await couponService.getCouponStats(id);
     res.json(stats);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching coupon stats', error: error.message });
   }
 };
 
-// Generate coupon code
+// Generate unique coupon code
 exports.generateCouponCode = async (req, res) => {
   try {
-    const { prefix = 'DENTAL', length = 8 } = req.body;
-    
-    let code;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    do {
-      const randomPart = Math.random().toString(36).substring(2, 2 + length).toUpperCase();
-      code = `${prefix}${randomPart}`;
-      attempts++;
-
-      if (attempts > maxAttempts) {
-        return res.status(500).json({ message: 'Unable to generate unique coupon code' });
-      }
-    } while (await Coupon.findOne({ code }));
-
+    const code = await couponService.generateUniqueCode();
     res.json({ code });
   } catch (error) {
     res.status(500).json({ message: 'Error generating coupon code', error: error.message });

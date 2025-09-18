@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const Order = require('../models/Order');
-const Product = require('../models/Product');
+const UserService = require('../services/userService');
+const OrderService = require('../services/orderService');
+const ProductService = require('../services/productService');
 const { getMessage } = require('./i18n');
+
+const userService = new UserService();
+const orderService = new OrderService();
+const productService = new ProductService();
 
 // Store connected users
 const connectedUsers = new Map();
@@ -18,7 +22,7 @@ const authenticateSocket = async (socket, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await userService.getById(decoded.userId);
     
     if (!user) {
       return next(new Error('User not found'));
@@ -35,21 +39,21 @@ const socketHandler = (io) => {
   io.use(authenticateSocket);
 
   io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.user._id}`);
+    console.log(`User connected: ${socket.user.id}`);
     
     // Store user connection
-    connectedUsers.set(socket.user._id.toString(), {
+    connectedUsers.set(socket.user.id, {
       socketId: socket.id,
       user: socket.user,
       connectedAt: new Date()
     });
 
     // Join user room
-    socket.join(`user_${socket.user._id}`);
+    socket.join(`user_${socket.user.id}`);
 
     // Join admin room if user is admin
     if (socket.user.role === 'admin') {
-      adminUsers.add(socket.user._id.toString());
+      adminUsers.add(socket.user.id);
       socket.join('admin_room');
     }
 
@@ -58,28 +62,31 @@ const socketHandler = (io) => {
       try {
         const { orderId, status, trackingNumber, trackingUrl } = data;
         
-        const order = await Order.findById(orderId).populate('user', 'email firstName lastName');
+        const order = await orderService.getById(orderId);
         if (!order) {
           socket.emit('error', { message: 'socket.order_not_found' });
           return;
         }
 
+        // Get user details
+        const user = await userService.getById(order.userId);
+
         // Update order status
-        order.status = status;
-        if (trackingNumber) order.trackingNumber = trackingNumber;
-        if (trackingUrl) order.trackingUrl = trackingUrl;
+        const updateData = { status };
+        if (trackingNumber) updateData.trackingNumber = trackingNumber;
+        if (trackingUrl) updateData.trackingUrl = trackingUrl;
         
         if (status === 'shipped') {
-          order.shippedAt = new Date();
+          updateData.shippedAt = new Date();
         } else if (status === 'delivered') {
-          order.deliveredAt = new Date();
+          updateData.deliveredAt = new Date();
         }
 
-        await order.save();
+        await orderService.update(orderId, updateData);
 
         // Emit to specific user
-        io.to(`user_${order.user._id}`).emit('order_updated', {
-          orderId: order._id,
+        io.to(`user_${order.userId}`).emit('order_updated', {
+          orderId: order.id,
           orderNumber: order.orderNumber,
           status,
           trackingNumber,
@@ -89,9 +96,9 @@ const socketHandler = (io) => {
 
         // Emit to admin room
         io.to('admin_room').emit('order_status_changed', {
-          orderId: order._id,
+          orderId: order.id,
           orderNumber: order.orderNumber,
-          customerName: `${order.user.firstName} ${order.user.lastName}`,
+          customerName: `${user.firstName} ${user.lastName}`,
           status,
           updatedAt: new Date()
         });
@@ -101,158 +108,128 @@ const socketHandler = (io) => {
       }
     });
 
-    // Handle inventory updates
-    socket.on('inventory_update', async (data) => {
+    // Handle product stock updates
+    socket.on('product_stock_update', async (data) => {
       try {
         const { productId, stock } = data;
         
-        const product = await Product.findById(productId);
+        const product = await productService.getProductById(productId);
         if (!product) {
           socket.emit('error', { message: 'socket.product_not_found' });
           return;
         }
 
-        const oldStock = product.stock;
-        product.stock = stock;
-        await product.save();
+        await productService.updateStock(productId, stock, 'set');
 
-        // Emit to all connected users
-        io.emit('inventory_updated', {
-          productId: product._id,
+        // Emit to admin room
+        io.to('admin_room').emit('product_stock_changed', {
+          productId: product.id,
           productName: product.name,
-          oldStock,
-          newStock: stock,
-          isLowStock: stock <= 10,
-          isOutOfStock: stock === 0
+          stock,
+          updatedAt: new Date()
         });
 
       } catch (error) {
-        socket.emit('error', { message: 'socket.error_updating_inventory' });
+        socket.emit('error', { message: 'socket.error_updating_stock' });
       }
     });
 
-    // Handle new order notifications
-    socket.on('new_order', async (data) => {
+    // Handle user notifications
+    socket.on('send_notification', async (data) => {
       try {
-        const { orderId } = data;
+        const { userId, type, title, message, data: notificationData } = data;
         
-        const order = await Order.findById(orderId)
-          .populate('user', 'email firstName lastName')
-          .populate('items.product', 'name');
+        // Check if user is connected
+        const userConnection = connectedUsers.get(userId);
+        if (userConnection) {
+          io.to(userConnection.socketId).emit('notification', {
+            type,
+            title,
+            message,
+            data: notificationData,
+            timestamp: new Date()
+          });
+        }
 
-        if (!order) {
-          socket.emit('error', { message: 'socket.order_not_found' });
+      } catch (error) {
+        socket.emit('error', { message: 'socket.error_sending_notification' });
+      }
+    });
+
+    // Handle admin broadcasts
+    socket.on('admin_broadcast', async (data) => {
+      try {
+        const { message, type = 'info' } = data;
+        
+        // Check if user is admin
+        if (socket.user.role !== 'admin') {
+          socket.emit('error', { message: 'socket.admin_only' });
           return;
         }
 
-        // Emit to admin room
-        io.to('admin_room').emit('new_order_received', {
-          orderId: order._id,
-          orderNumber: order.orderNumber,
-          customerName: `${order.user.firstName} ${order.user.lastName}`,
-          customerEmail: order.user.email,
-          total: order.total,
-          items: order.items.map(item => ({
-            name: item.product.name,
-            quantity: item.quantity,
-            price: item.price
-          })),
-          createdAt: order.createdAt
-        });
-
-      } catch (error) {
-        socket.emit('error', { message: 'socket.error_processing_order' });
-      }
-    });
-
-    // Handle chat messages
-    socket.on('send_message', async (data) => {
-      try {
-        const { recipientId, message, type = 'text' } = data;
-        
-        const messageData = {
-          senderId: socket.user._id,
-          senderName: `${socket.user.firstName} ${socket.user.lastName}`,
-          recipientId,
+        // Broadcast to all connected users
+        io.emit('admin_broadcast', {
           message,
           type,
-          timestamp: new Date()
-        };
-
-        // Send to recipient if online
-        const recipientSocket = connectedUsers.get(recipientId);
-        if (recipientSocket) {
-          io.to(recipientSocket.socketId).emit('new_message', messageData);
-        }
-
-        // Send back to sender for confirmation
-        socket.emit('message_sent', messageData);
-
-        // If recipient is admin, also send to admin room
-        if (adminUsers.has(recipientId)) {
-          io.to('admin_room').emit('admin_message', messageData);
-        }
-
-      } catch (error) {
-        socket.emit('error', { message: 'socket.error_sending_message' });
-      }
-    });
-
-    // Handle typing indicators
-    socket.on('typing', (data) => {
-      const { recipientId, isTyping } = data;
-      
-      const recipientSocket = connectedUsers.get(recipientId);
-      if (recipientSocket) {
-        io.to(recipientSocket.socketId).emit('user_typing', {
-          userId: socket.user._id,
-          userName: `${socket.user.firstName} ${socket.user.lastName}`,
-          isTyping
-        });
-      }
-    });
-
-    // Handle product view tracking
-    socket.on('product_viewed', async (data) => {
-      try {
-        const { productId } = data;
-        
-        // Update product view count
-        await Product.findByIdAndUpdate(productId, {
-          $inc: { viewCount: 1 }
-        });
-
-        // Emit to admin room for analytics
-        io.to('admin_room').emit('product_viewed', {
-          productId,
-          userId: socket.user._id,
+          from: socket.user.firstName,
           timestamp: new Date()
         });
 
       } catch (error) {
-        console.error('Error tracking product view:', error);
+        socket.emit('error', { message: 'socket.error_broadcasting' });
       }
     });
 
-    // Handle disconnect
+    // Handle user typing indicators
+    socket.on('typing_start', (data) => {
+      const { room } = data;
+      socket.to(room).emit('user_typing', {
+        userId: socket.user.id,
+        userName: socket.user.firstName,
+        room
+      });
+    });
+
+    socket.on('typing_stop', (data) => {
+      const { room } = data;
+      socket.to(room).emit('user_stopped_typing', {
+        userId: socket.user.id,
+        room
+      });
+    });
+
+    // Handle disconnection
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${socket.user._id}`);
+      console.log(`User disconnected: ${socket.user.id}`);
       
       // Remove from connected users
-      connectedUsers.delete(socket.user._id.toString());
+      connectedUsers.delete(socket.user.id);
       
-      // Remove from admin users if applicable
-      if (adminUsers.has(socket.user._id.toString())) {
-        adminUsers.delete(socket.user._id.toString());
+      // Remove from admin users if admin
+      if (socket.user.role === 'admin') {
+        adminUsers.delete(socket.user.id);
       }
+
+      // Emit user disconnected to admin room
+      io.to('admin_room').emit('user_disconnected', {
+        userId: socket.user.id,
+        userName: socket.user.firstName,
+        disconnectedAt: new Date()
+      });
+    });
+
+    // Handle errors
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
+      socket.emit('error', { message: 'socket.internal_error' });
     });
   });
 
-  // Utility functions to send notifications
+  // Utility functions for external use
   const sendToUser = (userId, event, data) => {
-    const userSocket = connectedUsers.get(userId);
-    if (userSocket) {
-      io.to(userSocket.socketId).emit(event, data);
+    const userConnection = connectedUsers.get(userId);
+    if (userConnection) {
+      io.to(userConnection.socketId).emit(event, data);
     }
   };
 

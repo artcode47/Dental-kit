@@ -1,5 +1,7 @@
 const webpush = require('web-push');
-const User = require('../models/User');
+const UserService = require('../services/userService');
+
+const userService = new UserService();
 
 // Configure web-push
 const vapidKeys = webpush.generateVAPIDKeys();
@@ -17,18 +19,20 @@ const userSubscriptions = new Map();
 const addSubscription = async (userId, subscription) => {
   try {
     // Store in memory for quick access
-    userSubscriptions.set(userId.toString(), subscription);
+    userSubscriptions.set(userId, subscription);
     
     // Store in database
-    await User.findByIdAndUpdate(userId, {
-      $push: {
-        pushSubscriptions: {
-          endpoint: subscription.endpoint,
-          keys: subscription.keys,
-          createdAt: new Date()
-        }
-      }
-    });
+    const user = await userService.getById(userId);
+    if (user) {
+      const pushSubscriptions = user.pushSubscriptions || [];
+      pushSubscriptions.push({
+        endpoint: subscription.endpoint,
+        keys: subscription.keys,
+        createdAt: new Date()
+      });
+      
+      await userService.update(userId, { pushSubscriptions });
+    }
     
     return true;
   } catch (error) {
@@ -41,14 +45,17 @@ const addSubscription = async (userId, subscription) => {
 const removeSubscription = async (userId, endpoint) => {
   try {
     // Remove from memory
-    userSubscriptions.delete(userId.toString());
+    userSubscriptions.delete(userId);
     
     // Remove from database
-    await User.findByIdAndUpdate(userId, {
-      $pull: {
-        pushSubscriptions: { endpoint }
-      }
-    });
+    const user = await userService.getById(userId);
+    if (user && user.pushSubscriptions) {
+      const updatedSubscriptions = user.pushSubscriptions.filter(
+        sub => sub.endpoint !== endpoint
+      );
+      
+      await userService.update(userId, { pushSubscriptions: updatedSubscriptions });
+    }
     
     return true;
   } catch (error) {
@@ -60,17 +67,18 @@ const removeSubscription = async (userId, endpoint) => {
 // Send push notification to user
 const sendNotificationToUser = async (userId, notification) => {
   try {
-    const subscription = userSubscriptions.get(userId.toString());
+    let subscription = userSubscriptions.get(userId);
     
     if (!subscription) {
       // Try to get from database
-      const user = await User.findById(userId);
-      if (user && user.pushSubscriptions.length > 0) {
+      const user = await userService.getById(userId);
+      if (user && user.pushSubscriptions && user.pushSubscriptions.length > 0) {
         const latestSubscription = user.pushSubscriptions[user.pushSubscriptions.length - 1];
-        userSubscriptions.set(userId.toString(), {
+        subscription = {
           endpoint: latestSubscription.endpoint,
           keys: latestSubscription.keys
-        });
+        };
+        userSubscriptions.set(userId, subscription);
       } else {
         return false;
       }
@@ -102,105 +110,185 @@ const sendNotificationToUser = async (userId, notification) => {
   }
 };
 
-// Send notification to multiple users
+// Send push notification to multiple users
 const sendNotificationToUsers = async (userIds, notification) => {
-  const results = await Promise.allSettled(
-    userIds.map(userId => sendNotificationToUser(userId, notification))
-  );
+  const results = [];
   
-  const successful = results.filter(result => result.status === 'fulfilled' && result.value).length;
-  const failed = results.length - successful;
+  for (const userId of userIds) {
+    const success = await sendNotificationToUser(userId, notification);
+    results.push({ userId, success });
+  }
   
-  return { successful, failed, total: results.length };
+  return results;
 };
 
-// Send notification to all users
+// Send push notification to all subscribed users
 const sendNotificationToAll = async (notification) => {
   try {
-    const users = await User.find({ 'pushSubscriptions.0': { $exists: true } });
-    const userIds = users.map(user => user._id);
+    // Get all users with push subscriptions
+    const users = await userService.getAll({
+      filters: { 'pushSubscriptions.0': { $exists: true } },
+      limitCount: 1000
+    });
     
+    const userIds = users.map(user => user.id);
     return await sendNotificationToUsers(userIds, notification);
   } catch (error) {
     console.error('Error sending notification to all users:', error);
-    return { successful: 0, failed: 0, total: 0 };
+    return [];
   }
 };
 
-// Notification templates
-const notificationTemplates = {
-  orderStatusUpdate: (orderNumber, status) => ({
-    title: 'Order Status Update',
-    body: `Your order ${orderNumber} has been ${status}`,
-    icon: '/order-icon.png',
-    tag: 'order-update',
-    data: { orderNumber, status }
-  }),
-  
-  lowStockAlert: (productName) => ({
-    title: 'Low Stock Alert',
-    body: `${productName} is running low on stock`,
-    icon: '/stock-icon.png',
-    tag: 'stock-alert',
-    data: { productName }
-  }),
-  
-  priceDrop: (productName, oldPrice, newPrice) => ({
-    title: 'Price Drop Alert',
-    body: `${productName} price dropped from $${oldPrice} to $${newPrice}`,
-    icon: '/price-icon.png',
-    tag: 'price-drop',
-    data: { productName, oldPrice, newPrice }
-  }),
-  
-  newProduct: (productName) => ({
-    title: 'New Product Available',
-    body: `Check out our new ${productName}`,
-    icon: '/new-product-icon.png',
-    tag: 'new-product',
-    data: { productName }
-  }),
-  
-  backInStock: (productName) => ({
-    title: 'Back in Stock',
-    body: `${productName} is back in stock`,
-    icon: '/stock-icon.png',
-    tag: 'back-in-stock',
-    data: { productName }
-  }),
-  
-  orderShipped: (orderNumber, trackingNumber) => ({
-    title: 'Order Shipped',
-    body: `Your order ${orderNumber} has been shipped. Track: ${trackingNumber}`,
-    icon: '/shipping-icon.png',
-    tag: 'order-shipped',
-    data: { orderNumber, trackingNumber }
-  }),
-  
-  abandonedCart: () => ({
-    title: 'Complete Your Purchase',
-    body: 'You have items in your cart waiting for you',
-    icon: '/cart-icon.png',
-    tag: 'abandoned-cart',
-    requireInteraction: true
-  }),
-  
-  loyaltyPoints: (points, reason) => ({
-    title: 'Loyalty Points Earned',
-    body: `You earned ${points} points for ${reason}`,
-    icon: '/loyalty-icon.png',
-    tag: 'loyalty-points',
-    data: { points, reason }
-  }),
-  
-  flashSale: (discount, endTime) => ({
-    title: 'Flash Sale!',
-    body: `${discount}% off - Ends in ${endTime}`,
-    icon: '/sale-icon.png',
-    tag: 'flash-sale',
-    requireInteraction: true,
-    data: { discount, endTime }
-  })
+// Send order status update notification
+const sendOrderStatusNotification = async (userId, order, status) => {
+  const statusMessages = {
+    'confirmed': 'Your order has been confirmed and is being processed.',
+    'processing': 'Your order is now being processed and prepared for shipping.',
+    'shipped': 'Your order has been shipped!',
+    'delivered': 'Your order has been delivered successfully.',
+    'cancelled': 'Your order has been cancelled.',
+    'refunded': 'Your order has been refunded.'
+  };
+
+  const notification = {
+    title: `Order ${order.orderNumber} - ${status.toUpperCase()}`,
+    body: statusMessages[status] || 'Your order status has been updated.',
+    icon: '/icon-192x192.png',
+    badge: '/badge-72x72.png',
+    data: {
+      type: 'order_status_update',
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      status
+    },
+    tag: `order_${order.id}`,
+    requireInteraction: false
+  };
+
+  return await sendNotificationToUser(userId, notification);
+};
+
+// Send new order notification to admin
+const sendNewOrderNotification = async (order) => {
+  try {
+    // Get all admin users
+    const adminUsers = await userService.getAll({
+      filters: { role: { $in: ['admin', 'super_admin'] } },
+      limitCount: 100
+    });
+
+    const notification = {
+      title: 'New Order Received',
+      body: `Order ${order.orderNumber} has been placed for ${order.total.toFixed(2)}`,
+      icon: '/icon-192x192.png',
+      badge: '/badge-72x72.png',
+      data: {
+        type: 'new_order',
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        total: order.total
+      },
+      tag: `new_order_${order.id}`,
+      requireInteraction: true
+    };
+
+    const adminUserIds = adminUsers.map(user => user.id);
+    return await sendNotificationToUsers(adminUserIds, notification);
+  } catch (error) {
+    console.error('Error sending new order notification:', error);
+    return [];
+  }
+};
+
+// Send low stock alert notification
+const sendLowStockAlert = async (product) => {
+  try {
+    // Get all admin users
+    const adminUsers = await userService.getAll({
+      filters: { role: { $in: ['admin', 'super_admin'] } },
+      limitCount: 100
+    });
+
+    const notification = {
+      title: 'Low Stock Alert',
+      body: `${product.name} is running low on stock (${product.stock} remaining)`,
+      icon: '/icon-192x192.png',
+      badge: '/badge-72x72.png',
+      data: {
+        type: 'low_stock_alert',
+        productId: product.id,
+        productName: product.name,
+        currentStock: product.stock
+      },
+      tag: `low_stock_${product.id}`,
+      requireInteraction: true
+    };
+
+    const adminUserIds = adminUsers.map(user => user.id);
+    return await sendNotificationToUsers(adminUserIds, notification);
+  } catch (error) {
+    console.error('Error sending low stock alert:', error);
+    return [];
+  }
+};
+
+// Send back in stock notification
+const sendBackInStockNotification = async (product, subscribers) => {
+  try {
+    const notification = {
+      title: 'Back in Stock!',
+      body: `${product.name} is now back in stock`,
+      icon: '/icon-192x192.png',
+      badge: '/badge-72x72.png',
+      data: {
+        type: 'back_in_stock',
+        productId: product.id,
+        productName: product.name,
+        productUrl: `/products/${product.id}`
+      },
+      tag: `back_in_stock_${product.id}`,
+      requireInteraction: false
+    };
+
+    const subscriberIds = subscribers.map(sub => sub.userId);
+    return await sendNotificationToUsers(subscriberIds, notification);
+  } catch (error) {
+    console.error('Error sending back in stock notification:', error);
+    return [];
+  }
+};
+
+// Send promotional notification
+const sendPromotionalNotification = async (title, body, data = {}) => {
+  try {
+    // Get all users with push subscriptions
+    const users = await userService.getAll({
+      filters: { 
+        'pushSubscriptions.0': { $exists: true },
+        'notificationPreferences.promotional': true
+      },
+      limitCount: 1000
+    });
+
+    const notification = {
+      title,
+      body,
+      icon: '/icon-192x192.png',
+      badge: '/badge-72x72.png',
+      data: {
+        type: 'promotional',
+        ...data
+      },
+      tag: 'promotional',
+      requireInteraction: false
+    };
+
+    const userIds = users.map(user => user.id);
+    return await sendNotificationToUsers(userIds, notification);
+  } catch (error) {
+    console.error('Error sending promotional notification:', error);
+    return [];
+  }
 };
 
 // Get VAPID public key
@@ -211,46 +299,65 @@ const getVapidPublicKey = () => {
 // Get user subscription status
 const getUserSubscriptionStatus = async (userId) => {
   try {
-    const user = await User.findById(userId);
+    const user = await userService.getById(userId);
+    if (!user) return { subscribed: false };
+
+    const hasSubscription = user.pushSubscriptions && user.pushSubscriptions.length > 0;
+    const inMemory = userSubscriptions.has(userId);
+
     return {
-      hasSubscription: user && user.pushSubscriptions.length > 0,
-      subscriptionCount: user ? user.pushSubscriptions.length : 0
+      subscribed: hasSubscription || inMemory,
+      subscriptionCount: user.pushSubscriptions ? user.pushSubscriptions.length : 0,
+      inMemory
     };
   } catch (error) {
     console.error('Error getting user subscription status:', error);
-    return { hasSubscription: false, subscriptionCount: 0 };
+    return { subscribed: false };
   }
 };
 
-// Clean up invalid subscriptions
+// Cleanup invalid subscriptions
 const cleanupInvalidSubscriptions = async () => {
   try {
-    const users = await User.find({ 'pushSubscriptions.0': { $exists: true } });
-    
+    const users = await userService.getAll({
+      filters: { 'pushSubscriptions.0': { $exists: true } },
+      limitCount: 1000
+    });
+
+    let cleanedCount = 0;
+
     for (const user of users) {
-      const validSubscriptions = [];
-      
-      for (const subscription of user.pushSubscriptions) {
-        try {
-          await webpush.sendNotification(subscription, 'test');
-          validSubscriptions.push(subscription);
-        } catch (error) {
-          if (error.statusCode === 410) {
-            // Invalid subscription, remove it
-            console.log(`Removing invalid subscription for user ${user._id}`);
+      if (user.pushSubscriptions) {
+        const validSubscriptions = [];
+        
+        for (const subscription of user.pushSubscriptions) {
+          try {
+            // Test subscription
+            await webpush.sendNotification(subscription, JSON.stringify({
+              title: 'Test',
+              body: 'Test notification'
+            }));
+            validSubscriptions.push(subscription);
+          } catch (error) {
+            if (error.statusCode === 410) {
+              // Subscription is invalid, remove it
+              cleanedCount++;
+            }
           }
         }
-      }
-      
-      // Update user with valid subscriptions only
-      if (validSubscriptions.length !== user.pushSubscriptions.length) {
-        await User.findByIdAndUpdate(user._id, {
-          pushSubscriptions: validSubscriptions
-        });
+
+        // Update user with valid subscriptions only
+        if (validSubscriptions.length !== user.pushSubscriptions.length) {
+          await userService.update(user.id, { pushSubscriptions: validSubscriptions });
+        }
       }
     }
+
+    console.log(`Cleaned up ${cleanedCount} invalid push subscriptions`);
+    return cleanedCount;
   } catch (error) {
     console.error('Error cleaning up invalid subscriptions:', error);
+    return 0;
   }
 };
 
@@ -260,7 +367,11 @@ module.exports = {
   sendNotificationToUser,
   sendNotificationToUsers,
   sendNotificationToAll,
-  notificationTemplates,
+  sendOrderStatusNotification,
+  sendNewOrderNotification,
+  sendLowStockAlert,
+  sendBackInStockNotification,
+  sendPromotionalNotification,
   getVapidPublicKey,
   getUserSubscriptionStatus,
   cleanupInvalidSubscriptions

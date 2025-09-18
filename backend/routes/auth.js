@@ -94,6 +94,14 @@ router.post(
 // Refresh Token
 router.post('/refresh-token', authController.refreshToken);
 
+// Get CSRF token (for testing)
+router.get('/csrf-token', (req, res) => {
+  const { generateCSRFToken } = require('../../middleware/csrf');
+  const token = generateCSRFToken();
+  res.setHeader('X-CSRF-Token', token);
+  res.json({ message: 'CSRF token generated' });
+});
+
 // Logout
 router.post('/logout', authController.logout);
 
@@ -147,7 +155,6 @@ router.put(
     user.isVerified = false;
     user.verificationToken = require('../utils/token').generateRandomToken();
     await user.save();
-    // Send verification email
     const verifyUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/verify-email?token=${user.verificationToken}&email=${email}`;
     await require('../utils/email')({
       to: email,
@@ -158,6 +165,7 @@ router.put(
     res.json({ message: 'Email updated. Please verify your new email.' });
   }
 );
+
 // Update Password
 router.put(
   '/update-password',
@@ -183,6 +191,7 @@ router.put(
     res.json({ message: 'Password updated successfully' });
   }
 );
+
 // Delete Account
 router.delete(
   '/delete-account',
@@ -209,17 +218,10 @@ router.get('/sessions', auth, authController.listSessions);
 // Revoke Session
 router.post('/revoke-session', auth, [body('sessionId').notEmpty()], validate, authController.revokeSession);
 
-// MFA Setup
-router.get('/mfa/setup', auth, authController.mfaSetup);
-router.post('/mfa/verify', auth, [body('token').notEmpty()], validate, authController.mfaVerify);
-router.post('/mfa/disable', auth, authController.mfaDisable);
-
 // Security Questions
 router.post('/security-questions', auth, authController.setSecurityQuestions);
 // Security Questions Verify
 router.post('/security-questions/verify', authController.verifySecurityQuestions);
-// Regenerate Backup Codes
-router.post('/backup-codes/regenerate', auth, authController.regenerateBackupCodes);
 
 // GDPR/CCPA Compliance
 router.post('/consent/give', auth, authController.giveConsent);

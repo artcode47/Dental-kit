@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../hooks/useTranslation';
 import { useCart } from '../../contexts/CartContext';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 
 const CartBadge = () => {
-  const { t } = useTranslation();
-  const { cartItems } = useCart();
+  const { t } = useTranslation('ecommerce');
+  const { items } = useCart();
 
-  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const itemCount = Array.isArray(items) ? items.reduce((total, item) => total + (item.quantity || 0), 0) : 0;
 
   return (
     <Link

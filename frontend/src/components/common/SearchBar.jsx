@@ -4,7 +4,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const SearchBar = ({ onSearch, placeholder, className = '' }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const { isRTL } = useLanguage();
   const [query, setQuery] = useState('');
 

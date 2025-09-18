@@ -21,9 +21,10 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { toast } from 'react-hot-toast';
+import { getSettings, updateSettings } from '../../services/adminApi';
 
 const AdminSettingsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('general');
@@ -152,9 +153,10 @@ const AdminSettingsPage = () => {
   const loadSettings = async () => {
     try {
       setIsLoading(true);
-      // Simulate loading settings from API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // In a real app, you would fetch settings from the backend
+      const s = await getSettings();
+      if (s?.general) setGeneralSettings(prev => ({ ...prev, ...s.general }));
+      if (s?.email) setEmailSettings(prev => ({ ...prev, ...s.email }));
+      if (s?.notifications) setNotificationSettings(prev => ({ ...prev, ...s.notifications }));
     } catch (err) {
       console.error('Error loading settings:', err);
       setError(err.message);
@@ -166,10 +168,11 @@ const AdminSettingsPage = () => {
   const saveSettings = async (settingsType) => {
     try {
       setIsSaving(true);
-      
-      // Simulate saving settings to API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const payload = {};
+      if (!settingsType || settingsType === 'general') payload.general = generalSettings;
+      if (!settingsType || settingsType === 'email') payload.email = emailSettings;
+      if (!settingsType || settingsType === 'notifications') payload.notifications = notificationSettings;
+      await updateSettings(payload);
       toast.success(t('admin.settings.saveSuccess'));
     } catch (err) {
       console.error('Error saving settings:', err);

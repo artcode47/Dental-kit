@@ -1,0 +1,987 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "about": "About",
+    "search": "Search",
+    "orders": "Orders",
+    "profile": "Profile",
+    "wishlist": "Wishlist",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "homeDescription": "Back to homepage",
+    "productsDescription": "Browse all products",
+    "categoriesDescription": "Shop by category",
+    "contactDescription": "Get in touch with us",
+    "ordersDescription": "View your orders",
+    "allProducts": "All Products",
+    "featured": "Featured",
+    "newArrivals": "New Arrivals",
+    "sale": "On Sale",
+    "menu": "Menu",
+    "switchToLight": "Switch to Light Mode",
+    "switchToDark": "Switch to Dark Mode"
+  },
+  "orders": {
+    "title": "Orders",
+    "subtitle": "You have {{count}} orders",
+    "loading": "Loading orders...",
+    "continueShopping": "Continue Shopping",
+    "startShopping": "Start Shopping",
+    "clearFilters": "Clear Filters",
+    "noAddress": "No address provided",
+    "noPaymentMethod": "No payment method",
+    "orderTotal": "Order Total",
+    "orderNumber": "Order",
+    "items": "items",
+    "quantity": "Quantity",
+    "moreItems": "more items",
+    "estimatedDelivery": "Estimated Delivery",
+    "notAvailable": "Not available",
+    "trackingNumber": "Tracking Number",
+    "viewDetails": "View Details",
+    "trackOrder": "Track Order",
+    "cancelOrder": "Cancel Order",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "tracking": {
+      "trackingStarted": "Tracking started"
+    },
+    "cancelled": {
+      "success": "Order cancelled",
+      "error": "Failed to cancel order"
+    },
+    "noResults": {
+      "title": "No matching orders",
+      "description": "Try adjusting your search or filters."
+    },
+    "empty": {
+      "title": "You have no orders yet",
+      "description": "When you place orders, they will appear here."
+    },
+    "filters": {
+      "title": "Filter Orders",
+      "subtitle": "Total: {{count}}",
+      "show": "Show Filters",
+      "hide": "Hide Filters",
+      "search": "Search",
+      "searchPlaceholder": "Search by order number or product",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "sortBy": "Sort By",
+      "orderDate": "Order Date",
+      "orderTotal": "Order Total",
+      "orderStatus": "Order Status",
+      "orderNumber": "Order Number",
+      "sortOrder": "Sort Order",
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "actions": "Actions",
+      "clearAll": "Clear All",
+      "tip": {
+        "title": "Tip",
+        "description": "Use filters to quickly find specific orders."
+      }
+    },
+    "error": {
+      "fetchingOrders": "Failed to load orders.",
+      "retry": "Retry"
+    }
+  },
+  "brand": {
+    "name": "Dental Kit Store",
+    "tagline": "Professional Dental Equipment & Supplies"
+  },
+  "home": {
+    "hero": {
+      "title": "Professional Dental Equipment & Supplies",
+      "subtitle": "Everything you need for your dental practice",
+      "cta": "Shop Now",
+      "learnMore": "Learn More",
+      "badge": "Premium Dental Solutions",
+      "mainTitle": "Transform Your",
+      "mainTitleHighlight": "Dental Practice",
+      "description": "Discover cutting-edge dental equipment and premium supplies that elevate your practice to new heights of excellence.",
+      "exploreProducts": "Explore Products",
+      "watchDemo": "Watch Demo"
+    },
+    "stats": {
+      "happyCustomers": "Happy Customers",
+      "satisfactionRate": "Satisfaction Rate",
+      "fastDelivery": "Fast Delivery",
+      "qualityGuaranteed": "Quality Guaranteed"
+    },
+    "features": {
+      "title": "Why Choose DentalKit?",
+      "subtitle": "We provide everything you need to deliver exceptional dental care with confidence and precision.",
+      "premiumQuality": {
+        "title": "Premium Quality",
+        "description": "All products meet the highest industry standards and certifications."
+      },
+      "fastShipping": {
+        "title": "Fast Shipping",
+        "description": "Quick and reliable delivery to your practice within 2-3 business days."
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Round-the-clock customer support to assist you whenever you need help."
+      },
+      "expertTeam": {
+        "title": "Expert Team",
+        "description": "Our team of dental professionals ensures you get the best recommendations."
+      }
+    },
+    "categories": {
+      "title": "Explore Categories",
+      "subtitle": "Find the perfect products for your dental practice",
+      "explore": "Explore",
+      "defaultDescription": "Premium dental supplies and equipment"
+    },
+    "featured": {
+      "title": "Featured Products",
+      "subtitle": "Discover our most popular and highly-rated products",
+      "addToCart": "Add to Cart",
+      "viewAll": "View All Products"
+    },
+    "testimonials": {
+      "title": "What Our Customers Say",
+      "subtitle": "Trusted by dental professionals worldwide",
+      "drSarah": {
+        "name": "Dr. Sarah Johnson",
+        "role": "Orthodontist",
+        "content": "DentalKit has transformed my practice. The quality of equipment is outstanding and the customer service is exceptional."
+      },
+      "drMichael": {
+        "name": "Dr. Michael Chen",
+        "role": "General Dentist",
+        "content": "I've been using DentalKit for over 2 years now. Their products are reliable and their support team is always helpful."
+      },
+      "drEmily": {
+        "name": "Dr. Emily Rodriguez",
+        "role": "Periodontist",
+        "content": "The best dental supply company I've worked with. Fast delivery, great prices, and excellent product quality."
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Practice?",
+      "subtitle": "Join thousands of dental professionals who trust DentalKit for their equipment and supplies.",
+      "getStarted": "Get Started Today",
+      "contactSales": "Contact Sales"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Get the latest products and offers",
+      "placeholder": "Enter your email",
+      "subscribe": "Subscribe",
+      "success": "Successfully subscribed!",
+      "error": "Failed to subscribe"
+    }
+  },
+  "products": {
+    "title": "Premium Dental Products",
+    "description": "Discover our comprehensive range of professional dental equipment and supplies",
+    "premiumBadge": "Premium",
+    "card": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "viewDetails": "View Details",
+      "addToCart": "Add to Cart",
+      "addedToCart": "Added to Cart",
+      "removeFromWishlist": "Remove from Wishlist",
+      "addToWishlist": "Add to Wishlist"
+    },
+    "badges": {
+      "sale": "{{percentage}}% OFF",
+      "new": "New",
+      "featured": "Featured",
+      "bestseller": "Bestseller"
+    },
+    "search": {
+      "placeholder": "Search products...",
+      "recentSearches": "Recent Searches",
+      "popularSearches": "Popular Searches",
+      "noResults": "No products found",
+      "clearSearch": "Clear Search"
+    },
+    "filters": {
+      "title": "Filters",
+      "clear": "Clear All",
+      "categories": "Categories",
+      "brands": "Brands",
+      "priceRange": "Price Range",
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "availability": "Availability",
+      "all": "All",
+      "inStock": "In Stock Only",
+      "outOfStock": "Out of Stock",
+      "sortBy": "Sort By",
+      "popularity": "Popularity",
+      "priceLowToHigh": "Price: Low to High",
+      "priceHighToLow": "Price: High to Low",
+      "nameAZ": "Name: A-Z",
+      "nameZA": "Name: Z-A",
+      "newest": "Newest First",
+      "oldest": "Oldest First",
+      "rating": "Rating"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "showing": "Showing {{from}} to {{to}} of {{total}} results"
+    },
+    "showing": "Showing {{from}} to {{to}} of {{total}} results",
+    "available": "available",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "results": "{{count}} products found",
+    "noProducts": "No products found",
+    "clearFilters": "Clear Filters",
+    "error": {
+      "title": "Error Loading Products",
+      "retry": "Retry"
+    },
+    "details": {
+      "backToProducts": "Back to Products",
+      "tabs": {
+        "description": "Description",
+        "specifications": "Specifications",
+        "reviews": "Reviews",
+        "related": "Related Products"
+      },
+      "addToCart": "Add to Cart",
+      "addingToCart": "Adding...",
+      "outOfStock": "Out of Stock",
+      "inStock": "In Stock",
+      "quantity": "Quantity",
+      "price": "Price",
+      "sku": "SKU",
+      "brand": "Brand",
+      "category": "Category",
+      "vendor": "Vendor",
+      "rating": "Rating",
+      "reviews": "{{count}} Reviews",
+      "reviewRating": "Your Rating",
+      "reviewTitle": "Review Title",
+      "reviewTitlePlaceholder": "Summarize your experience",
+      "reviewComment": "Your Review",
+      "reviewCommentPlaceholder": "Share details about the product",
+      "submitReview": "Submit Review",
+      "noReviews": "No reviews yet",
+      "writeReview": "Write a Review",
+      "relatedProducts": "Related Products",
+      "description": "Description",
+      "shortDescription": "Summary",
+      "productFeatures": "Product Features",
+      "features": "Features",
+      "productSpecifications": "Product Specifications",
+      "specifications": "Specifications", 
+      "noSpecifications": "No specifications available",
+      "anonymous": "Anonymous User",
+      "noReviewsYet": "No reviews yet",
+      "beFirstReview": "Be the first to review this product!",
+      "noRelatedProducts": "No related products available",
+      "variants": "Variants",
+      "error": {
+        "notFound": "Product Not Found",
+        "productNotFound": "The product you're looking for doesn't exist"
+      },
+      "reviewSubmitted": "Review submitted successfully!",
+      "reviewError": "Failed to submit review"
+      ,
+      "saveAmount": "Save {{amount}}",
+      "availableCount": "{{count}} available",
+      "noImage": "No image available",
+      "clickToEnlarge": "Click to enlarge"
+    }
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "emptyMessage": "Looks like you haven't added anything to your cart yet.",
+    "continueShopping": "Continue Shopping",
+    "added": "Product added to cart",
+    "quantityUpdated": "Quantity updated",
+    "itemRemoved": "Item removed from cart",
+    "invalidQuantity": "Please enter a valid quantity",
+    "retry": "Retry",
+    "steps": {
+      "cart": "Cart",
+      "shipping": "Shipping",
+      "payment": "Payment",
+      "confirm": "Confirm"
+    },
+    "quantity": "Quantity",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "estimatedTax": "Estimated Tax",
+    "apply": "Apply",
+    "total": "Total",
+    "proceedToCheckout": "Proceed to Checkout",
+    "estimatedDelivery": "Estimated Delivery",
+    "free": "Free",
+    "error": {
+      "add": "Failed to add product to cart",
+      "updateQuantity": "Failed to update quantity",
+      "removeItem": "Failed to remove item"
+    }
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "items": "items",
+    "empty": "Your wishlist is empty",
+    "emptyMessage": "Start adding products to your wishlist to see them here.",
+    "startShopping": "Start Shopping",
+    "added": "Product added to wishlist",
+    "removed": "Product removed from wishlist",
+    "toggled": "Wishlist updated",
+    "error": {
+      "title": "Error Loading Wishlist",
+      "fetch": "Failed to load wishlist",
+      "toggle": "Failed to update wishlist",
+      "remove": "Failed to remove from wishlist",
+      "retry": "Retry"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Complete your purchase securely",
+    "orderPlaced": "Order placed successfully!",
+    "steps": {
+      "shipping": "Shipping",
+      "billing": "Billing",
+      "payment": "Payment",
+      "review": "Review"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "subtitle": "Choose how you would like to pay",
+      "securePayment": "Secure, encrypted payment",
+      "password": "Password",
+      "creditCard": "Credit / Debit Card",
+      "paypal": "PayPal",
+      "cashOnDelivery": "Cash on Delivery",
+      "bankTransfer": "Bank Transfer",
+      "paymentInfo": "Your card details are protected with industry-standard encryption.",
+      "cardholderName": "Cardholder Name",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvv": "CVV"
+    },
+    "billing": {
+      "title": "Billing Information",
+      "subtitle": "Billing details for your payment method",
+      "sameAsShipping": "Billing address is the same as shipping",
+      "helpTitle": "What is billing information?",
+      "helpDescription": "Your billing address should match the address on file with your bank or card provider. If it's different from your shipping address, uncheck the box and enter the correct billing address."
+    },
+    "shipping": {
+      "title": "Shipping Information",
+      "subtitle": "Where should we send your order?",
+      "useDefaultAddress": "Use my default address",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "company": "Company (Optional)",
+      "phone": "Phone Number",
+      "address1": "Address Line 1",
+      "address2": "Address Line 2 (Optional)",
+      "city": "City",
+      "state": "State/Province",
+      "country": "Country",
+      "zipCode": "ZIP/Postal Code"
+    },
+    "shippingMethod": {
+      "title": "Shipping Method",
+      "subtitle": "Choose the delivery option that works best for you",
+      "standard": "Standard Shipping",
+      "express": "Express Shipping",
+      "overnight": "Overnight Shipping",
+      "pickup": "Store Pickup",
+      "free": "Free",
+      "deliveryTime": "Delivery: {{time}}"
+    },
+    "orderSummary": {
+      "title": "Order Summary",
+      "subtitle": "Review your order details",
+      "items": "Items",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "total": "Total",
+      "orderProtection": "Order Protection"
+    },
+    "customerNotes": "Customer Notes",
+    "customerNotesPlaceholder": "Add any delivery notes or special instructions (optional)",
+    "placeOrder": "Place Order",
+    "error": {
+      "title": "Checkout Error",
+      "placingOrder": "Failed to place order"
+    },
+    "processing": "Processing your order..."
+  },
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "confirmPassword": "Confirm Password",
+  "validation": {
+    "password": {
+      "mismatch": "Passwords do not match"
+    }
+  },
+  "profile": {
+    "changesSaved": "Changes saved",
+    "title": "My Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "university": "University",
+    "country": "Country",
+    "governorate": "Governorate",
+    "timezone": "Timezone",
+    "language": "Language",
+    "changePassword": "Change Password"
+  },
+  "orderConfirmation": {
+    "title": "Order Confirmed",
+    "subtitle": "Thank you for your purchase! Your order has been placed successfully.",
+    "thankYou": "Thank you!",
+    "orderPlaced": "Your order {{number}} has been placed.",
+    "confirmationEmail": "A confirmation email has been sent to your inbox.",
+    "orderSummary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "discount": "Discount",
+      "total": "Total",
+      "free": "Free"
+    },
+    "deliveryInformation": {
+      "title": "Delivery Information",
+      "shippingAddress": "Shipping Address",
+      "estimatedDelivery": "Estimated Delivery",
+      "shippingMethod": "Shipping Method",
+      "paymentMethod": "Payment Method",
+      "orderStatus": "Order Status"
+    },
+    "shippingMethods": {
+      "standard": "Standard Shipping",
+      "express": "Express Shipping",
+      "overnight": "Overnight Shipping",
+      "pickup": "Store Pickup"
+    },
+    "paymentMethods": {
+      "stripe": "Stripe",
+      "paypal": "PayPal",
+      "cash_on_delivery": "Cash on Delivery",
+      "bank_transfer": "Bank Transfer",
+      "creditCard": "Credit Card"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    },
+    "nextSteps": "What's Next",
+    "nextStepsDescription": "You can track your order, continue shopping, or download your invoice.",
+    "trackOrder": "Track Order",
+    "continueShopping": "Continue Shopping",
+    "downloadInvoice": "Download Invoice",
+    "downloading": "Downloading...",
+    "orderProtection": "Your order is protected with our buyer protection.",
+    "quantity": "Quantity",
+    "invoiceDownloaded": "Invoice downloaded",
+    "error": {
+      "title": "Unable to load your order",
+      "fetchingOrder": "Failed to load order details"
+    },
+    "orderNotFound": "Order Not Found",
+    "orderNotFoundMessage": "We couldn't find this order. It may have been cancelled or the link is invalid.",
+    "viewOrders": "View Orders",
+    "retry": "Retry"
+  },
+  "profile": {
+    "title": "My Profile",
+    "updated": "Profile updated successfully",
+    "imageUpdated": "Profile image updated",
+    "cancel": "Cancel",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "university": "University",
+    "country": "Country",
+    "governorate": "Governorate",
+    "selectGovernorate": "Select Governorate",
+    "timezone": "Timezone",
+    "language": "Language",
+    "edit": "Edit Profile",
+    "error": {
+      "update": "Failed to update profile",
+      "imageUpload": "Failed to upload image"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "subtitle": "Manage your account and view your orders",
+    "stats": {
+      "totalOrders": "Total Orders",
+      "totalSpent": "Total Spent",
+      "wishlistItems": "Wishlist Items",
+      "reviews": "Reviews"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "profile": "Profile",
+      "orders": "Orders",
+      "wishlist": "Wishlist",
+      "activity": "Activity"
+    },
+    "recentOrders": "Recent Orders",
+    "viewAll": "View All",
+    "order": "Order",
+    "noOrders": "No orders yet",
+    "wishlistPreview": "Wishlist Preview",
+    "noWishlistItems": "No wishlist items",
+    "orders": "Orders",
+    "shippingAddress": "Shipping Address",
+    "items": "items",
+    "startShopping": "Start Shopping",
+    "wishlist": "Wishlist",
+    "viewProduct": "View Product",
+    "addToCart": "Add to Cart",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "support": "Support",
+    "legal": "Legal",
+    "connect": "Connect",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "allRightsReserved": "All rights reserved",
+    "help": "Help Center",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "shipping": "Shipping Info",
+    "returns": "Returns & Refunds",
+    "warranty": "Warranty",
+    "description": "Transforming dental practices worldwide with premium equipment and exceptional service.",
+    "phone": "+1 (555) 123-4567",
+    "email": "info@dentalkit.com",
+    "address": "123 Dental St, City"
+  },
+  "language": "Language",
+  "categories": {
+    "title": "Categories",
+    "description": "Browse categories and featured products",
+    "subtitle": "Explore our catalog by category",
+    "untitled": "Untitled"
+  },
+  "seo": {
+    "home": {
+      "title": "DentalKit - Premium Dental Supplies",
+      "description": "Discover cutting-edge dental equipment and supplies for your practice. Professional dental tools, equipment, and supplies at competitive prices."
+    },
+    "products": {
+      "title": "Dental Products - Professional Equipment & Supplies",
+      "description": "Browse our comprehensive collection of dental products including instruments, equipment, materials, and supplies for dental professionals."
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "View your orders and track statuses"
+    },
+    "cart": {
+      "title": "Cart",
+      "description": "View items in your cart and proceed to checkout"
+    },
+    "profile": {
+      "title": "Your Profile",
+      "description": "Manage your account settings and preferences"
+    },
+    "login": {
+      "title": "Login - DentalKit",
+      "description": "Sign in to your DentalKit account to access professional dental equipment and supplies. Secure login for dental professionals."
+    },
+    "register": {
+      "title": "Register - DentalKit",
+      "description": "Create your DentalKit account to access professional dental equipment and supplies. Join our dental community."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password - DentalKit",
+      "description": "Reset your DentalKit account password securely. Get back access to your dental equipment and supplies."
+    },
+    "resetPassword": {
+      "title": "Reset Password - DentalKit",
+      "description": "Create a new password for your DentalKit account"
+    },
+    "resetPasswordSuccess": {
+      "title": "Password Reset Success - DentalKit",
+      "description": "Your password has been successfully reset"
+    },
+    "resetPasswordError": {
+      "title": "Reset Link Invalid - DentalKit",
+      "description": "The password reset link is invalid or expired"
+    },
+    "forgotPasswordSent": {
+      "title": "Email Sent - DentalKit",
+      "description": "Password reset email has been sent to your inbox"
+    },
+    "checkout": {
+      "title": "Checkout - DentalKit",
+      "description": "Securely complete your purchase"
+    },
+    "about": {
+      "title": "About Us - DentalKit",
+      "description": "Learn about DentalKit's mission, values, and commitment to dental professionals."
+    },
+    "contact": {
+      "title": "Contact Us - DentalKit",
+      "description": "Get in touch with DentalKit support and sales. We're here to help."
+    },
+    "help": {
+      "title": "Help Center - DentalKit",
+      "description": "Find answers to common questions and learn how to use DentalKit."
+    },
+    "shipping": {
+      "title": "Shipping Information - DentalKit",
+      "description": "Learn about shipping options, delivery times, and costs."
+    },
+    "returns": {
+      "title": "Returns & Refunds - DentalKit",
+      "description": "Read our return policy, refund process, and timelines."
+    },
+    "privacy": {
+      "title": "Privacy Policy - DentalKit",
+      "description": "Understand how we collect, use, and protect your data."
+    },
+    "terms": {
+      "title": "Terms and Conditions - DentalKit",
+      "description": "Review the terms that govern your use of DentalKit."
+    },
+    "warranty": {
+      "title": "Warranty Information - DentalKit",
+      "description": "Explore product warranties, coverage details, and claims."
+    }
+  },
+  "pages": {
+    "about": {
+      "title": "About DentalKit",
+      "subtitle": "Premium dental solutions for modern practices",
+      "content": "DentalKit empowers dental professionals with high‑quality equipment, reliable supplies, and expert support. Our mission is to elevate clinical outcomes through innovation, education, and service.",
+      "highlights": {
+        "quality": "Certified Quality",
+        "support": "Expert Support",
+        "delivery": "Fast Delivery"
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "We're here to help",
+      "description": "Reach our team for product inquiries, support, or partnerships.",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "hours": "Support Hours",
+      "hoursValue": "Sun–Thu, 9:00–18:00"
+    },
+    "help": {
+      "title": "Help Center",
+      "subtitle": "Answers to common questions",
+      "sections": {
+        "orders": "Orders & Payments",
+        "shipping": "Shipping & Delivery",
+        "returns": "Returns & Refunds",
+        "account": "Account & Security"
+      }
+    },
+    "shipping": {
+      "title": "Shipping Information",
+      "subtitle": "Flexible delivery options",
+      "standard": "Standard Shipping (2–5 business days)",
+      "express": "Express Shipping (1–2 business days)",
+      "freeOver": "Free shipping on orders over $200"
+    },
+    "returns": {
+      "title": "Returns & Refunds",
+      "subtitle": "Shop with confidence",
+      "policy": "You may return most new, unopened items within 30 days for a full refund.",
+      "steps": {
+        "start": "Start a return from your Orders page",
+        "pack": "Pack items securely",
+        "ship": "Use the provided return label"
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "updated": "Last updated",
+      "sections": {
+        "data": "Data We Collect",
+        "use": "How We Use Data",
+        "rights": "Your Rights"
+      }
+    },
+    "terms": {
+      "title": "Terms and Conditions",
+      "intro": "By using DentalKit, you agree to these terms.",
+      "sections": {
+        "use": "Acceptable Use",
+        "purchases": "Purchases & Billing",
+        "legal": "Legal"
+      }
+    },
+    "warranty": {
+      "title": "Warranty Information",
+      "subtitle": "Coverage and claims",
+      "coverage": "Most equipment is covered by a 12–24 month manufacturer warranty.",
+      "claim": "To submit a claim, contact support with your order number."
+    }
+  },
+  "passwordResetInstructionsSent": "Password reset email has been sent to your inbox",
+  "failedToSendResetEmail": "Failed to send password reset email",
+  "passwordResetSuccessful": "Password has been reset successfully",
+  "passwordResetFailed": "Failed to reset password",
+  "common": {
+    "products": "Products",
+    "categories": "Categories",
+    "about": "About",
+    "contact": "Contact",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "retry": "Retry",
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete",
+    "remove": "Remove",
+    "add": "Add",
+    "adding": "Adding...",
+    "update": "Update",
+    "updating": "Updating...",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "view": "View",
+    "details": "Details",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "discount": "Discount",
+    "apply": "Apply",
+    "remove": "Remove",
+    "clear": "Clear",
+    "reset": "Reset",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "complete": "Complete",
+    "continue": "Continue",
+    "skip": "Skip",
+    "select": "Select",
+    "choose": "Choose",
+    "browse": "Browse",
+    "upload": "Upload",
+    "download": "Download",
+    "print": "Print",
+    "share": "Share",
+    "copy": "Copy",
+    "paste": "Paste",
+    "cut": "Cut",
+    "undo": "Undo",
+    "redo": "Redo",
+    "refresh": "Refresh",
+    "reload": "Reload",
+    "restart": "Restart",
+    "stop": "Stop",
+    "pause": "Pause",
+    "play": "Play",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "volume": "Volume",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "resetZoom": "Reset Zoom",
+    "rotate": "Rotate",
+    "flip": "Flip",
+    "crop": "Crop",
+    "resize": "Resize",
+    "move": "Move",
+    "drag": "Drag",
+    "drop": "Drop",
+    "click": "Click",
+    "doubleClick": "Double Click",
+    "rightClick": "Right Click",
+    "hover": "Hover",
+    "focus": "Focus",
+    "blur": "Blur",
+    "change": "Change",
+    "input": "Input",
+    "output": "Output"
+  },
+  "error": {
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred. Please try again or contact support if the problem persists.",
+    "tryAgain": "Try Again",
+    "goBack": "Go Back",
+    "goHome": "Go Home",
+    "contactSupport": "If this problem persists, please contact our support team:"
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred. Please try again or contact support if the problem persists.",
+    "tryAgain": "Try Again",
+    "goBack": "Go Back",
+    "goHome": "Go Home",
+    "contactSupport": "If this problem persists, please contact our support team:",
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "Oops! The page you're looking for seems to have wandered off. It might have been moved, deleted, or you entered the wrong URL.",
+      "searchTitle": "Looking for something specific?",
+      "searchPlaceholder": "Search our products...",
+      "searchButton": "Search Products",
+      "goBack": "Go Back",
+      "goHome": "Go Home",
+      "quickLinksTitle": "Popular Pages",
+      "helpText": "Still can't find what you're looking for?",
+      "contactUs": "Contact our support team"
+    },
+    "unauthorized": {
+      "title": "Access Denied",
+      "description": "Sorry! You don't have permission to access this page. This area is restricted and requires proper authentication or authorization.",
+      "authenticatedTitle": "You are logged in",
+      "notAuthenticatedTitle": "You are not logged in",
+      "authenticatedMessage": "Your account doesn't have the required permissions for this page.",
+      "notAuthenticatedMessage": "Please log in or create an account to access this content.",
+      "goBack": "Go Back",
+      "goHome": "Go Home",
+      "authActionsTitle": "Get Access",
+      "login": "Log In",
+      "register": "Sign Up",
+      "quickLinksTitle": "Public Pages",
+      "helpText": "Need help with access?",
+      "contactUs": "Contact our support team"
+    },
+    "serverError": {
+      "title": "Internal Server Error",
+      "description": "Oops! Something went wrong on our end. Our team has been notified and is working to fix the issue. Please try again in a few moments.",
+      "whatHappened": "What happened?",
+      "whatHappenedDescription": "This is usually caused by a temporary server issue or maintenance. Our technical team is investigating and will resolve it as soon as possible.",
+      "retry": "Try Again",
+      "retrying": "Retrying...",
+      "refresh": "Refresh Page",
+      "goBack": "Go Back",
+      "goHome": "Go Home",
+      "statusTitle": "Current Status",
+      "status": {
+        "retry": "Retry Count",
+        "time": "Time",
+        "status": "Status",
+        "error": "Error"
+      },
+      "quickLinksTitle": "Alternative Pages",
+      "helpText": "This issue persists?",
+      "contactUs": "Contact our support team"
+    },
+    "maintenance": {
+      "title": "Under Maintenance",
+      "description": "We're currently performing some maintenance on our site. We'll be back shortly! Thank you for your patience.",
+      "estimatedTime": "Estimated Completion Time",
+      "estimatedTimeDescription": "We expect to complete the maintenance in approximately",
+      "statusTitle": "Current Status",
+      "status": {
+        "currentTime": "Current Time",
+        "date": "Date",
+        "estimated": "Estimated"
+      },
+      "notificationTitle": "Get Notified",
+      "notificationDescription": "We'll notify you when the maintenance is complete and the site is back online.",
+      "subscribe": "Notify Me When Ready",
+      "subscribed": "Subscribed!",
+      "refresh": "Check Status",
+      "goBack": "Go Back",
+      "goHome": "Go Home",
+      "workTitle": "What We're Working On",
+      "work": {
+        "server": "Server Updates",
+        "serverDesc": "Updating our server infrastructure for better performance",
+        "security": "Security Enhancements",
+        "securityDesc": "Implementing the latest security measures",
+        "features": "New Features",
+        "featuresDesc": "Adding exciting new features to improve your experience",
+        "performance": "Performance",
+        "performanceDesc": "Optimizing site speed and responsiveness"
+      },
+      "helpText": "Have urgent questions?",
+      "contactUs": "Contact our support team"
+    },
+    "network": {
+      "title": "Network Error",
+      "description": "It looks like you're experiencing network connectivity issues. This could be due to a slow internet connection, server problems, or temporary network outage.",
+      "connected": "Connection Restored!",
+      "checking": "Checking Connection...",
+      "disconnected": "No Internet Connection",
+      "error": "Connection Error",
+      "connectedMessage": "Great! Your connection is working again. Redirecting you back...",
+      "statusMessage": "We're monitoring your connection status and will automatically retry when possible.",
+      "troubleshootingTitle": "Troubleshooting Tips",
+      "tips": {
+        "checkWifi": "Check Wi-Fi",
+        "checkWifiDesc": "Ensure your device is connected to a stable network",
+        "refresh": "Refresh Page",
+        "refreshDesc": "Sometimes a simple refresh can resolve connection issues",
+        "wait": "Wait & Retry",
+        "waitDesc": "Network issues are often temporary and resolve quickly",
+        "contact": "Contact Support",
+        "contactDesc": "If the problem persists, our team can help"
+      },
+      "retry": "Try Again",
+      "retrying": "Retrying...",
+      "refresh": "Refresh Page",
+      "goBack": "Go Back",
+      "goHome": "Go Home",
+      "statusTitle": "Connection Status",
+      "status": {
+        "retry": "Retry Count",
+        "time": "Time",
+        "status": "Status",
+        "connected": "Connected",
+        "checking": "Checking",
+        "disconnected": "Disconnected"
+      },
+      "helpText": "Still having connection issues?",
+      "contactUs": "Contact our support team"
+    }
+  }
+}

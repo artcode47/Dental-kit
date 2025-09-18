@@ -7,13 +7,13 @@ const ProductReviews = ({
   reviews, 
   onWriteReview 
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-          {t('products.details.reviews')} ({product.totalReviews || 0})
+          {t('products.details.reviews', { count: product.totalReviews || 0 })}
         </h3>
         <Button onClick={onWriteReview} size="lg">
           {t('products.details.writeReview')}

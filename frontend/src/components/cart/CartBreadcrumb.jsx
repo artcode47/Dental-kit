@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const CartBreadcrumb = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   const steps = [
     { key: 'cart', label: t('cart.steps.cart'), active: true },

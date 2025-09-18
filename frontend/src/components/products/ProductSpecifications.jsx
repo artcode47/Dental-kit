@@ -3,7 +3,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const ProductSpecifications = ({ product }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
     <div>

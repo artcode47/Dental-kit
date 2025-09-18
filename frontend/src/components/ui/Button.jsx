@@ -30,17 +30,17 @@ const Button = React.forwardRef(({
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95 disabled:transform-none';
   
   const variants = {
-    primary: 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 focus:ring-teal-500 active:from-teal-800 active:to-teal-900 shadow-lg hover:shadow-xl transition-all duration-200',
+    primary: 'bg-gradient-to-r from-blue-600 to-purple-700 text-white hover:from-blue-700 hover:to-purple-800 focus:ring-blue-500 active:from-blue-800 active:to-purple-900 shadow-lg hover:shadow-xl transition-all duration-200',
     secondary: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300 dark:from-gray-700 dark:to-gray-800 dark:text-gray-200 dark:hover:from-gray-600 dark:hover:to-gray-700 focus:ring-gray-500 active:from-gray-300 dark:active:from-gray-500 shadow-md hover:shadow-lg transition-all duration-200',
     success: 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 focus:ring-green-500 active:from-green-800 active:to-green-900 shadow-lg hover:shadow-xl transition-all duration-200',
     warning: 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white hover:from-yellow-700 hover:to-yellow-800 focus:ring-yellow-500 active:from-yellow-800 active:to-yellow-900 shadow-lg hover:shadow-xl transition-all duration-200',
     danger: 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:ring-red-500 active:from-red-800 active:to-red-900 shadow-lg hover:shadow-xl transition-all duration-200',
-    info: 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 focus:ring-teal-500 active:from-teal-800 active:to-teal-900 shadow-lg hover:shadow-xl transition-all duration-200',
+    info: 'bg-gradient-to-r from-blue-600 to-purple-700 text-white hover:from-blue-700 hover:to-purple-800 focus:ring-blue-500 active:from-blue-800 active:to-purple-900 shadow-lg hover:shadow-xl transition-all duration-200',
     light: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 hover:from-gray-200 hover:to-gray-300 dark:from-gray-700 dark:to-gray-800 dark:text-gray-100 dark:hover:from-gray-600 dark:hover:to-gray-700 focus:ring-gray-500 active:from-gray-300 dark:active:from-gray-500 shadow-md hover:shadow-lg transition-all duration-200',
     dark: 'bg-gradient-to-r from-gray-800 to-gray-900 text-white hover:from-gray-900 hover:to-gray-950 dark:from-gray-700 dark:to-gray-800 dark:hover:from-gray-600 dark:hover:to-gray-700 focus:ring-gray-500 active:from-gray-950 dark:active:from-gray-800 shadow-lg hover:shadow-xl transition-all duration-200',
-    outline: 'border-2 border-teal-600 text-teal-600 hover:bg-gradient-to-r hover:from-teal-50 hover:to-teal-100 dark:border-teal-400 dark:text-teal-400 dark:hover:from-teal-900/20 dark:hover:to-teal-800/20 focus:ring-teal-500 active:from-teal-100 dark:active:from-teal-900/40 shadow-md hover:shadow-lg transition-all duration-200',
-    ghost: 'text-teal-600 hover:bg-gradient-to-r hover:from-teal-50 hover:to-teal-100 dark:text-teal-400 dark:hover:from-teal-900/20 dark:hover:to-teal-800/20 focus:ring-teal-500 active:from-teal-100 dark:active:from-teal-900/40 transition-all duration-200',
-    link: 'text-teal-600 hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300 focus:ring-teal-500 underline transition-colors duration-200'
+    outline: 'border-2 border-blue-600 text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-100 dark:border-blue-400 dark:text-blue-400 dark:hover:from-blue-900/20 dark:hover:to-purple-800/20 focus:ring-blue-500 active:from-blue-100 dark:active:from-blue-900/40 shadow-md hover:shadow-lg transition-all duration-200',
+    ghost: 'text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-100 dark:text-blue-400 dark:hover:from-blue-900/20 dark:hover:to-purple-800/20 focus:ring-blue-500 active:from-blue-100 dark:active:from-blue-900/40 transition-all duration-200',
+    link: 'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 focus:ring-blue-500 underline transition-colors duration-200'
   };
 
   const sizes = {

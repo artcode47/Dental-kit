@@ -3,7 +3,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 
 const ProductRelated = ({ relatedProducts }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const navigate = useNavigate();
 
   const formatPrice = (price) => {
@@ -22,9 +22,9 @@ const ProductRelated = ({ relatedProducts }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {relatedProducts.map((relatedProduct) => (
             <div 
-              key={relatedProduct._id} 
+              key={relatedProduct.id} 
               className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-800"
-              onClick={() => navigate(`/products/${relatedProduct._id}`)}
+              onClick={() => navigate(`/products/${relatedProduct.id}`)}
             >
               <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-3">
                 <img

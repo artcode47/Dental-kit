@@ -3,14 +3,14 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { CreditCardIcon } from '@heroicons/react/24/outline';
 
 const CheckoutHeader = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-teal-400 text-white py-12 sm:py-16 lg:py-20">
+    <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white py-12 sm:py-16 lg:py-20">
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-teal-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-purple-400/20 rounded-full blur-3xl"></div>
       </div>
       <div className="relative container mx-auto px-4">
         <div className="text-center">

@@ -23,9 +23,11 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { toast } from 'react-hot-toast';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const AdminCategoriesPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
+  const { currentLanguage } = useLanguage();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +46,7 @@ const AdminCategoriesPage = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
+    nameAr: '',
     description: '',
     slug: '',
     isActive: true,
@@ -151,6 +154,7 @@ const AdminCategoriesPage = () => {
       setEditingCategory(category);
       setFormData({
         name: category.name || '',
+        nameAr: category.nameAr || '',
         description: category.description || '',
         slug: category.slug || '',
         isActive: category.isActive !== false,
@@ -163,6 +167,7 @@ const AdminCategoriesPage = () => {
       setEditingCategory(null);
       setFormData({
         name: '',
+        nameAr: '',
         description: '',
         slug: '',
         isActive: true,
@@ -180,6 +185,7 @@ const AdminCategoriesPage = () => {
     setEditingCategory(null);
     setFormData({
       name: '',
+      nameAr: '',
       description: '',
       slug: '',
       isActive: true,
@@ -442,7 +448,7 @@ const AdminCategoriesPage = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {category.name}
+                            {currentLanguage === 'ar' && category.nameAr ? category.nameAr : category.name}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             /{category.slug}
@@ -585,7 +591,18 @@ const AdminCategoriesPage = () => {
                       className="w-full"
                     />
                   </div>
-                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t('admin.categories.nameAr', 'Name (Arabic)')}
+                    </label>
+                    <Input
+                      type="text"
+                      name="nameAr"
+                      value={formData.nameAr}
+                      onChange={handleInputChange}
+                      className="w-full"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       {t('admin.categories.description')}

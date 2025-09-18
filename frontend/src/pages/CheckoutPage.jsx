@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import Seo from '../components/seo/Seo';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { ExclamationTriangleIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
 import api, { endpoints } from '../services/api';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 
 // Import modular checkout components
 import CheckoutHeader from '../components/checkout/CheckoutHeader';
@@ -19,13 +22,14 @@ import CheckoutPaymentForm from '../components/checkout/CheckoutPaymentForm';
 import CheckoutReviewForm from '../components/checkout/CheckoutReviewForm';
 
 const CheckoutPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ecommerce');
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { items: cartItems, subtotal, total, totalItems, clearCart } = useCart();
+  const { currentLanguage } = useLanguage();
+  const { currentTheme } = useTheme();
   
   // State
-  const [cart, setCart] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -107,22 +111,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // Fetch cart data
-  const fetchCart = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get(endpoints.cart.get);
-      console.log('Cart response:', response); // Debug log
-      setCart(response.data || response); // Handle both response.data and direct response
-    } catch (err) {
-      console.error('Cart fetch error:', err); // Debug log
-      setError(err.message || t('checkout.error.fetchingCart'));
-      toast.error(t('checkout.error.fetchingCart'));
-    } finally {
-      setLoading(false);
-    }
-  };
-  
   // Shipping methods with costs and delivery times
   const shippingMethods = [
     {
@@ -160,22 +148,22 @@ const CheckoutPage = () => {
 
   // Calculate order summary
   const calculateOrderSummary = () => {
-    if (!cart) return null;
+    if (!cartItems) return null;
     
-    const subtotal = cart.total || 0;
+    const cartSubtotal = subtotal || 0;
     const selectedShipping = shippingMethods.find(m => m.id === shippingMethod);
     const shipping = selectedShipping ? selectedShipping.cost : 0;
-    const tax = subtotal * 0.14; // 14% tax
+    const tax = cartSubtotal * 0.14; // 14% tax
     const discount = 0; // Could be from applied coupon
-    const total = subtotal + shipping + tax - discount;
+    const orderTotal = cartSubtotal + shipping + tax - discount;
     
     return {
-      subtotal,
+      subtotal: cartSubtotal,
       shipping,
       tax,
       discount,
-      total,
-      itemCount: cart.itemCount || 0
+      total: orderTotal,
+      itemCount: totalItems || 0
     };
   };
 
@@ -183,6 +171,12 @@ const CheckoutPage = () => {
   const handlePlaceOrder = async () => {
     try {
       setPlacingOrder(true);
+      
+      // Validate cart has items
+      if (!cartItems || cartItems.length === 0) {
+        toast.error('Cart is empty. Please add items to your cart.');
+        return;
+      }
       
       // Validate required fields
       if (!paymentMethod) {
@@ -207,26 +201,47 @@ const CheckoutPage = () => {
       }
       
       const orderData = {
+        items: cartItems.map(item => ({
+          productId: item.productId,
+          name: item.name,
+          sku: item.sku,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.price * item.quantity,
+          image: item.image,
+          category: item.category,
+          brand: item.brand,
+          vendor: item.vendor || null
+        })),
         shippingAddress: useDefaultAddresses ? {} : shippingAddress,
         billingAddress: (useDefaultAddresses || sameAsShipping) ? {} : billingAddress,
         paymentMethod: paymentMethod,
         shippingMethod: shippingMethod,
         customerNotes: customerNotes || '',
         useDefaultAddresses: useDefaultAddresses || false,
-        sameAsShipping: sameAsShipping || false
+        sameAsShipping: sameAsShipping || false,
+        orderSummary: orderSummary
       };
       
-      console.log('Sending order data:', orderData); // Debug log
+      
       
       const response = await api.post(endpoints.orders.checkout, orderData);
       
       toast.success(t('checkout.orderPlaced'));
       
+      // Clear cart after successful order placement
+      clearCart();
+      
       // Redirect to order confirmation page
-      navigate(`/orders/${response.data._id || response._id}`);
+      const createdOrderId = response?.data?.order?.id 
+        || response?.data?.order?._id 
+        || response?.order?.id 
+        || response?.order?._id 
+        || response?.data?.id 
+        || response?._id;
+      navigate(`/orders/${createdOrderId}`);
       
     } catch (err) {
-      console.error('Order placement error:', err.response?.data); // Debug log
       const errorMessage = err.response?.data?.message || t('checkout.error.placingOrder');
       toast.error(errorMessage);
     } finally {
@@ -274,31 +289,13 @@ const CheckoutPage = () => {
     }
   };
 
-  // Load cart and user profile on component mount
+  // Load user profile on component mount (non-blocking)
   useEffect(() => {
-    const loadData = async () => {
-      await Promise.all([
-        fetchCart(),
-        fetchUserProfile()
-      ]);
-    };
-    loadData();
+    fetchUserProfile();
   }, []);
 
   // Calculate order summary
   const orderSummary = calculateOrderSummary();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <LoadingSpinner size="lg" />
-            </div>
-          </div>
-        </div>
-    );
-  }
 
   if (error) {
     return (
@@ -312,7 +309,7 @@ const CheckoutPage = () => {
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 {error}
               </p>
-              <Button onClick={fetchCart} variant="primary">
+              <Button onClick={fetchUserProfile} variant="primary">
                 {t('cart.retry')}
               </Button>
             </div>
@@ -321,7 +318,7 @@ const CheckoutPage = () => {
     );
   }
 
-  if (!cart || !cart.items || cart.items.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="container mx-auto px-4 py-8">
@@ -344,6 +341,13 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <Seo
+        title={t('seo.checkout.title', 'Checkout')}
+        description={t('seo.checkout.description', 'Securely complete your purchase')}
+        type="website"
+        locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
+        themeColor={currentTheme === 'dark' ? '#0B1220' : '#FFFFFF'}
+      />
       {/* Header */}
       <CheckoutHeader />
 
@@ -410,7 +414,7 @@ const CheckoutPage = () => {
               {/* Order Summary Sidebar */}
               <div className="lg:col-span-1">
               <CheckoutOrderSummary
-                cart={cart}
+                cart={cartItems}
                 orderSummary={orderSummary}
               />
             </div>

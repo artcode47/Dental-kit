@@ -3,15 +3,25 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Import language files
-import enTranslations from './locales/en.json';
-import arTranslations from './locales/ar.json';
+import adminEnTranslations from './locales/admin-en.json';
+import adminArTranslations from './locales/admin-ar.json';
+import authEnTranslations from './locales/auth-en.json';
+import authArTranslations from './locales/auth-ar.json';
+import ecommerceEnTranslations from './locales/ecommerce-en.json';
+import ecommerceArTranslations from './locales/ecommerce-ar.json';
 
+// Some locale files (like auth-*.json) are wrapped under a top-level "auth" key.
+// Normalize resources so the namespace points to the inner object when present.
 const resources = {
   en: {
-    translation: enTranslations
+    admin: adminEnTranslations?.admin || adminEnTranslations,
+    auth: authEnTranslations?.auth || authEnTranslations,
+    ecommerce: ecommerceEnTranslations
   },
   ar: {
-    translation: arTranslations
+    admin: adminArTranslations?.admin || adminArTranslations,
+    auth: authArTranslations?.auth || authArTranslations,
+    ecommerce: ecommerceArTranslations
   }
 };
 
@@ -21,7 +31,7 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
-    debug: process.env.NODE_ENV === 'development',
+    debug: import.meta.env.DEV,
     
     interpolation: {
       escapeValue: false, // React already escapes values
@@ -52,20 +62,20 @@ i18n
     nsSeparator: ':',
     
     // Default namespace
-    defaultNS: 'translation',
-    ns: ['translation'],
+    defaultNS: 'ecommerce',
+    ns: ['admin', 'auth', 'ecommerce'],
     
     // Missing key handling
-    saveMissing: process.env.NODE_ENV === 'development',
+    saveMissing: import.meta.env.DEV,
     missingKeyHandler: (lng, ns, key, fallbackValue) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`Missing translation key: ${key} for language: ${lng}`);
+      if (import.meta.env.DEV) {
+        console.warn(`Missing translation key: ${key} for language: ${lng} in namespace: ${ns}`);
       }
     },
     
     // Parse missing key handler
     parseMissingKeyHandler: (key) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.warn(`Missing translation key: ${key}`);
       }
       return key;
