@@ -98,7 +98,17 @@ class ProductService extends FirebaseService {
       
       return products;
     } catch (error) {
-      throw new Error(`Error getting products: ${error.message}`);
+      console.error('Products service error:', error);
+      // Soft-fail structure to keep API stable
+      return {
+        products: [],
+        total: 0,
+        totalPages: 0,
+        currentPage: options.page || 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+        diagnostics: { degraded: true, reason: error.message || 'unknown' }
+      };
     }
   }
 

@@ -38,7 +38,16 @@ exports.getProducts = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Get products error:', error);
-    res.status(500).json({ message: 'Error fetching products' });
+    // Soft-fail to avoid crashing the UI
+    res.status(200).json({
+      products: [],
+      total: 0,
+      totalPages: 0,
+      currentPage: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
+      diagnostics: { degraded: true, reason: 'products_fetch_failed' }
+    });
   }
 };
 
