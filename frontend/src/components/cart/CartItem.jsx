@@ -10,6 +10,7 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../ui/LoadingSpinner';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const CartItem = ({ 
   item, 
@@ -55,7 +56,7 @@ const CartItem = ({
         <div className="flex-shrink-0 relative">
           <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-gray-100 dark:bg-gray-700 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg">
             <img
-              src={item.image?.url || 'https://via.placeholder.com/300x300?text=Product'}
+              src={getImageUrl(item.image)}
               alt={item.name}
               className="w-full h-full object-cover"
             />

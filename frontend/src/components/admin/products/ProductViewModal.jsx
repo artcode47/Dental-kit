@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../ui/Button';
 
-const ProductViewModal = ({ isOpen, product, categories = [], vendors = [], onClose }) => {
+const ProductViewModal = ({ isOpen, product, categories = [], onClose }) => {
   const { t } = useTranslation('admin');
 
   if (!isOpen || !product) return null;
@@ -68,14 +68,7 @@ const ProductViewModal = ({ isOpen, product, categories = [], vendors = [], onCl
                 {product.categoryName || (categories.find(c => (c.id || c._id) === product.categoryId)?.name) || product.category?.name || '-'}
                </p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('products.vendor')}
-              </label>
-               <p className="text-gray-900 dark:text-white">
-                {product.vendorName || (vendors.find(v => (v.id || v._id) === product.vendorId)?.name) || product.vendor?.name || '-'}
-               </p>
-            </div>
+            {/* Vendor display removed - implied by vendor context/brand */}
           </div>
           
           {product.description && (

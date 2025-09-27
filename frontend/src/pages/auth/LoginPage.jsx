@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useForm } from 'react-hook-form';
@@ -13,6 +13,8 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import AnimatedSection from '../../components/animations/AnimatedSection';
+import { buildAuthSeo } from '../../utils/seo';
+import { getLogoPath as getThemeLogoPath } from '../../utils/themeAssets';
 import { 
   EyeIcon, 
   EyeSlashIcon, 
@@ -68,6 +70,8 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [securityCheck, setSecurityCheck] = useState(false);
+  const formRef = useRef(null);
+  const firstErrorRef = useRef(null);
 
   // Get redirect path from location state (if user was redirected from protected route)
   const from = location.state?.from?.pathname || '/';
@@ -105,17 +109,33 @@ const LoginPage = () => {
 
   // Watch form values for security checks
   const watchedValues = watch();
+  const performSecurityCheckRef = useRef(performSecurityCheck);
+  useEffect(() => { performSecurityCheckRef.current = performSecurityCheck; }, [performSecurityCheck]);
 
-  // Security check effect
+  // Focus the first field with error for accessibility
+  useEffect(() => {
+    if (!errors || Object.keys(errors).length === 0) return;
+    const first = Object.keys(errors)[0];
+    const el = formRef.current?.querySelector(`[name="${first}"]`);
+    if (el && typeof el.focus === 'function') {
+      firstErrorRef.current = el;
+      el.focus();
+    }
+  }, [errors]);
+
+  // Security check effect (debounced)
   useEffect(() => {
     if (watchedValues.email && watchedValues.password) {
-      const check = performSecurityCheck({
-        email: watchedValues.email,
-        password: watchedValues.password
-      });
-      setSecurityCheck(check);
+      const timer = setTimeout(async () => {
+        const result = await performSecurityCheckRef.current({
+          email: watchedValues.email,
+          password: watchedValues.password
+        });
+        setSecurityCheck(Boolean(result?.passed ?? result));
+      }, 300);
+      return () => clearTimeout(timer);
     }
-  }, [watchedValues.email, watchedValues.password, performSecurityCheck]);
+  }, [watchedValues.email, watchedValues.password]);
 
   // Account lockout check
   const isAccountLocked = isLocked || securityLocked;
@@ -151,8 +171,16 @@ const LoginPage = () => {
       // Reset security attempts on successful login
       resetAttempts();
       
-      toast.success(t('auth.login.success'));
-      navigate(from === '/login' || from === '/register' ? '/' : from, { replace: true });
+      toast.success(t('login.success'));
+      // Role-based redirect
+      const role = result.user?.role || 'user';
+      if (role === 'vendor') {
+        navigate('/vendor/dashboard', { replace: true });
+      } else if (['admin', 'super_admin', 'it_admin'].includes(role)) {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate(from === '/login' || from === '/register' ? '/' : from, { replace: true });
+      }
     } catch (error) {
       console.error('Login error:', error);
       
@@ -162,6 +190,13 @@ const LoginPage = () => {
       // Handle specific error cases
       if (error.message?.includes('email') || error.message?.includes('password')) {
         const msg = t('login.invalidCredentials');
+        setError('root', { message: msg });
+        toast.error(msg);
+      } else if (error.response?.status === 429) {
+        const retryAfter = error.response?.headers?.['retry-after'];
+        const msg = retryAfter
+          ? t('common.tooManyRequestsRetryIn', { seconds: retryAfter })
+          : t('common.tooManyRequests');
         setError('root', { message: msg });
         toast.error(msg);
       } else if (error.message?.includes('verified')) {
@@ -188,9 +223,7 @@ const LoginPage = () => {
 
 
   // Get logo path based on theme
-  const getLogoPath = () => {
-    return isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png';
-  };
+  const getLogoPath = () => getThemeLogoPath(isDark);
 
   // Format lockout time
   const formatLockoutTime = (time) => {
@@ -200,13 +233,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-      <Seo
-        title={tSeo('seo.login.title', 'Login - DentalKit')}
-        description={tSeo('seo.login.description', 'Sign in to your DentalKit account to access professional dental equipment and supplies')}
-        type="website"
-        locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-        themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-      />
+      <Seo {...buildAuthSeo({ tSeo, kind: 'login', isDark, currentLanguage })} />
       
       <div className="min-h-screen flex">
         {/* Left Section - Branding & Features */}
@@ -346,7 +373,19 @@ const LoginPage = () => {
                 )}
 
                 {/* Login Form */}
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6" noValidate>
+                <form
+                  ref={formRef}
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="space-y-4 sm:space-y-6"
+                  noValidate
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !isSubmitting && isValid) {
+                      // prevent accidental double submit by holding Enter
+                      e.currentTarget.querySelector('[type="submit"]').click();
+                    }
+                  }}
+                  aria-describedby={errors.root ? 'login-form-errors' : undefined}
+                >
                   {/* Email Field */}
                   <div>
                     <Input
@@ -360,7 +399,19 @@ const LoginPage = () => {
                       disabled={isAccountLocked || isSubmitting}
                       autoComplete="email"
                       className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? 'email-error' : 'email-help'}
                     />
+                    {!errors.email && (
+                      <p id="email-help" className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {t('login.emailHelp', 'Use your registered email address.')}
+                      </p>
+                    )}
+                    {errors.email && (
+                      <p id="email-error" className="mt-1 text-xs text-red-600 dark:text-red-400">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* Password Field */}
@@ -390,7 +441,19 @@ const LoginPage = () => {
                       disabled={isAccountLocked || isSubmitting}
                       autoComplete="current-password"
                       className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                      aria-invalid={!!errors.password}
+                      aria-describedby={errors.password ? 'password-error' : 'password-help'}
                     />
+                    {!errors.password && (
+                      <p id="password-help" className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        {t('login.passwordHelp', '8–128 characters. Avoid common or breached passwords.')}
+                      </p>
+                    )}
+                    {errors.password && (
+                      <p id="password-error" className="mt-1 text-xs text-red-600 dark:text-red-400">
+                        {errors.password.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* Remember Me & Forgot Password */}
@@ -427,11 +490,13 @@ const LoginPage = () => {
                   )}
 
                   {/* Error Message */}
-                  {errors.root && (
-                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                      <p className="text-sm text-red-700 dark:text-red-300">{errors.root.message}</p>
-                    </div>
-                  )}
+                  <div role="alert" aria-live="assertive" id="login-form-errors">
+                    {errors.root && (
+                      <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                        <p className="text-sm text-red-700 dark:text-red-300">{errors.root.message}</p>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Login Button */}
                   <Button
@@ -440,6 +505,7 @@ const LoginPage = () => {
                     fullWidth
                     loading={isSubmitting}
                     disabled={!isValid || isAccountLocked || isSubmitting || !canProceed}
+                    aria-busy={isSubmitting}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm sm:text-base"
                   >
                     {isSubmitting ? (

@@ -28,6 +28,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
+import { buildAuthSeo } from '../../utils/seo';
+import { getLogoPath as getThemeLogoPath } from '../../utils/themeAssets';
+import { calculatePasswordStrength } from '../../utils/passwordStrength';
 
 const ResetPasswordPage = () => {
   const { t } = useTranslation('auth');
@@ -56,18 +59,7 @@ const ResetPasswordPage = () => {
   });
 
   // Password strength checker
-  const checkPasswordStrength = useCallback((password) => {
-    if (!password) return 0;
-    
-    let strength = 0;
-    if (password.length >= 8) strength += 1;
-    if (/[a-z]/.test(password)) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/\d/.test(password)) strength += 1;
-    if (/[@$!%*?&]/.test(password)) strength += 1;
-    
-    return strength;
-  }, []);
+  const checkPasswordStrength = useCallback((password) => calculatePasswordStrength(password).score, []);
 
   // Validation schema with enhanced security
   const schema = useMemo(() => yup.object().shape({
@@ -192,9 +184,7 @@ const ResetPasswordPage = () => {
   }, [token, email, isSubmitting, canProceed, resetPassword, setError, clearErrors, t, sanitizeInput, validateInput, passwordStrength]);
 
   // Get logo path based on theme
-  const getLogoPath = useCallback(() => {
-    return isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png';
-  }, [isDark]);
+  const getLogoPath = useCallback(() => getThemeLogoPath(isDark), [isDark]);
 
   // Handle key press for form submission
   const handleKeyPress = useCallback((e) => {
@@ -214,13 +204,7 @@ const ResetPasswordPage = () => {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-        <Seo
-          title={tSeo('seo.resetPasswordSuccess.title', 'Password Reset Success - DentalKit')}
-          description={tSeo('seo.resetPasswordSuccess.description', 'Your password has been successfully reset')}
-          type="website"
-          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-        />
+        <Seo {...buildAuthSeo({ tSeo, kind: 'resetPassword', isDark, currentLanguage })} />
         
         <div className="min-h-screen flex">
           {/* Left Section - Branding & Features */}
@@ -303,7 +287,7 @@ const ResetPasswordPage = () => {
               {/* Success Container */}
               <AnimatedSection animation="fadeInUp" delay={200}>
                 <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
-                  <div className="text-center mb-6 sm:mb-8">
+              <div className="text-center mb-6 sm:mb-8" role="status" aria-live="polite">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                       <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     </div>
@@ -359,13 +343,7 @@ const ResetPasswordPage = () => {
   if (!token || !email) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-        <Seo
-          title={tSeo('seo.resetPasswordError.title', 'Reset Link Invalid - DentalKit')}
-          description={tSeo('seo.resetPasswordError.description', 'The password reset link is invalid or expired')}
-          type="website"
-          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-        />
+        <Seo {...buildAuthSeo({ tSeo, kind: 'resetPassword', isDark, currentLanguage })} />
         
         <div className="min-h-screen flex">
           {/* Left Section - Branding & Features */}
@@ -495,13 +473,7 @@ const ResetPasswordPage = () => {
   // Main reset password form
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-      <Seo
-        title={tSeo('seo.resetPassword.title', 'Reset Password - DentalKit')}
-        description={tSeo('seo.resetPassword.description', 'Create a new password for your DentalKit account')}
-        type="website"
-        locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-        themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-      />
+      <Seo {...buildAuthSeo({ tSeo, kind: 'resetPassword', isDark, currentLanguage })} />
       
       <div className="min-h-screen flex">
         {/* Left Section - Branding & Features */}
@@ -743,6 +715,7 @@ const ResetPasswordPage = () => {
                 fullWidth
                 loading={isSubmitting}
                 disabled={!isValid || isSubmitting || !canProceed || passwordStrength < 4}
+                aria-busy={isSubmitting}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 {isSubmitting ? (

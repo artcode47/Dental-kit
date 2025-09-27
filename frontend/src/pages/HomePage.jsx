@@ -18,19 +18,21 @@ import {
   CheckCircleIcon,
   PlayIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import Button from '../components/ui/Button';
 import AnimatedSection from '../components/animations/AnimatedSection';
 import StaggeredAnimation from '../components/animations/StaggeredAnimation';
 import useParallax from '../hooks/useParallax';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
+import { getFirstImageUrl } from '../utils/imageUtils';
 
 const HomePage = () => {
   const { t } = useTranslation('ecommerce');
   const { currentLanguage } = useLanguage();
   const { currentTheme } = useTheme();
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [wishlistSet, setWishlistSet] = useState(new Set());
   const [categories, setCategories] = useState([]);
   const [, setLoading] = useState(true);
   const parallaxOffset = useParallax(0.3);
@@ -38,13 +40,16 @@ const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsResponse, categoriesResponse] = await Promise.all([
+        const [productsResponse, categoriesResponse, wishlistResponse] = await Promise.all([
           api.get('/products?featured=true&limit=8'),
-          api.get('/categories?limit=6')
+          api.get('/categories?limit=6'),
+          api.get('/wishlist').catch(() => ({ data: {} }))
         ]);
         
         setFeaturedProducts(productsResponse.data.products || []);
         setCategories(categoriesResponse.data.categories || []);
+        const items = wishlistResponse.data?.items || wishlistResponse.data?.wishlist?.items || [];
+        setWishlistSet(new Set(items.map(it => it.productId)));
     } catch (err) {
       console.error('Error fetching data:', err);
       } finally {
@@ -74,8 +79,17 @@ const HomePage = () => {
 
   const handleWishlist = async (productId) => {
     try {
-      await api.post('/wishlist/add', { productId });
-      toast.success(t('wishlist.added'));
+      const { data } = await api.post('/wishlist/toggle', { productId });
+      setWishlistSet(prev => {
+        const next = new Set(prev);
+        if (data?.inWishlist) {
+          next.add(productId);
+        } else {
+          next.delete(productId);
+        }
+        return next;
+      });
+      toast.success(data?.action === 'added' ? t('wishlist.added') : t('wishlist.removed'));
     } catch {
       toast.error(t('wishlist.error.add'));
     }
@@ -314,24 +328,29 @@ const HomePage = () => {
           
           <StaggeredAnimation staggerDelay={100} className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product) => (
-              <div key={product._id} className="group">
+              <div key={product.id || product._id} className="group">
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2 overflow-hidden">
                   {/* Product Image */}
                   <div className="relative aspect-square overflow-hidden">
                     <img
-                      src={product.images?.[0] || 'https://via.placeholder.com/400x400?text=Product'}
+                      src={getFirstImageUrl(product.images)}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
                     
-                    {/* Action Buttons */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {/* Action Buttons - visible on mobile/tablet, hover-revealed on desktop */}
+                    <div className="absolute top-4 right-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                       <button
-                        onClick={() => handleWishlist(product._id)}
+                        onClick={() => handleWishlist(product.id || product._id)}
                         className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors"
+                        aria-label={wishlistSet.has(product.id || product._id) ? t('products.card.removeFromWishlist') : t('products.card.addToWishlist')}
                       >
-                        <HeartIcon className="w-5 h-5 text-gray-600" />
+                        {wishlistSet.has(product.id || product._id) ? (
+                          <HeartIconSolid className="w-5 h-5 text-red-500" />
+                        ) : (
+                          <HeartIcon className="w-5 h-5 text-gray-600" />
+                        )}
                       </button>
                     </div>
                     
@@ -348,7 +367,7 @@ const HomePage = () => {
                   {/* Product Info */}
                   <div className="p-6">
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors cursor-pointer"
-                        onClick={() => window.location.href = `/products/${product._id}`}>
+                        onClick={() => window.location.href = `/products/${product.id || product._id}`}>
                       {product.name}
                     </h3>
                     
@@ -391,7 +410,7 @@ const HomePage = () => {
                     
                     {/* Add to Cart Button */}
                     <Button
-                      onClick={() => handleAddToCart(product._id)}
+                      onClick={() => handleAddToCart(product.id || product._id)}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold"
                     >
                       <ShoppingCartIcon className="w-5 h-5 mr-2" />

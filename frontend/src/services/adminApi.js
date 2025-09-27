@@ -118,8 +118,39 @@ export const bulkProductOperations = async (operation, productIds, data = null) 
 
 export const createProduct = async (productData) => {
   try {
-    const response = await api.post('/products', productData);
-    return response.data;
+    // If there are image files, create FormData for file upload
+    if (productData.imageFiles && productData.imageFiles.length > 0) {
+      const formData = new FormData();
+      
+      // Append image files
+      productData.imageFiles.forEach(file => {
+        formData.append('images', file);
+      });
+      
+      // Append other product data
+      Object.keys(productData).forEach(key => {
+        if (key !== 'imageFiles' && productData[key] !== null && productData[key] !== undefined) {
+          if (Array.isArray(productData[key])) {
+            productData[key].forEach(item => {
+              formData.append(key, item);
+            });
+          } else {
+            formData.append(key, productData[key]);
+          }
+        }
+      });
+      
+      const response = await api.post('/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } else {
+      // No file upload, use regular JSON
+      const response = await api.post('/products', productData);
+      return response.data;
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to create product');
   }
@@ -127,8 +158,39 @@ export const createProduct = async (productData) => {
 
 export const updateProduct = async (productId, productData) => {
   try {
-    const response = await api.put(`/products/${productId}`, productData);
-    return response.data;
+    // If there are image files, create FormData for file upload
+    if (productData.imageFiles && productData.imageFiles.length > 0) {
+      const formData = new FormData();
+      
+      // Append image files
+      productData.imageFiles.forEach(file => {
+        formData.append('images', file);
+      });
+      
+      // Append other product data
+      Object.keys(productData).forEach(key => {
+        if (key !== 'imageFiles' && productData[key] !== null && productData[key] !== undefined) {
+          if (Array.isArray(productData[key])) {
+            productData[key].forEach(item => {
+              formData.append(key, item);
+            });
+          } else {
+            formData.append(key, productData[key]);
+          }
+        }
+      });
+      
+      const response = await api.put(`/products/${productId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } else {
+      // No file upload, use regular JSON
+      const response = await api.put(`/products/${productId}`, productData);
+      return response.data;
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to update product');
   }
@@ -164,31 +226,8 @@ export const getAllOrders = async (params = {}) => {
 
 export const bulkOrderOperations = async (operation, orderIds, data = null) => {
   try {
-    // Since bulk endpoint doesn't exist, perform individual operations
-    if (!Array.isArray(orderIds) || orderIds.length === 0) return { success: true };
-    
-    switch (operation) {
-      case 'updateStatus': {
-        for (const id of orderIds) {
-          await api.put(`/orders/admin/${id}/status`, { status: data?.status });
-        }
-        return { success: true };
-      }
-      case 'updatePaymentStatus': {
-        for (const id of orderIds) {
-          await api.put(`/orders/admin/${id}/payment-status`, { paymentStatus: data?.paymentStatus });
-        }
-        return { success: true };
-      }
-      case 'delete': {
-        for (const id of orderIds) {
-          await api.delete(`/orders/admin/${id}`);
-        }
-        return { success: true };
-      }
-      default:
-        throw new Error(`Unknown operation: ${operation}`);
-    }
+    const response = await api.post('/admin/orders/bulk', { operation, orderIds, data });
+    return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to perform bulk order operation');
   }
@@ -196,7 +235,7 @@ export const bulkOrderOperations = async (operation, orderIds, data = null) => {
 
 export const updateOrderStatus = async (orderId, status) => {
   try {
-    const response = await api.put(`/orders/admin/${orderId}/status`, { status });
+    const response = await api.put(`/admin/orders/${orderId}/status`, { status });
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to update order status');
@@ -298,6 +337,20 @@ export const deleteCategory = async (categoryId) => {
   }
 };
 
+// Image upload utility
+export const uploadImage = async (formData) => {
+  try {
+    const response = await api.post('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to upload image');
+  }
+};
+
 // Vendor Management
 export const getAllVendors = async (params = {}) => {
   try {
@@ -319,8 +372,31 @@ export const getVendor = async (vendorId) => {
 
 export const createVendor = async (vendorData) => {
   try {
-    const response = await api.post('/vendors', vendorData);
-    return response.data;
+    // If there's a logoFile, create FormData for file upload
+    if (vendorData.logoFile) {
+      const formData = new FormData();
+      
+      // Append the logo file
+      formData.append('image', vendorData.logoFile);
+      
+      // Append other vendor data
+      Object.keys(vendorData).forEach(key => {
+        if (key !== 'logoFile' && vendorData[key] !== null && vendorData[key] !== undefined) {
+          formData.append(key, vendorData[key]);
+        }
+      });
+      
+      const response = await api.post('/vendors', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } else {
+      // No file upload, use regular JSON
+      const response = await api.post('/vendors', vendorData);
+      return response.data;
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to create vendor');
   }
@@ -328,8 +404,31 @@ export const createVendor = async (vendorData) => {
 
 export const updateVendor = async (vendorId, vendorData) => {
   try {
-    const response = await api.put(`/vendors/${vendorId}`, vendorData);
-    return response.data;
+    // If there's a logoFile, create FormData for file upload
+    if (vendorData.logoFile) {
+      const formData = new FormData();
+      
+      // Append the logo file
+      formData.append('image', vendorData.logoFile);
+      
+      // Append other vendor data
+      Object.keys(vendorData).forEach(key => {
+        if (key !== 'logoFile' && vendorData[key] !== null && vendorData[key] !== undefined) {
+          formData.append(key, vendorData[key]);
+        }
+      });
+      
+      const response = await api.put(`/vendors/${vendorId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } else {
+      // No file upload, use regular JSON
+      const response = await api.put(`/vendors/${vendorId}`, vendorData);
+      return response.data;
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to update vendor');
   }

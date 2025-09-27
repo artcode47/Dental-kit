@@ -14,6 +14,7 @@ import SecurityUtils from '../utils/security';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
 import Seo from '../components/seo/Seo';
+import { getAllImageUrls, getImageAlt } from '../utils/imageUtils';
 
 // Inline, mobile-first components for this page only
 const BreadcrumbInline = ({ productName, onBack }) => (
@@ -274,14 +275,25 @@ const ProductDetailsPage = () => {
           isOnSale: productData.originalPrice && productData.originalPrice > productData.price,
           isNew: false, // Add logic if needed
           isFeatured: productData.isFeatured || false,
-          // Ensure images array is properly formatted
-          images: productData.images ? productData.images.map((img, index) => ({
-            url: img,
-            alt: `${productData.name} - Image ${index + 1}`
-          })) : []
+          // Process images using the utility function
+          images: getAllImageUrls(productData.images).map((url, index) => ({
+            url,
+            alt: getImageAlt(productData.images?.[index], `${productData.name} - Image ${index + 1}`)
+          }))
         };
 
         setProduct(sanitizedProduct);
+        // Check wishlist status for this product (ignore errors silently)
+        try {
+          const wl = await api.get(`/wishlist/check/${id}`, {
+            signal: abortControllerRef.current.signal
+          });
+          if (isMounted && typeof wl.data?.isInWishlist === 'boolean') {
+            setIsInWishlist(wl.data.isInWishlist);
+          }
+        } catch (_) {
+          // no-op if unauthenticated or endpoint not available
+        }
         
         const reviewsResponse = await api.get(`/reviews/product/${id}`, {
           signal: abortControllerRef.current.signal,

@@ -387,7 +387,7 @@ export const AuthProvider = ({ children }) => {
         }
       });
       
-      toast.success(t('loginSuccessful'));
+      toast.success(t('auth.login.success'));
       return { success: true, user: user || { role: 'user' } };
     } catch (error) {
       const message = error.response?.data?.message || t('loginFailed');
@@ -414,7 +414,7 @@ export const AuthProvider = ({ children }) => {
       window.dispatchEvent(new CustomEvent('userLogout'));
       
       dispatch({ type: 'LOGOUT' });
-      toast.success(t('loggedOutSuccessfully'));
+      toast.success(t('ecommerce.nav.logout'));
     }
   };
 

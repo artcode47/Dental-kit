@@ -14,6 +14,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
 import { useCart } from '../contexts/CartContext';
 import api from '../services/api';
+import { getFirstImageUrl } from '../utils/imageUtils';
 
 const WishlistPage = () => {
   const { t } = useTranslation('ecommerce');
@@ -33,7 +34,7 @@ const WishlistPage = () => {
       setError(null);
       
       const response = await api.get('/wishlist');
-      setWishlistItems(response.data.items || []);
+      setWishlistItems(response.data.items || response.data.wishlist?.items || []);
     } catch (err) {
       setError(err.message || t('wishlist.error.fetch'));
       toast.error(t('wishlist.error.fetch'));
@@ -60,9 +61,8 @@ const WishlistPage = () => {
     try {
       setRemovingFromWishlist(productId);
       const response = await api.post('/wishlist/toggle', { productId });
-      
       // Update wishlist items from the API response
-      setWishlistItems(response.data.wishlist.items || []);
+      setWishlistItems(response.data.wishlist?.items || []);
       toast.success(t('wishlist.removed'));
     } catch (err) {
       toast.error(t('wishlist.error.remove'));
@@ -167,7 +167,7 @@ const WishlistPage = () => {
                   {/* Product Image */}
                   <div className="relative aspect-square overflow-hidden">
                     <img
-                      src={product.images?.[0]?.url || '/placeholder-product.svg'}
+                      src={getFirstImageUrl(product.images)}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

@@ -22,9 +22,12 @@ import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 
+import { buildAuthSeo } from '../../utils/seo';
+import { getLogoPath as getThemeLogoPath } from '../../utils/themeAssets';
+
 const VerifyEmailPage = () => {
   const { t } = useTranslation('auth');
-  const { t: tSeo } = useTranslation('auth');
+  const { t: tSeo } = useTranslation('ecommerce');
   const { isDark } = useTheme();
   const { currentLanguage } = useLanguage();
   const navigate = useNavigate();
@@ -38,9 +41,7 @@ const VerifyEmailPage = () => {
   const email = searchParams.get('email');
 
   // Get logo path based on theme
-  const getLogoPath = useCallback(() => {
-    return isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png';
-  }, [isDark]);
+  const getLogoPath = useCallback(() => getThemeLogoPath(isDark), [isDark]);
 
   useEffect(() => {
     if (token && email) {
@@ -106,13 +107,7 @@ const VerifyEmailPage = () => {
   if (isVerifying) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-        <Seo
-          title={tSeo('verifyEmail.title', 'Verifying Email - DentalKit')}
-          description={tSeo('verifyEmail.description', 'Verifying your email address for DentalKit account')}
-          type="website"
-          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-        />
+        <Seo {...buildAuthSeo({ tSeo, kind: 'verifyEmail', isDark, currentLanguage })} />
         
         <div className="min-h-screen flex">
           {/* Left Section - Branding & Features */}
@@ -218,7 +213,7 @@ const VerifyEmailPage = () => {
 
             {/* Loading Container */}
               <AnimatedSection animation="fadeInUp" delay={200}>
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50" role="status" aria-live="polite">
               <div className="text-center">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                       <LoadingSpinner size="lg" className="text-white" />
@@ -243,13 +238,7 @@ const VerifyEmailPage = () => {
   if (verificationStatus === 'success') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-        <Seo
-          title={tSeo('verifyEmail.success.seoTitle', 'Email Verified - DentalKit')}
-          description={tSeo('verifyEmail.success.seoDescription', 'Your email has been successfully verified for your DentalKit account')}
-          type="website"
-          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-        />
+        <Seo {...buildAuthSeo({ tSeo, kind: 'verifyEmail', isDark, currentLanguage })} />
         
         <div className="min-h-screen flex">
           {/* Left Section - Branding & Features */}
@@ -331,7 +320,7 @@ const VerifyEmailPage = () => {
 
               {/* Success Container */}
               <AnimatedSection animation="fadeInUp" delay={200}>
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50" role="alert" aria-live="assertive">
                   <div className="text-center mb-6 sm:mb-8">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                       <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
@@ -387,13 +376,7 @@ const VerifyEmailPage = () => {
   if (verificationStatus === 'expired') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-        <Seo
-          title={tSeo('verifyEmail.expired.seoTitle', 'Verification Expired - DentalKit')}
-          description={tSeo('verifyEmail.expired.seoDescription', 'Your email verification link has expired. Please request a new one.')}
-          type="website"
-          locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-          themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-        />
+        <Seo {...buildAuthSeo({ tSeo, kind: 'verifyEmail', isDark, currentLanguage })} />
         
         <div className="min-h-screen flex">
           {/* Left Section - Branding & Features */}
@@ -475,7 +458,7 @@ const VerifyEmailPage = () => {
 
               {/* Token Expired Container */}
               <AnimatedSection animation="fadeInUp" delay={200}>
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50" role="alert" aria-live="assertive">
                   <div className="text-center mb-6 sm:mb-8">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                       <ExclamationTriangleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />

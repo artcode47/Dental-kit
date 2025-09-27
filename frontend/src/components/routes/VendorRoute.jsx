@@ -5,8 +5,7 @@ const VendorRoute = ({ children, fallback = null }) => {
   return (
     <ProtectedRoute
       requiredRoles={['vendor', 'admin', 'super_admin']}
-      requiredPermissions={['vendor_access']}
-      redirectTo="/vendor/login"
+      redirectTo="/unauthorized"
       fallback={fallback}
     >
       {children}
@@ -14,4 +13,4 @@ const VendorRoute = ({ children, fallback = null }) => {
   );
 };
 
-export default VendorRoute; 
+export default VendorRoute;

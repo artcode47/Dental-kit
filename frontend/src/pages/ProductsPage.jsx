@@ -29,10 +29,10 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useCart } from '../contexts/CartContext';
 import ecommerceService from '../services/ecommerceService';
+import api, { endpoints } from '../services/api';
 import { toast } from 'react-hot-toast';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const getImageUrl = (img) => (typeof img === 'string' ? img : (img && img.url) || '/placeholder-product.jpg');
+import { getImageUrl } from '../utils/imageUtils';
 
 const ProductsPage = () => {
   const { t } = useTranslation('ecommerce');
@@ -66,6 +66,21 @@ const ProductsPage = () => {
 
   // State for UI
   const [wishlistItems, setWishlistItems] = useState(new Set());
+  // Load wishlist state on mount
+  useEffect(() => {
+    const loadWishlist = async () => {
+      try {
+        const response = await api.get('/wishlist');
+        const items = response.data.items || response.data.wishlist?.items || [];
+        const ids = new Set(items.map((it) => it.productId));
+        setWishlistItems(ids);
+      } catch (_) {
+        // ignore silently to avoid UX noise on products listing
+      }
+    };
+    loadWishlist();
+  }, []);
+
   const [addingToCart, setAddingToCart] = useState(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
@@ -107,7 +122,11 @@ const ProductsPage = () => {
       
       // Only update state if we got valid data
       if (result && (result.products || result.total !== undefined)) {
-        setProducts(result.products || []);
+        const normalizedProducts = (result.products || []).map((p) => ({
+          ...p,
+          inStock: typeof p.stock === 'number' ? p.stock > 0 : Boolean(p.inStock)
+        }));
+        setProducts(normalizedProducts);
         setTotalProducts(result.total || 0);
         setTotalPages(result.totalPages || 1);
       }
@@ -133,7 +152,7 @@ const ProductsPage = () => {
 
         const [categoriesResult, brandsResult] = await Promise.allSettled([
           ecommerceService.getCategories(),
-          ecommerceService.getVendors() // Using vendors as brands for now
+          api.get(endpoints.products.brands, { params: { _ts: Date.now() }, headers: { 'Cache-Control': 'no-cache' } })
         ]);
 
         if (isMounted) {
@@ -143,8 +162,8 @@ const ProductsPage = () => {
           }
 
           if (brandsResult.status === 'fulfilled') {
-            const brandsData = brandsResult.value.vendors || [];
-            setBrands(brandsData);
+            const brandsData = brandsResult.value.data?.brands || brandsResult.value.brands || [];
+            setBrands(brandsData.map((name) => ({ id: name, name })));
           }
           
           setInitialLoadComplete(true);

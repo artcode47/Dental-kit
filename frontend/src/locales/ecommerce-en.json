@@ -1,4 +1,9 @@
 {
+  "auth": {
+    "login": {
+      "success": "Login successful! Welcome back."
+    }
+  },
   "nav": {
     "home": "Home",
     "products": "Products",
@@ -351,6 +356,7 @@
     "error": {
       "title": "Error Loading Wishlist",
       "fetch": "Failed to load wishlist",
+      "add": "Failed to add to wishlist",
       "toggle": "Failed to update wishlist",
       "remove": "Failed to remove from wishlist",
       "retry": "Retry"
@@ -631,6 +637,10 @@
     "resetPassword": {
       "title": "Reset Password - DentalKit",
       "description": "Create a new password for your DentalKit account"
+    },
+    "verifyEmail": {
+      "title": "Verifying Email - DentalKit",
+      "description": "Verifying your email address for DentalKit account"
     },
     "resetPasswordSuccess": {
       "title": "Password Reset Success - DentalKit",

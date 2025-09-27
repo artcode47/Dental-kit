@@ -40,6 +40,7 @@ import StatCard from '../../components/admin/StatCard';
 import OrdersTable from '../../components/admin/OrdersTable';
 import OrdersGrid from '../../components/admin/OrdersGrid';
 import Pagination from '../../components/admin/Pagination';
+import OrderViewModal from '../../components/admin/orders/OrderViewModal';
 import { toast } from 'react-hot-toast';
 
 const AdminOrdersPage = () => {
@@ -89,7 +90,6 @@ const AdminOrdersPage = () => {
 
   // Modal states
   const [showViewModal, setShowViewModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -272,10 +272,6 @@ const AdminOrdersPage = () => {
     setShowViewModal(true);
   };
 
-  const handleEditOrder = (order) => {
-    setSelectedOrder(order);
-    setShowEditModal(true);
-  };
 
   const handleDeleteOrderClick = (order) => {
     setSelectedOrder(order);
@@ -284,7 +280,6 @@ const AdminOrdersPage = () => {
 
   const closeModals = () => {
     setShowViewModal(false);
-    setShowEditModal(false);
     setShowDeleteModal(false);
     setSelectedOrder(null);
   };
@@ -622,7 +617,6 @@ const AdminOrdersPage = () => {
             getStatusIcon={getStatusIcon}
             t={t}
             onViewOrder={handleViewOrder}
-            onEditOrder={handleEditOrder}
             onDeleteOrder={handleDeleteOrder}
             onUpdateStatus={handleUpdateStatus}
             isSubmitting={isSubmitting}
@@ -639,7 +633,6 @@ const AdminOrdersPage = () => {
             getStatusIcon={getStatusIcon}
             t={t}
             onViewOrder={handleViewOrder}
-            onEditOrder={handleEditOrder}
             onDeleteOrder={handleDeleteOrder}
             onUpdateStatus={handleUpdateStatus}
             isSubmitting={isSubmitting}
@@ -657,6 +650,17 @@ const AdminOrdersPage = () => {
             t={t} 
           />
         )}
+
+        {/* Modals */}
+        <OrderViewModal
+          isOpen={showViewModal}
+          order={selectedOrder}
+          onClose={closeModals}
+          formatCurrency={formatCurrency}
+          formatDate={formatDate}
+          getStatusBadgeColor={getStatusBadgeColor}
+          getStatusIcon={getStatusIcon}
+        />
       </div>
     </AdminLayout>
   );

@@ -428,7 +428,7 @@ class EcommerceService {
   // WISHLIST
   async getWishlist(options = {}) {
     try {
-      const result = await this.debouncedRequest('/users/wishlist', options);
+      const result = await this.debouncedRequest('/wishlist', options);
       return result;
     } catch (error) {
       console.error('❌ Failed to fetch wishlist:', error);
@@ -438,7 +438,7 @@ class EcommerceService {
 
   async addToWishlist(productId) {
     try {
-      const response = await api.post('/products/wishlist', { productId });
+      const response = await api.post('/wishlist/toggle', { productId });
       
       // Invalidate wishlist cache
       this.clearCache('wishlist');
@@ -451,7 +451,7 @@ class EcommerceService {
 
   async removeFromWishlist(productId) {
     try {
-      const response = await api.delete(`/products/wishlist/${productId}`);
+      const response = await api.post('/wishlist/toggle', { productId });
       
       // Invalidate wishlist cache
       this.clearCache('wishlist');

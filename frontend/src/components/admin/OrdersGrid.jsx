@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ShoppingCartIcon,
   EyeIcon,
-  PencilIcon,
   TrashIcon,
   UserIcon,
   CalendarIcon
@@ -19,7 +18,6 @@ const OrdersGrid = ({
   getStatusIcon, 
   t, 
   onViewOrder,
-  onEditOrder,
   onDeleteOrder,
   onUpdateStatus,
   isSubmitting 
@@ -65,10 +63,13 @@ const OrdersGrid = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {order.user?.firstName} {order.user?.lastName}
+                  {order.user?.firstName && order.user?.lastName 
+                    ? `${order.user.firstName} ${order.user.lastName}`
+                    : t('orders.noCustomerInfo')
+                  }
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {order.user?.email}
+                  {order.user?.email || t('orders.noEmail')}
                 </div>
               </div>
             </div>
@@ -98,11 +99,11 @@ const OrdersGrid = ({
               </span>
             </div>
 
-            {/* Payment */}
+            {/* Payment Method */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t('orders.payment')}</span>
-              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentBadge(order.paymentStatus)}`}>
-                {t(`orders.${order.paymentStatus}`)}
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('orders.paymentMethod')}</span>
+              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                {order.paymentMethod ? t(`orders.${order.paymentMethod}`) : t('orders.noPaymentMethod')}
               </span>
             </div>
           </div>
@@ -124,24 +125,40 @@ const OrdersGrid = ({
                     e.target.value = '';
                   }
                 }} 
-                className="p-1.5 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 bg-transparent border-none cursor-pointer rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors focus:ring-2 focus:ring-blue-500" 
+                className="
+                  min-w-[100px] px-2 py-1 text-xs font-medium
+                  bg-white dark:bg-gray-700 
+                  border border-gray-300 dark:border-gray-600 
+                  rounded-md shadow-sm
+                  text-gray-700 dark:text-gray-200
+                  hover:border-blue-400 dark:hover:border-blue-500
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                  transition-all duration-200 ease-in-out
+                  cursor-pointer
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                " 
                 title={t('orders.updateStatus')}
                 disabled={isSubmitting}
               >
-                <option value="">⚙️</option>
-                <option value="pending">{t('orders.pending')}</option>
-                <option value="processing">{t('orders.processing')}</option>
-                <option value="shipped">{t('orders.shipped')}</option>
-                <option value="delivered">{t('orders.delivered')}</option>
-                <option value="cancelled">{t('orders.cancelled')}</option>
+                <option value="" className="text-gray-500 dark:text-gray-400">
+                  {t('orders.updateStatus')}
+                </option>
+                <option value="pending" className="text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700">
+                  {t('orders.pending')}
+                </option>
+                <option value="processing" className="text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700">
+                  {t('orders.processing')}
+                </option>
+                <option value="shipped" className="text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700">
+                  {t('orders.shipped')}
+                </option>
+                <option value="delivered" className="text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700">
+                  {t('orders.delivered')}
+                </option>
+                <option value="cancelled" className="text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700">
+                  {t('orders.cancelled')}
+                </option>
               </select>
-              <button 
-                className="p-1.5 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" 
-                title={t('orders.edit')}
-                onClick={() => onEditOrder(order)}
-              >
-                <PencilIcon className="h-4 w-4"/>
-              </button>
             </div>
             <button 
               onClick={() => onDeleteOrder(order.id)} 

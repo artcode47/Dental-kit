@@ -27,8 +27,7 @@ const Sidebar = () => {
     { path: '/dashboard', icon: HomeIcon, label: t('nav.dashboard') },
     { path: '/profile', icon: UserIcon, label: t('nav.profile') },
     { path: '/orders', icon: ShoppingBagIcon, label: t('nav.orders') },
-    { path: '/wishlist', icon: HeartIcon, label: t('nav.wishlist') },
-    { path: '/settings', icon: CogIcon, label: t('nav.settings') },
+    { path: '/wishlist', icon: HeartIcon, label: t('nav.wishlist') }
   ];
 
   const adminMenuItems = [

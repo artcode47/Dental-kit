@@ -9,19 +9,20 @@ const SECURITY_CONFIG = {
   RATE_LIMIT_HEADER: 'X-RateLimit-Remaining'
 };
 
-// Debug: Log the environment variables
-console.log('🔍 API Configuration Debug:', {
-  VITE_API_URL: import.meta.env.VITE_API_URL,
-  PROD: import.meta.env.PROD,
-  MODE: import.meta.env.MODE,
-  NODE_ENV: import.meta.env.NODE_ENV,
-  hostname: typeof window !== 'undefined' ? window.location.hostname : 'server',
-  finalBaseURL: import.meta.env.VITE_API_URL || 'https://dental-website-backend.fly.dev/api'
-});
+// Determine baseURL (default to backend on port 5000 in dev)
+const inferBaseURL = () => {
+  const configured = import.meta.env.VITE_API_URL;
+  if (configured) return configured;
+  if (typeof window !== 'undefined') {
+    const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    if (isLocal) return 'http://localhost:5000/api';
+  }
+  return '/api';
+};
 
 // Create axios instance with enhanced security
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://dental-website-backend.fly.dev/api',
+  baseURL: inferBaseURL(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -372,7 +373,17 @@ export const endpoints = {
     update: (id) => `/vendors/${id}`,
     delete: (id) => `/vendors/${id}`,
     products: (id) => `/vendors/${id}/products`,
-    profile: '/vendors/profile'
+    profile: '/vendors/profile',
+    me: {
+      profile: '/vendors/me/profile',
+      products: '/vendors/me/products',
+      createProduct: '/vendors/me/products',
+      updateProduct: (id) => `/vendors/me/products/${id}`,
+      stock: (id) => `/vendors/me/products/${id}/stock`,
+      deleteProduct: (id) => `/vendors/me/products/${id}`,
+      stats: '/vendors/me/stats',
+      orders: '/vendors/me/orders'
+    }
   },
   
   // Admin

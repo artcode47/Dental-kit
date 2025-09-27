@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
 import api, { endpoints } from '../services/api';
+import { getImageUrl } from '../utils/imageUtils';
 
 const OrdersPage = () => {
   const { t } = useTranslation('ecommerce');
@@ -98,7 +99,7 @@ const OrdersPage = () => {
                   <div className="space-y-2 mb-4">
                     {(order.items || []).slice(0, 2).map((item, idx) => (
                       <div key={idx} className="flex items-center gap-3">
-                        <img src={item?.image?.url || '/placeholder-product.svg'} alt={item?.name || 'Product'} className="w-12 h-12 rounded-lg object-cover" />
+                        <img src={getImageUrl(item?.image)} alt={item?.name || 'Product'} className="w-12 h-12 rounded-lg object-cover" />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.name}</p>
                           <p className="text-xs text-gray-500">{t('orders.quantity')}: {item.quantity}</p>

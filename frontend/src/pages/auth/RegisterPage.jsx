@@ -11,10 +11,15 @@ import { useSecurity } from '../../hooks/useSecurity';
 import Seo from '../../components/seo/Seo';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import PasswordStrengthIndicator from '../../components/auth/PasswordStrengthIndicator';
 import SecurityCheckIndicator from '../../components/auth/SecurityCheckIndicator';
 import AnimatedSection from '../../components/animations/AnimatedSection';
+import { buildAuthSeo } from '../../utils/seo';
+import { getLogoPath as getThemeLogoPath } from '../../utils/themeAssets';
+import { COUNTRIES, GOVERNORATES } from '../../utils/locations';
+import { calculatePasswordStrength } from '../../utils/passwordStrength';
 import { 
   EyeIcon, 
   EyeSlashIcon, 
@@ -68,10 +73,7 @@ const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [securityCheck, setSecurityCheck] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState({
-    score: 0,
-    feedback: []
-  });
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: [] });
 
   // Validation schema with enhanced security
   const schema = useMemo(() => yup.object().shape({
@@ -197,18 +199,9 @@ const RegisterPage = () => {
       setPasswordStrength({ score: 0, feedback: [] });
       return;
     }
-
-    let score = 0;
-    const feedback = [];
+    const { score, feedback } = calculatePasswordStrength(password);
     const translate = tRef.current;
-
-    if (password.length >= 8) score += 1; else feedback.push(translate('validation.password.min'));
-    if (/[a-z]/.test(password)) score += 1; else feedback.push(translate('validation.password.lowercase'));
-    if (/[A-Z]/.test(password)) score += 1; else feedback.push(translate('validation.password.uppercase'));
-    if (/[0-9]/.test(password)) score += 1; else feedback.push(translate('validation.password.number'));
-    if (/[^A-Za-z0-9]/.test(password)) score += 1; else feedback.push(translate('validation.password.symbol'));
-
-    setPasswordStrength({ score, feedback });
+    setPasswordStrength({ score, feedback: feedback.map((k) => translate(k)) });
   }, [passwordValue]);
 
   // Enhanced form submission with security measures
@@ -312,30 +305,12 @@ const RegisterPage = () => {
   ]);
 
   // Countries and governorates data with translations
-  const countries = [
-    { code: 'EG', name: t('countries.EG') },
-    { code: 'SA', name: t('countries.SA') }
-  ];
+  const countries = COUNTRIES.map((c) => ({ code: c.code, name: t(`countries.${c.code}`) }));
 
-  const governorates = {
-    EG: [
-      'Alexandria', 'Aswan', 'Asyut', 'Beheira', 'Beni Suef', 'Cairo', 'Dakahlia',
-      'Damietta', 'Faiyum', 'Gharbia', 'Giza', 'Ismailia', 'Kafr El Sheikh',
-      'Luxor', 'Matruh', 'Minya', 'Monufia', 'New Valley', 'North Sinai',
-      'Port Said', 'Qalyubia', 'Qena', 'Red Sea', 'Sharqia', 'Sohag',
-      'South Sinai', 'Suez'
-    ],
-    SA: [
-      'Riyadh', 'Jeddah', 'Mecca', 'Medina', 'Dammam', 'Taif', 'Tabuk',
-      'Abha', 'Jizan', 'Najran', 'Al Bahah', 'Al Jouf', 'Al Qassim',
-      'Hail', 'Northern Borders', 'Eastern Province'
-    ]
-  };
+  const governorates = GOVERNORATES;
 
   // Get logo path based on theme
-  const getLogoPath = () => {
-    return isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png';
-  };
+  const getLogoPath = () => getThemeLogoPath(isDark);
 
   // Account lockout check
   const isAccountLocked = securityLocked;
@@ -351,13 +326,7 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
-      <Seo
-        title={tSeo('seo.register.title', 'Register - DentalKit')}
-        description={tSeo('seo.register.description', 'Create your DentalKit account to access professional dental equipment and supplies')}
-        type="website"
-        locale={currentLanguage === 'ar' ? 'ar_SA' : 'en_US'}
-        themeColor={isDark ? '#0B1220' : '#FFFFFF'}
-      />
+      <Seo {...buildAuthSeo({ tSeo, kind: 'register', isDark, currentLanguage })} />
       
       <div className="min-h-screen flex">
         {/* Left Section - Branding & Features */}
@@ -531,6 +500,7 @@ const RegisterPage = () => {
                         fullWidth
                         disabled={isAccountLocked || isSubmitting}
                         className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                        autoComplete="given-name"
                       />
                       <Input
                         label={t('register.lastName')}
@@ -541,6 +511,7 @@ const RegisterPage = () => {
                         fullWidth
                         disabled={isAccountLocked || isSubmitting}
                         className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                        autoComplete="family-name"
                       />
                     </div>
 
@@ -554,6 +525,7 @@ const RegisterPage = () => {
                       fullWidth
                       disabled={isAccountLocked || isSubmitting}
                       className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                      autoComplete="tel"
                     />
 
                     {/* Company and University Fields */}
@@ -567,6 +539,7 @@ const RegisterPage = () => {
                         fullWidth
                         disabled={isAccountLocked || isSubmitting}
                         className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                        autoComplete="organization"
                       />
                       <Input
                         label={t('register.university')}
@@ -577,6 +550,7 @@ const RegisterPage = () => {
                         fullWidth
                         disabled={isAccountLocked || isSubmitting}
                         className="bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm"
+                        autoComplete="organization"
                       />
                     </div>
 
@@ -586,19 +560,21 @@ const RegisterPage = () => {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           {t('register.country')}
                         </label>
-                        <select
-                          {...register('country')}
+                        <Select
+                          value={watchedValues.country}
+                          onChange={(val) => {
+                            // update RHF value and reset governorate when country changes
+                            const event = { target: { name: 'country', value: val } };
+                            register('country').onChange(event);
+                            register('governorate').onChange({ target: { name: 'governorate', value: '' } });
+                          }}
+                          options={countries.map(c => ({ value: c.code, label: c.name }))}
                           disabled={isAccountLocked || isSubmitting}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-600"
-                        >
-                          {countries.map(country => (
-                            <option key={country.code} value={country.code}>
-                              {country.name}
-                            </option>
-                          ))}
-                        </select>
+                          placeholder={t('register.country')}
+                          aria-describedby={errors.country ? 'country-error' : undefined}
+                        />
                         {errors.country && (
-                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          <p id="country-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
                             {errors.country.message}
                           </p>
                         )}
@@ -607,20 +583,16 @@ const RegisterPage = () => {
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           {t('register.governorate')}
                         </label>
-                        <select
-                          {...register('governorate')}
+                        <Select
+                          value={watchedValues.governorate}
+                          onChange={(val) => register('governorate').onChange({ target: { name: 'governorate', value: val } })}
+                          options={(governorates[watchedValues.country] || []).map(g => ({ value: g, label: t(`governorates.${watchedValues.country}.${g}`, g) }))}
                           disabled={isAccountLocked || isSubmitting}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:bg-gray-100 dark:disabled:bg-gray-600"
-                        >
-                          <option value="">{t('register.selectGovernorate')}</option>
-                          {governorates[watchedValues.country]?.map(governorate => (
-                            <option key={governorate} value={governorate}>
-                              {t(`governorates.${watchedValues.country}.${governorate}`, governorate)}
-                            </option>
-                          ))}
-                        </select>
+                          placeholder={t('register.selectGovernorate')}
+                          aria-describedby={errors.governorate ? 'governorate-error' : undefined}
+                        />
                         {errors.governorate && (
-                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          <p id="governorate-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
                             {errors.governorate.message}
                           </p>
                         )}
@@ -697,7 +669,7 @@ const RegisterPage = () => {
                   </div>
 
                   {/* Consent Checkbox */}
-                  <div className="space-y-3">
+                    <div className="space-y-3">
                     <div className="flex items-start">
                       <input
                         id="consent"
@@ -722,6 +694,15 @@ const RegisterPage = () => {
                       {t('register.consentText')}
                     </p>
                   </div>
+
+                    {/* Error region for screen readers */}
+                    <div role="alert" aria-live="assertive">
+                      {errors.root && (
+                        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                          <p className="text-sm text-red-700 dark:text-red-300">{errors.root.message}</p>
+                        </div>
+                      )}
+                    </div>
 
                   {/* Security Check Indicator */}
                   {securityCheck && !isAccountLocked && (

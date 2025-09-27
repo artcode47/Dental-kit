@@ -11,7 +11,9 @@ import {
   HeartIcon,
   ChevronDownIcon,
   SunIcon,
-  MoonIcon
+  MoonIcon,
+  ShieldCheckIcon,
+  BuildingStorefrontIcon
 } from '@heroicons/react/24/outline';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import SearchBar from '../common/SearchBar';
@@ -72,8 +74,7 @@ const Header = () => {
 
   const navItems = [
     { label: t('nav.home'), to: '/' },
-    { label: t('nav.products'), to: '/products' },
-    { label: t('nav.categories'), to: '/categories' }
+    { label: t('nav.products'), to: '/products' }
   ];
 
   return (
@@ -92,7 +93,7 @@ const Header = () => {
                 </Link>
               </AnimatedSection>
 
-              <AnimatedSection animation="fadeInDown" delay={100} className="hidden md:flex">
+              <AnimatedSection animation="fadeInDown" delay={100} className="hidden lg:flex">
                 <nav className="flex items-center gap-1">
                   {navItems.map((item, index) => (
                     <Link 
@@ -138,7 +139,7 @@ const Header = () => {
                       <ChevronDownIcon className={`h-4 w-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isUserMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl">
+                      <div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-[9999]">
                         <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                           <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.firstName || user?.email?.split('@')[0] || 'User'}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
@@ -147,7 +148,30 @@ const Header = () => {
                           <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">{t('nav.profile')}</Link>
                           <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">{t('nav.orders')}</Link>
                           <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">{t('nav.wishlist')}</Link>
-                          <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">{t('nav.settings')}</Link>
+                          
+                          {/* Dashboard Navigation */}
+                          {user?.role === 'admin' && (
+                            <Link 
+                              to="/admin/dashboard" 
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <ShieldCheckIcon className="h-4 w-4 mr-2 text-teal-600" />
+                              Admin Dashboard
+                            </Link>
+                          )}
+                          {user?.role === 'vendor' && (
+                            <Link 
+                              to="/vendor/dashboard" 
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <BuildingStorefrontIcon className="h-4 w-4 mr-2 text-blue-600" />
+                              Vendor Dashboard
+                            </Link>
+                          )}
+                          
+                          {/* Settings removed from nav */}
                           <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">{t('nav.logout')}</button>
                         </div>
                       </div>
@@ -162,7 +186,7 @@ const Header = () => {
                   </div>
                 )}
 
-                  <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700/60 hover:scale-110 transition-all duration-200" aria-label="Menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-menu">
+                  <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700/60 hover:scale-110 transition-all duration-200" aria-label="Menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-menu">
                     {isMobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
                   </button>
                 </div>
@@ -207,7 +231,30 @@ const Header = () => {
                   <Link to="/profile" className="block px-3 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.profile')}</Link>
                   <Link to="/orders" className="block px-3 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.orders')}</Link>
                   <Link to="/wishlist" className="block px-3 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.wishlist')}</Link>
-                  <Link to="/settings" className="block px-3 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.settings')}</Link>
+                  
+                  {/* Dashboard Navigation for Mobile */}
+                  {user?.role === 'admin' && (
+                    <Link 
+                      to="/admin/dashboard" 
+                      className="flex items-center px-3 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <ShieldCheckIcon className="h-4 w-4 mr-2 text-teal-600" />
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  {user?.role === 'vendor' && (
+                    <Link 
+                      to="/vendor/dashboard" 
+                      className="flex items-center px-3 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BuildingStorefrontIcon className="h-4 w-4 mr-2 text-blue-600" />
+                      Vendor Dashboard
+                    </Link>
+                  )}
+                  
+                  {/* Settings removed from mobile nav */}
                   <button onClick={handleLogout} className="w-full text-left px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm">{t('nav.logout')}</button>
                 </>
               ) : (

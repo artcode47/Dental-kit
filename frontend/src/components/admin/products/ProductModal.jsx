@@ -8,13 +8,12 @@ import { uploadProductImages } from '../../../services/adminApi';
 const ProductModal = ({ 
   isOpen, 
   mode, // 'add' or 'edit'
-  product, 
+  product, // eslint-disable-line no-unused-vars
   formData, 
   onInputChange, 
   onSubmit, 
   onClose, 
-  categories = [], 
-  vendors = [] 
+  categories = []
 }) => {
   const { t } = useTranslation('admin');
   const [uploading, setUploading] = useState(false);
@@ -25,18 +24,25 @@ const ProductModal = ({
   const handleImagesSelected = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-    try {
-      setUploading(true);
-      const { images } = await uploadProductImages(files);
-      const newImages = imagesPreview.concat(images);
-      setImagesPreview(newImages);
-      // propagate into formData via synthetic event
-      onInputChange({ target: { name: 'images', value: newImages } });
-    } catch (error) {
-      console.error('Images upload failed', error);
-      alert(error.message || 'Image upload failed');
-    } finally {
-      setUploading(false);
+    
+    // Store files for direct upload during form submission
+    onInputChange({ target: { name: 'imageFiles', value: files } });
+    
+    // Create previews for UI
+    const previews = [];
+    for (const file of files) {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          previews.push({ url: reader.result, public_id: `preview-${Date.now()}-${Math.random()}` });
+          if (previews.length === files.length) {
+            const newImages = imagesPreview.concat(previews);
+            setImagesPreview(newImages);
+            onInputChange({ target: { name: 'images', value: newImages } });
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -139,23 +145,7 @@ const ProductModal = ({
                   })}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {t('products.vendor')}
-                </label>
-                <select name="vendor" value={formData.vendor} onChange={onInputChange} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
-                  <option value="">{t('products.selectVendor')}</option>
-                  {Array.isArray(vendors) && vendors.map((vendor, index) => {
-                    const id = vendor.id || vendor._id || vendor.value || '';
-                    const label = vendor.name || vendor.label || 'Unnamed Vendor';
-                    return (
-                      <option key={id || `vendor-${index}`} value={id}>
-                        {label}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+              {/* Vendor select removed: product is created under current vendor context */}
             </div>
 
             {/* Images uploader */}

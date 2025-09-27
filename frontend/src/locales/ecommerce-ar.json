@@ -1,4 +1,9 @@
 {
+  "auth": {
+    "login": {
+      "success": "تم تسجيل الدخول بنجاح! أهلاً بعودتك."
+    }
+  },
   "nav": {
     "home": "الرئيسية",
     "products": "المنتجات",
@@ -452,6 +457,22 @@
     "forgotPassword": {
       "title": "نسيت كلمة المرور - DentalKit",
       "description": "أعد تعيين كلمة مرور حساب DentalKit الخاص بك بأمان. استعد الوصول إلى معدات وإمدادات طب الأسنان."
+    },
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور - DentalKit",
+      "description": "أنشئ كلمة مرور جديدة لحساب DentalKit الخاص بك"
+    },
+    "resetPasswordSuccess": {
+      "title": "تمت إعادة تعيين كلمة المرور - DentalKit",
+      "description": "تمت إعادة تعيين كلمة المرور بنجاح"
+    },
+    "resetPasswordError": {
+      "title": "رابط إعادة التعيين غير صالح - DentalKit",
+      "description": "رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية"
+    },
+    "verifyEmail": {
+      "title": "جاري التحقق من البريد الإلكتروني - DentalKit",
+      "description": "جاري التحقق من عنوان بريدك الإلكتروني لحساب DentalKit"
     },
     "about": {
       "title": "من نحن - DentalKit",
