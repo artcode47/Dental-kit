@@ -42,7 +42,14 @@ class MemoryStore {
   async loadFromDisk() {
     try {
       const data = await fs.readFile(this.persistenceFile, 'utf8');
-      const parsed = JSON.parse(data);
+      let parsed = {};
+      try {
+        parsed = data && data.trim() ? JSON.parse(data) : {};
+      } catch (e) {
+        // Corrupted or partial file; treat as empty and overwrite next persist
+        console.warn('Memory store file corrupted or partial. Reinitializing cache.');
+        parsed = {};
+      }
       
       // Restore store and TTL data
       this.store = new Map(parsed.store || []);

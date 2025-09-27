@@ -106,8 +106,37 @@ class OrderService extends FirebaseService {
       const end = start + limit;
       const paginated = orders.slice(start, end);
 
+      // Populate user information for each order
+      const ordersWithUsers = await Promise.all(
+        paginated.map(async (order) => {
+          try {
+            if (order.userId) {
+              const UserService = require('./userService');
+              const userService = new UserService();
+              const user = await userService.getById(order.userId);
+              if (user) {
+                return {
+                  ...order,
+                  user: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    phone: user.phone
+                  }
+                };
+              }
+            }
+            return order;
+          } catch (error) {
+            console.warn(`Failed to fetch user data for order ${order.id}:`, error.message);
+            return order;
+          }
+        })
+      );
+
       return {
-        orders: paginated,
+        orders: ordersWithUsers,
         total,
         totalPages: Math.ceil(total / limit),
         currentPage: Number(page),

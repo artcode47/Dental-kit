@@ -74,7 +74,7 @@ class UserService extends FirebaseService {
         role: userData.role || 'user',
         permissions: userData.permissions || [],
         isActive: true,
-        isVerified: false,
+        isVerified: typeof userData.isVerified === 'boolean' ? userData.isVerified : false,
         verificationToken: verificationToken,
         verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         failedLoginAttempts: 0,
@@ -95,30 +95,28 @@ class UserService extends FirebaseService {
       const createdUser = await this.create(userDoc);
       console.log('Firestore document created successfully');
 
-      // Send email verification using our email system
-      setImmediate(async () => {
-        try {
-          console.log('Sending email verification...');
-          const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
-          const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}&email=${userData.email}`;
-          
-          await sendEmail({
-            to: userData.email,
-            subject: 'Verify Your Email - Dental Kit Store',
-            template: 'verify-email',
-            context: { 
-              email: userData.email, 
-              verifyUrl, 
-              year: new Date().getFullYear(),
-              firstName: userData.firstName || 'User'
-            },
-          });
-          console.log('Email verification sent successfully');
-        } catch (emailError) {
-          console.error('Email verification error:', emailError);
-          // Continue even if email fails
-        }
-      });
+      // Only send verification email if user is not already verified
+      if (!userDoc.isVerified) {
+        setImmediate(async () => {
+          try {
+            const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+            const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}&email=${userData.email}`;
+            await sendEmail({
+              to: userData.email,
+              subject: 'Verify Your Email - Dental Kit Store',
+              template: 'verify-email',
+              context: { 
+                email: userData.email, 
+                verifyUrl, 
+                year: new Date().getFullYear(),
+                firstName: userData.firstName || 'User'
+              },
+            });
+          } catch (emailError) {
+            // Continue even if email fails
+          }
+        });
+      }
 
       return {
         id: createdUser.id,

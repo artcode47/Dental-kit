@@ -766,6 +766,71 @@ exports.getAllGiftCards = async (req, res) => {
   }
 };
 
+// Orders management
+exports.getAllOrders = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      status,
+      paymentStatus,
+      dateFrom,
+      dateTo,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+      status,
+      paymentStatus,
+      dateFrom,
+      dateTo,
+      sortBy,
+      sortOrder
+    };
+
+    const result = await orderService.getOrders(options);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching orders', error: error.message });
+  }
+};
+
+// Orders bulk operations
+exports.bulkOrderOperations = async (req, res) => {
+  try {
+    const { operation, orderIds, data } = req.body;
+
+    const result = await orderService.bulkOrderOperations(operation, orderIds, data);
+
+    res.json(result);
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error performing bulk operation', error: error.message });
+  }
+};
+
+// Update order status
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    await orderService.updateOrderStatus(orderId, status);
+
+    res.json({ message: 'Order status updated successfully' });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating order status', error: error.message });
+  }
+};
+
 // Analytics and reports
 exports.getAnalytics = async (req, res) => {
   try {

@@ -9,31 +9,25 @@ const productService = new ProductService();
 // Get all categories
 exports.getAllCategories = async (req, res) => {
   try {
-    const { page = 1, limit = 10, isActive } = req.query;
+    const { page = 1, limit = 10, isActive, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     
-    const filters = {};
-    if (isActive !== undefined) {
-      filters.isActive = isActive === 'true';
-    }
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      isActive: isActive !== undefined ? isActive === 'true' : undefined,
+      search,
+      sortBy,
+      sortOrder,
+      includeProductCount: true
+    };
 
-    const result = await categoryService.getAll({
-      filters,
-      sortBy: 'createdAt',
-      sortOrder: 'desc',
-      limitCount: parseInt(limit) * 10 // Get more to filter client-side
-    });
-
-    // Apply pagination
-    const total = result.length;
-    const startIndex = (parseInt(page) - 1) * parseInt(limit);
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedCategories = result.slice(startIndex, endIndex);
+    const result = await categoryService.getCategories(options);
 
     res.json({
-      categories: paginatedCategories,
-      totalPages: Math.ceil(total / parseInt(limit)),
-      currentPage: parseInt(page),
-      total,
+      categories: result.categories,
+      totalPages: result.pagination.pages,
+      currentPage: result.pagination.page,
+      total: result.pagination.total,
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching categories', error: error.message });

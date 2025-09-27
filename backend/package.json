@@ -10,10 +10,13 @@
     "test:api": "node test-api.js",
     "test:setup": "node setup-test-data.js",
     "test:full": "npm run test:setup && npm run test:api",
+    "test:upload": "node scripts/test-upload-functionality.js",
+    "test:cloudinary": "node scripts/manual-upload-test.js",
     "dev": "nodemon server.js",
     "start": "node server.js",
     "create-admin": "node scripts/create-firebase-admin.js",
     "seed": "node scripts/seed-data.js",
+    "seed:vendors": "node scripts/seed-vendors.js",
     "migrate": "echo 'No migrations needed'",
     "migrate-to-firebase": "node scripts/migrate-to-firebase.js"
   },

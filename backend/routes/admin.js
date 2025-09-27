@@ -56,6 +56,12 @@ router.get('/orders', [
   query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Sort order must be asc or desc'),
 ], validate, adminController.getAllOrders);
 
+// Orders bulk operations
+router.post('/orders/bulk', adminController.bulkOrderOperations);
+
+// Update order status
+router.put('/orders/:orderId/status', adminController.updateOrderStatus);
+
 // Products management
 router.get('/products', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),

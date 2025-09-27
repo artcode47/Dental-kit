@@ -98,14 +98,17 @@ const corsOptions = {
       process.env.CLIENT_URL || 'http://localhost:5173',
       'http://localhost:3000',
       'http://localhost:5173',
+      'http://localhost:5174',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
       'https://yourdomain.com',
       'https://www.yourdomain.com'
     ];
     
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
@@ -113,38 +116,10 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Origin',
-    'X-Requested-With',
-    'Content-Type',
-    'Accept',
-    'Authorization',
-    'X-API-Key',
-    'Accept-Language',
-    'User-Agent',
-    'x-device-info',
-    'x-client-version',
-    'x-platform',
-    'x-browser',
-    'x-os',
-    'x-screen-resolution',
-    'x-timezone',
-    'x-language',
-    'x-currency',
-    'x-request-timestamp',
-    'X-Request-Timestamp',
-    'X-Device-Info',
-    'X-Client-Version',
-    'X-Platform',
-    'X-Browser',
-    'X-OS',
-    'X-Screen-Resolution',
-    'X-Timezone',
-    'X-Language',
-    'X-Currency',
-    'X-CSRF-Token'
-  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: undefined,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
   exposedHeaders: [
     'X-Total-Count',
     'X-Page-Count',

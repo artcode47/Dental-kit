@@ -36,7 +36,8 @@ class VendorService extends FirebaseService {
         status,
         isVerified,
         sortBy = 'createdAt',
-        sortOrder = 'desc'
+        sortOrder = 'desc',
+        includeProductCount = true // New option
       } = options;
 
       let filters = [];
@@ -76,6 +77,25 @@ class VendorService extends FirebaseService {
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
       const paginatedVendors = filteredVendors.slice(startIndex, endIndex);
+
+      // Add product count to each vendor if requested
+      if (includeProductCount) {
+        const ProductService = require('./productService'); // Dynamic import
+        const productService = new ProductService();
+        
+        for (let vendor of paginatedVendors) {
+          try {
+            const productsResult = await productService.getProducts({ 
+              vendorId: vendor.id, 
+              limit: 1000 
+            });
+            vendor.productCount = productsResult.products ? productsResult.products.length : 0;
+          } catch (error) {
+            console.warn(`Failed to get product count for vendor ${vendor.id}:`, error.message);
+            vendor.productCount = 0;
+          }
+        }
+      }
 
       return {
         vendors: paginatedVendors,

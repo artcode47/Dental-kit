@@ -53,6 +53,9 @@ router.get('/:id', [
 // Create product (admin only)
 router.post('/', [
   auth,
+  uploadMultiple,
+  handleUploadError,
+  cleanupUploads,
   body('name').notEmpty().trim().withMessage('Product name is required'),
   body('description').notEmpty().trim().withMessage('Product description is required'),
   body('price').isFloat({ min: 0 }).withMessage('Valid price is required'),
@@ -66,6 +69,9 @@ router.post('/', [
 // Update product (admin only)
 router.put('/:id', [
   auth,
+  uploadMultiple,
+  handleUploadError,
+  cleanupUploads,
   param('id').notEmpty().withMessage('Product ID is required'),
   body('name').optional().trim(),
   body('description').optional().trim(),

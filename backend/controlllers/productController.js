@@ -1,9 +1,11 @@
 const ProductService = require('../services/productService');
 const CategoryService = require('../services/categoryService');
-const { uploadImage } = require('../utils/cloudinary');
+const VendorService = require('../services/vendorService');
+const { uploadImage, deleteImage } = require('../utils/cloudinary');
 
 const productService = new ProductService();
 const categoryService = new CategoryService();
+const vendorService = new VendorService();
 
 // Get all products
 exports.getProducts = async (req, res) => {
@@ -70,6 +72,20 @@ exports.getProduct = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     const productData = req.body;
+    
+    // Handle product images upload if provided
+    if (req.files && req.files.length > 0) {
+      const uploadedImages = [];
+      for (const file of req.files) {
+        const imageResult = await uploadImage(file, 'products');
+        uploadedImages.push({
+          public_id: imageResult.public_id,
+          url: imageResult.url,
+        });
+      }
+      productData.images = uploadedImages;
+    }
+    
     // Pass through nameAr if provided
     const product = await productService.createProduct({ ...productData, nameAr: productData.nameAr });
     res.status(201).json({ product });
@@ -84,6 +100,30 @@ exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    
+    // Handle product images upload if provided
+    if (req.files && req.files.length > 0) {
+      // Get existing product to delete old images
+      const existingProduct = await productService.getProductById(id);
+      if (existingProduct && existingProduct.images && existingProduct.images.length > 0) {
+        for (const image of existingProduct.images) {
+          if (image.public_id) {
+            await deleteImage(image.public_id);
+          }
+        }
+      }
+      
+      const uploadedImages = [];
+      for (const file of req.files) {
+        const imageResult = await uploadImage(file, 'products');
+        uploadedImages.push({
+          public_id: imageResult.public_id,
+          url: imageResult.url,
+        });
+      }
+      updateData.images = uploadedImages;
+    }
+    
     const product = await productService.updateProduct(id, { ...updateData, nameAr: updateData.nameAr });
     res.json({ product });
   } catch (error) {
@@ -208,8 +248,8 @@ exports.uploadProductImages = async (req, res) => {
 // Get categories
 exports.getCategories = async (req, res) => {
   try {
-    const categories = await categoryService.getAllCategories();
-    res.json({ categories });
+    const result = await categoryService.getCategories({ isActive: true, limit: 1000 });
+    res.json({ categories: result.categories || [] });
   } catch (error) {
     console.error('Get categories error:', error);
     res.status(500).json({ message: 'Error fetching categories' });
@@ -228,16 +268,22 @@ exports.getCategory = async (req, res) => {
   }
 };
 
-// Get brands
+// Get brands - strictly from active vendors (source of truth)
 exports.getBrands = async (req, res) => {
   try {
-    // Get all products and extract unique brands
-    const products = await productService.getAllSimple();
-    const brands = [...new Set(products
-      .filter(product => product.brand && product.isActive)
-      .map(product => product.brand)
-    )].sort();
-    
+    const vendors = await vendorService.getAll({
+      filters: [
+        { field: 'isActive', operator: '==', value: true },
+      ],
+      limitCount: 2000
+    });
+
+    const brands = (vendors || [])
+      .map(v => (v && (v.name || v.slug)) ? String(v.name || v.slug).trim() : '')
+      .filter(Boolean)
+      .filter((value, index, self) => self.indexOf(value) === index)
+      .sort((a, b) => a.localeCompare(b));
+
     res.json({ brands });
   } catch (error) {
     console.error('Get brands error:', error);

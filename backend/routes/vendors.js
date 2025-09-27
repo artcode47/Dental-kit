@@ -4,8 +4,10 @@ const vendorController = require('../controlllers/vendorController');
 const validate = require('../middleware/validate');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
+const { uploadSingle, uploadMultiple, handleUploadError, cleanupUploads } = require('../middleware/upload');
 
 const router = express.Router();
+const vendorAuth = require('../middleware/vendorAuth');
 
 // Public routes
 router.get('/', vendorController.getAllVendors);
@@ -17,10 +19,49 @@ router.get('/slug/:slug', [
   param('slug').notEmpty().withMessage('Slug is required'),
 ], validate, vendorController.getVendorBySlug);
 
+// Vendor self-service routes
+router.use('/me', auth, vendorAuth);
+router.get('/me/profile', vendorController.getMyProfile);
+router.put('/me/profile', [
+  uploadSingle,
+  handleUploadError,
+  cleanupUploads,
+], vendorController.updateMyProfile);
+router.get('/me/products', vendorController.getMyProducts);
+router.post('/me/products', [
+  uploadMultiple,
+  handleUploadError,
+  cleanupUploads,
+  body('name').notEmpty().trim(),
+  body('description').notEmpty().trim(),
+  body('price').isFloat({ min: 0 }),
+  body('categoryId').notEmpty(),
+  body('stock').isInt({ min: 0 }),
+], validate, vendorController.createMyProduct);
+router.put('/me/products/:id', [
+  uploadMultiple,
+  handleUploadError,
+  cleanupUploads,
+  param('id').notEmpty(),
+], validate, vendorController.updateMyProduct);
+router.patch('/me/products/:id/stock', [
+  param('id').notEmpty(),
+  body('quantity').isInt({ min: 0 }),
+  body('operation').optional().isIn(['increase', 'decrease', 'set'])
+], validate, vendorController.updateMyProductStock);
+router.delete('/me/products/:id', [
+  param('id').notEmpty(),
+], validate, vendorController.deleteMyProduct);
+router.get('/me/stats', vendorController.getMyStats);
+router.get('/me/orders', vendorController.getMyOrders);
+
 // Admin routes
 router.use(auth, adminAuth);
 
 router.post('/', [
+  uploadSingle,
+  handleUploadError,
+  cleanupUploads,
   body('name').notEmpty().trim().withMessage('Vendor name is required'),
   body('description').optional().trim(),
   body('email').isEmail().withMessage('Valid email is required'),
@@ -42,6 +83,9 @@ router.post('/', [
 ], validate, vendorController.createVendor);
 
 router.put('/:id', [
+  uploadSingle,
+  handleUploadError,
+  cleanupUploads,
   param('id').notEmpty().withMessage('Invalid vendor ID'),
   body('name').optional().trim(),
   body('description').optional().trim(),

@@ -21,7 +21,7 @@ class CategoryService extends FirebaseService {
     }
   }
 
-  // Get all categories with optional filtering
+  // Get all categories with optional filtering and product count
   async getCategories(options = {}) {
     try {
       const {
@@ -31,7 +31,8 @@ class CategoryService extends FirebaseService {
         isActive,
         search,
         sortBy = 'name',
-        sortOrder = 'asc'
+        sortOrder = 'asc',
+        includeProductCount = true
       } = options;
 
       let filters = [];
@@ -58,6 +59,25 @@ class CategoryService extends FirebaseService {
           category.name.toLowerCase().includes(searchLower) ||
           category.description?.toLowerCase().includes(searchLower)
         );
+      }
+
+      // Add product count to each category if requested
+      if (includeProductCount) {
+        const ProductService = require('./productService');
+        const productService = new ProductService();
+        
+        for (let category of filteredCategories) {
+          try {
+            const productsResult = await productService.getProducts({ 
+              category: category.id, 
+              limit: 1000 
+            });
+            category.productCount = productsResult.products ? productsResult.products.length : 0;
+          } catch (error) {
+            console.warn(`Failed to get product count for category ${category.id}:`, error.message);
+            category.productCount = 0;
+          }
+        }
       }
 
       // Calculate pagination

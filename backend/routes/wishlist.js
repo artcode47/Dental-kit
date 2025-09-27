@@ -39,4 +39,9 @@ router.post('/move-to-cart', [
   body('productId').notEmpty().withMessage('Valid product ID is required'),
 ], validate, wishlistController.moveToCart);
 
+// Toggle endpoint for frontend convenience
+router.post('/toggle', [
+  body('productId').notEmpty().withMessage('Valid product ID is required'),
+], validate, wishlistController.toggleWishlist);
+
 module.exports = router; 

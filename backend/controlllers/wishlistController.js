@@ -4,24 +4,33 @@ const ProductService = require('../services/productService');
 const wishlistService = new WishlistService();
 const productService = new ProductService();
 
-// Get user's wishlist
+// Get user's wishlist (enriched with product details)
 exports.getWishlist = async (req, res) => {
   try {
     const wishlist = await wishlistService.getOrCreateWishlist(req.user.id);
-    
-    // Filter out inactive products
-    const validItems = wishlist.items.filter(item => {
-      // Note: In a real implementation, you would check product status here
-      // For now, we'll assume all items are valid
-      return true;
-    });
 
-    if (validItems.length !== wishlist.items.length) {
-      await wishlistService.update(wishlist.id, { items: validItems });
-      wishlist.items = validItems;
+    const enrichItem = async (item) => {
+      try {
+        const product = await productService.getProductById(item.productId);
+        if (!product || product.isActive === false) return null;
+        // Normalize images to objects with url for frontend
+        const images = Array.isArray(product.images)
+          ? product.images.map(img => (typeof img === 'string' ? { url: img } : img))
+          : [];
+        return { ...item, product: { ...product, images } };
+      } catch (_) {
+        return null;
+      }
+    };
+
+    const enriched = await Promise.all((wishlist.items || []).map(enrichItem));
+    const filtered = enriched.filter(Boolean);
+
+    if ((wishlist.items || []).length !== filtered.length) {
+      await wishlistService.update(wishlist.id, { items: filtered.map(({ product, ...rest }) => rest) });
     }
 
-    res.json(wishlist);
+    res.json({ ...wishlist, items: filtered });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching wishlist', error: error.message });
   }
@@ -134,6 +143,57 @@ exports.getWishlistCount = async (req, res) => {
     res.json({ count });
   } catch (error) {
     res.status(500).json({ message: 'Error getting wishlist count', error: error.message });
+  }
+};
+
+// Toggle wishlist item (add if missing, remove if exists)
+exports.toggleWishlist = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
+
+    const isInWishlist = await wishlistService.isInWishlist(req.user.id, productId);
+    let action = 'added';
+    let wishlist;
+
+    if (isInWishlist) {
+      wishlist = await wishlistService.removeFromWishlist(req.user.id, productId);
+      action = 'removed';
+    } else {
+      // Fetch product to enrich wishlist entry
+      const product = await productService.getProductById(productId);
+      if (!product || product.isActive === false) {
+        return res.status(404).json({ message: 'Product not available' });
+      }
+      wishlist = await wishlistService.addToWishlist(req.user.id, productId, {
+        name: product.name,
+        price: product.price,
+        image: Array.isArray(product.images) ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0]) : '',
+        sku: product.sku
+      });
+    }
+
+    // Enrich items for response
+    const items = await Promise.all((wishlist.items || []).map(async (it) => {
+      try {
+        const product = await productService.getProductById(it.productId);
+        if (!product) return null;
+        const images = Array.isArray(product.images)
+          ? product.images.map(img => (typeof img === 'string' ? { url: img } : img))
+          : [];
+        return { ...it, product: { ...product, images } };
+      } catch { return null; }
+    }));
+
+    res.json({
+      action,
+      inWishlist: action === 'added',
+      wishlist: { ...wishlist, items: items.filter(Boolean) }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error toggling wishlist', error: error.message });
   }
 };
 

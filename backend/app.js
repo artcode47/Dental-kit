@@ -110,7 +110,7 @@ const preWarmCache = async () => {
       }
     }, 3600); // 1 hour
     
-    console.log('✅ Cache pre-warmed successfully');
+    // Keep logs minimal
   } catch (error) {
     console.warn('⚠️  Cache pre-warming failed:', error.message);
   }
@@ -128,7 +128,8 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      connectSrc: ["'self'", "https://api.stripe.com"],
+      // Allow API calls from any origin
+      connectSrc: ["*"] ,
       frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: []
@@ -138,45 +139,20 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Enhanced CORS configuration
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      process.env.CLIENT_URL || 'http://localhost:5173',
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://dental-kit-store.vercel.app',
-      'https://dental-kit-store.netlify.app',
-      'https://dentalkit.vercel.app', // Added your actual Vercel domain
-      'https://*.vercel.app' // Allow all Vercel subdomains
-    ];
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else if (origin.endsWith('.vercel.app')) {
-      // Allow any Vercel subdomain
-      callback(null, true);
-    } else {
-      console.warn(`⚠️  CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+// Permissive CORS configuration: allow all origins
+const corsOptions = {
+  origin: true, // Reflect request origin, effectively allowing all
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'X-CSRF-Token',
-    'X-Requested-With',
-    'Accept',
-    'Origin'
-  ],
+  allowedHeaders: undefined,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
   exposedHeaders: ['X-CSRF-Token', 'X-RateLimit-Remaining', 'X-RateLimit-Reset']
-}));
+};
+
+// Apply CORS early and ensure preflight is handled
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // Enhanced compression
 app.use(compression({
@@ -243,7 +219,15 @@ app.use(languageMiddleware.rtlSupport);
 // CSRF token issuance on all requests (sets X-CSRF-Token header)
 app.use(csrfMiddleware.generateAndSendCSRFToken);
 
-// CSRF protection for non-GET requests
+// Short-circuit CORS preflight before CSRF to avoid 403 on OPTIONS
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+// CSRF protection for non-GET requests (OPTIONS already handled)
 app.use(csrfMiddleware.csrfProtection);
 
 // Static files with caching headers

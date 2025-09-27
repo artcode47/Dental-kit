@@ -7,52 +7,83 @@ let db;
 let auth;
 let storage;
 
+// Normalize private key formatting and support base64 variants
+function sanitizePrivateKey(rawKey) {
+  if (!rawKey) return rawKey;
+  let key = String(rawKey)
+    .replace(/^"+|"+$/g, '')     // strip wrapping quotes
+    .replace(/\\n/g, '\n')      // unescape \n
+    .replace(/\r\n/g, '\n')     // normalize CRLF
+    .replace(/\r/g, '\n');       // normalize CR
+  return key;
+}
+
 try {
   // Check if app is already initialized
   if (admin.apps.length === 0) {
-    // Debug: Log environment variables (without sensitive data)
-    console.log('Firebase initialization - checking environment variables...');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('FIREBASE_ADMIN_PROJECT_ID:', process.env.FIREBASE_ADMIN_PROJECT_ID ? 'SET' : 'NOT SET');
-    console.log('FIREBASE_ADMIN_PRIVATE_KEY_ID:', process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID ? 'SET' : 'NOT SET');
-    console.log('FIREBASE_ADMIN_PRIVATE_KEY:', process.env.FIREBASE_ADMIN_PRIVATE_KEY ? 'SET' : 'NOT SET');
-    console.log('FIREBASE_ADMIN_CLIENT_EMAIL:', process.env.FIREBASE_ADMIN_CLIENT_EMAIL ? 'SET' : 'NOT SET');
-    console.log('FIREBASE_ADMIN_CLIENT_ID:', process.env.FIREBASE_ADMIN_CLIENT_ID ? 'SET' : 'NOT SET');
-
-    // Validate required environment variables
-    const requiredEnvVars = [
-      'FIREBASE_ADMIN_PROJECT_ID',
-      'FIREBASE_ADMIN_PRIVATE_KEY_ID',
-      'FIREBASE_ADMIN_PRIVATE_KEY',
-      'FIREBASE_ADMIN_CLIENT_EMAIL',
-      'FIREBASE_ADMIN_CLIENT_ID'
-    ];
-
-    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-    if (missingVars.length > 0) {
-      console.error('Missing Firebase environment variables:', missingVars);
-      console.error('All environment variables:', Object.keys(process.env).filter(key => key.startsWith('FIREBASE')));
-      throw new Error(`Missing required Firebase environment variables: ${missingVars.join(', ')}`);
+    // Quiet init logs in production
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Initializing Firebase Admin SDK');
     }
 
-    // Service account credentials from environment variables
-    const serviceAccount = {
-      type: "service_account",
-      project_id: process.env.FIREBASE_ADMIN_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
-      auth_uri: process.env.FIREBASE_ADMIN_AUTH_URI || "https://accounts.google.com/o/oauth2/auth",
-      token_uri: process.env.FIREBASE_ADMIN_TOKEN_URI || "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: process.env.FIREBASE_ADMIN_AUTH_PROVIDER_X509_CERT_URL || "https://www.googleapis.com/oauth2/v1/certs",
-      client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
-      universe_domain: process.env.FIREBASE_ADMIN_UNIVERSE_DOMAIN || "googleapis.com"
-    };
+    // Allow two modes:
+    // 1) Full JSON via FIREBASE_ADMIN_CREDENTIALS or FIREBASE_ADMIN_CREDENTIALS_BASE64
+    // 2) Individual FIREBASE_ADMIN_* vars
+    let credential;
+
+    try {
+      const credsJson = process.env.FIREBASE_ADMIN_CREDENTIALS;
+      const credsB64 = process.env.FIREBASE_ADMIN_CREDENTIALS_BASE64;
+      if (credsJson || credsB64) {
+        const jsonStr = credsJson || Buffer.from(credsB64, 'base64').toString('utf8');
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.private_key) parsed.private_key = sanitizePrivateKey(parsed.private_key);
+        credential = admin.credential.cert(parsed);
+      }
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Failed to parse FIREBASE_ADMIN_CREDENTIALS:', e.message);
+      }
+    }
+
+    if (!credential) {
+      // Validate required environment variables
+      const requiredEnvVars = [
+        'FIREBASE_ADMIN_PROJECT_ID',
+        'FIREBASE_ADMIN_PRIVATE_KEY_ID',
+        'FIREBASE_ADMIN_PRIVATE_KEY',
+        'FIREBASE_ADMIN_CLIENT_EMAIL',
+        'FIREBASE_ADMIN_CLIENT_ID'
+      ];
+      const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+      if (missingVars.length > 0) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Missing Firebase environment variables:', missingVars);
+          console.error('All environment variables:', Object.keys(process.env).filter(key => key.startsWith('FIREBASE')));
+        }
+        throw new Error(`Missing required Firebase environment variables: ${missingVars.join(', ')}`);
+      }
+
+      const privateKey = sanitizePrivateKey(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
+      const serviceAccount = {
+        type: "service_account",
+        project_id: process.env.FIREBASE_ADMIN_PROJECT_ID,
+        private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
+        private_key: privateKey,
+        client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+        client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
+        auth_uri: process.env.FIREBASE_ADMIN_AUTH_URI || "https://accounts.google.com/o/oauth2/auth",
+        token_uri: process.env.FIREBASE_ADMIN_TOKEN_URI || "https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url: process.env.FIREBASE_ADMIN_AUTH_PROVIDER_X509_CERT_URL || "https://www.googleapis.com/oauth2/v1/certs",
+        client_x509_cert_url: process.env.FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
+        universe_domain: process.env.FIREBASE_ADMIN_UNIVERSE_DOMAIN || "googleapis.com"
+      };
+      credential = admin.credential.cert(serviceAccount);
+    }
 
     // Enhanced Firebase configuration with security settings
     const firebaseConfig = {
-      credential: admin.credential.cert(serviceAccount),
+      credential,
       projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET || `${process.env.FIREBASE_ADMIN_PROJECT_ID}.firebasestorage.app`,
       databaseURL: process.env.FIREBASE_DATABASE_URL,
@@ -70,7 +101,9 @@ try {
         await admin.auth().setCustomUserClaims(uid, claims);
         return true;
       } catch (error) {
-        console.error('Error setting custom claims:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Error setting custom claims:', error);
+        }
         return false;
       }
     };
@@ -79,18 +112,21 @@ try {
     app = admin.app();
   }
 
-  console.log('Firebase Admin SDK initialized successfully with enhanced security');
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Firebase Admin SDK initialized successfully');
+  }
 } catch (error) {
-  console.error('Critical error initializing Firebase Admin SDK:', error);
+  console.error('Critical error initializing Firebase Admin SDK');
   
   // In production, don't exit immediately - let the app start and show the error
   if (process.env.NODE_ENV === 'production') {
-    console.error('Firebase initialization failed in production, but continuing...');
-    console.error('App will start but Firebase features will not work');
+    console.error('Firebase init failed in production; continuing (features limited)');
   }
   
   // Don't throw error, just log it and continue
-  console.error('Firebase initialization error:', error.message);
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Firebase initialization error:', error.message);
+  }
   
   // Set app to null so we know Firebase failed
   app = null;
@@ -116,15 +152,19 @@ try {
         await auth.setCustomUserClaims(uid, claims);
         return true;
       } catch (error) {
-        console.error('Error setting custom claims:', error);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Error setting custom claims:', error);
+        }
         return false;
       }
     };
   } else {
-    console.log('Firebase app not initialized, services will be null');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Firebase app not initialized, services will be null');
+    }
   }
 } catch (error) {
-  console.error('Error initializing Firebase services:', error);
+  console.error('Error initializing Firebase services');
   // Set to null so the app doesn't crash
   db = null;
   auth = null;
