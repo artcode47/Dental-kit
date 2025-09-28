@@ -4,12 +4,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { 
+  BellIcon, 
   MagnifyingGlassIcon,
   UserCircleIcon,
+  CogIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
-  ShieldCheckIcon,
-  HomeIcon
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import ThemeToggle from '../common/ThemeToggle';
@@ -20,12 +21,17 @@ const AdminHeader = () => {
   const { isRTL } = useLanguage();
   const { currentTheme } = useTheme();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const profileMenuRef = useRef(null);
+  const notificationsRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setIsProfileMenuOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false);
       }
     };
 
@@ -43,6 +49,9 @@ const AdminHeader = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
 
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+  };
 
   return (
     <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50 relative z-10">
@@ -95,15 +104,35 @@ const AdminHeader = () => {
               <ThemeToggle variant="toggle" size="md" />
             </div>
 
-            {/* Home Button */}
-            <div className="hidden md:block">
-              <a
-                href="/"
+            {/* Notifications */}
+            <div className="relative" ref={notificationsRef}>
+              <button
+                onClick={toggleNotifications}
                 className="p-3 rounded-lg text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200"
-                title="Go to Home Page"
               >
-                <HomeIcon className="h-6 w-6" />
-              </a>
+                <BellIcon className="h-6 w-6" />
+                <span className="absolute top-2 right-2 block h-3 w-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 shadow-lg"></span>
+              </button>
+
+              {/* Notifications dropdown */}
+              {isNotificationsOpen && (
+                <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50 backdrop-blur-sm">
+                  <div className="py-2">
+                    <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                        {t('header.notifications')}
+                      </h3>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      <div className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                          {t('header.noNotifications')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Profile dropdown */}
@@ -128,7 +157,7 @@ const AdminHeader = () => {
 
               {/* Profile dropdown menu */}
               {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-[9999] backdrop-blur-sm">
+                <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50 backdrop-blur-sm">
                   <div className="py-2">
                     <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -149,6 +178,17 @@ const AdminHeader = () => {
                       >
                         <UserCircleIcon className="h-4 w-4 mr-3 text-gray-400" />
                         {t('header.profile')}
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          // Navigate to settings
+                        }}
+                        className="flex items-center w-full px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      >
+                        <CogIcon className="h-4 w-4 mr-3 text-gray-400" />
+                        {t('header.settings')}
                       </button>
                     </div>
                     
