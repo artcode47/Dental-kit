@@ -1,111 +1,159 @@
 {
   "store": [
     [
-      "csrf:anon_10d30804dbc33c5a12a567a19be581ba",
-      "{\"token\":\"1ae26db8e8f9c5b554226dd2066debd8a5c21266233083a1c3d014c620f0478e\",\"timestamp\":1758874460605,\"expiresAt\":1758960860605}"
+      "csrf:anon_03805e3ba4f451816657aec5424ada83",
+      "{\"token\":\"cfecba38d4b821e58811542aaf2bba50c17e1b52ef8d6a3da7c3dac56759dc84\",\"timestamp\":1760424226922,\"expiresAt\":1760510626922}"
     ],
     [
-      "csrf:ErqZC0ulk28XuHhKzpps",
-      "{\"token\":\"e01d9ac285a859c64f0684df8092587796aed623def44b92c42bd398fd5d5f6d\",\"timestamp\":1758895288255,\"expiresAt\":1758981688255}"
+      "csrf:anon_a8368e6bcc570d2ef941eb8f9fe7ecab",
+      "{\"token\":\"9c1044edc8fa95c98ec4b1e8d991739f613baa79676c1c19bf2024ba3dac449d\",\"timestamp\":1760424904839,\"expiresAt\":1760511304839}"
     ],
     [
-      "refresh_token:b3bc4643a0fd28be8e4325dd3e40eb10",
-      "{\"userId\":\"ErqZC0ulk28XuHhKzpps\",\"token\":\"1cd22056550f63507b3b8a504931d145dbbd09dc1e55042aa6eaac419eec0ca4ed7a5868685dd873d7e3a42b7c684df39dfa50e9b8b43d14229657b46919409e\",\"createdAt\":1758874504511,\"expiresAt\":1759479304511}"
+      "products:getProducts:category:undefined|inStock:undefined|limit:8|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"PlBkJlm4h5N0ZLse06VO\",\"name\":\"Dental Chair Unit\",\"description\":\"Advanced dental chair unit with integrated equipment\",\"price\":2999.99,\"originalPrice\":3499.99,\"categoryId\":\"devices\",\"categoryName\":\"Devices\",\"brand\":\"DentalTech Pro\",\"vendorId\":\"dentaltech-pro\",\"vendorName\":\"DentalTech Pro\",\"stock\":10,\"sku\":\"DC-005\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"type\":\"Electric dental chair\",\"weight\":\"150kg\",\"dimensions\":\"1200x800x1800mm\",\"power\":\"110-240V\"},\"features\":[\"Electric operation\",\"Memory positions\",\"Integrated light\",\"Comfortable padding\"],\"isActive\":true,\"isFeatured\":true,\"rating\":4.8,\"reviewCount\":67,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"},{\"id\":\"R8EOoPXi5Tt1AxZVZHjF\",\"name\":\"Orthodontic Braces Kit\",\"description\":\"Complete orthodontic braces kit for professional dental practice\",\"price\":89.99,\"originalPrice\":119.99,\"categoryId\":\"ortho\",\"categoryName\":\"Ortho\",\"brand\":\"Ortho Solutions\",\"vendorId\":\"ortho-solutions\",\"vendorName\":\"Ortho Solutions\",\"stock\":100,\"sku\":\"OB-002\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"material\":\"Stainless Steel\",\"size\":\"Standard\",\"type\":\"Metal Braces\"},\"features\":[\"Durable construction\",\"Easy to apply\",\"Comfortable for patients\",\"Professional grade\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.6,\"reviewCount\":89,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"},{\"id\":\"TgpoTZlnWCS9TmLNXOSf\",\"name\":\"Dental Handpiece Set\",\"description\":\"Professional dental handpiece set for various dental procedures\",\"price\":199.99,\"originalPrice\":249.99,\"categoryId\":\"instruments\",\"categoryName\":\"instruments\",\"brand\":\"DentalTech Pro\",\"vendorId\":\"dentaltech-pro\",\"vendorName\":\"DentalTech Pro\",\"stock\":25,\"sku\":\"DH-003\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"type\":\"High-speed handpiece\",\"speed\":\"400,000 RPM\",\"connection\":\"4-hole\",\"material\":\"Stainless Steel\"},\"features\":[\"High-speed performance\",\"Ergonomic design\",\"Easy maintenance\",\"Long service life\"],\"isActive\":true,\"isFeatured\":true,\"rating\":4.9,\"reviewCount\":156,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"},{\"id\":\"dYBwI0cgqasnqi2jel2R\",\"name\":\"Professional Toothpaste\",\"description\":\"Professional-grade toothpaste for dental hygiene\",\"price\":12.99,\"originalPrice\":15.99,\"categoryId\":\"perio\",\"categoryName\":\"Perio\",\"brand\":\"Dental Materials Plus\",\"vendorId\":\"dental-materials-plus\",\"vendorName\":\"Dental Materials Plus\",\"stock\":200,\"sku\":\"TP-006\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"size\":\"100ml\",\"flavor\":\"Mint\",\"fluoride\":\"1450ppm\",\"type\":\"Anti-cavity\"},\"features\":[\"Fluoride protection\",\"Fresh breath\",\"Gentle on enamel\",\"Professional formula\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.5,\"reviewCount\":342,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"},{\"id\":\"smdJgdscoXUP6ru1CzBu\",\"name\":\"Premium Dental Implant System\",\"description\":\"High-quality titanium dental implant system for permanent tooth replacement\",\"price\":299.99,\"originalPrice\":399.99,\"categoryId\":\"devices\",\"categoryName\":\"Devices\",\"brand\":\"DentalTech Pro\",\"vendorId\":\"dentaltech-pro\",\"vendorName\":\"DentalTech Pro\",\"stock\":50,\"sku\":\"DI-001\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"material\":\"Titanium\",\"length\":\"10mm\",\"diameter\":\"4.2mm\",\"surface\":\"Acid-etched\"},\"features\":[\"High biocompatibility\",\"Excellent osseointegration\",\"Long-term stability\",\"FDA approved\"],\"isActive\":true,\"isFeatured\":true,\"rating\":4.8,\"reviewCount\":127,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"},{\"id\":\"vCOa1sgpDJdmUHwf2qP2\",\"name\":\"Composite Resin Kit\",\"description\":\"Professional composite resin kit for dental restorations\",\"price\":79.99,\"originalPrice\":99.99,\"categoryId\":\"operative\",\"categoryName\":\"Operative\",\"brand\":\"Dental Materials Plus\",\"vendorId\":\"dental-materials-plus\",\"vendorName\":\"Dental Materials Plus\",\"stock\":75,\"sku\":\"CR-004\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"type\":\"Nanohybrid composite\",\"shade\":\"Universal\",\"opacity\":\"Dentin\",\"filler\":\"78% by weight\"},\"features\":[\"Excellent aesthetics\",\"High strength\",\"Easy handling\",\"Long-lasting results\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.7,\"reviewCount\":203,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":6,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "refresh_token:ae8acf9aa11598fd0fa630972dcd37e4",
-      "{\"userId\":\"ErqZC0ulk28XuHhKzpps\",\"token\":\"183278ef2b94fae27d96fdb968a45d6eb58e330278d4d5bc039923802505185127d83de7900f39084b3118eb26a71d77610db91ca7f628f3637a008ef783203e\",\"createdAt\":1758874709630,\"expiresAt\":1759479509630}"
+      "products:getProducts:category:surgery|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "csrf:anon_70f7d52135f6f912c5c752b2e45f7ad2",
-      "{\"token\":\"d6c6692ecc4be7fbbf055b96a5a2abe1634c36fbbb77ea6c88737bb153234b42\",\"timestamp\":1758874756177,\"expiresAt\":1758961156177}"
+      "products:getProducts:category:removable-prothesis|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "refresh_token:cd31bea800ca90b7d3aedba828cbd1cf",
-      "{\"userId\":\"ErqZC0ulk28XuHhKzpps\",\"token\":\"7cfd83e0f8a5b0a2e74755107d9457db468dd8c4fc550905ba75837a1d36fc402e8052f7d3f859fb1e60c1307f24b8e6d8413dfcdd9d82240963098c8e5ddff0\",\"createdAt\":1758874773307,\"expiresAt\":1759479573307}"
+      "products:getProducts:category:perio|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"dYBwI0cgqasnqi2jel2R\",\"name\":\"Professional Toothpaste\",\"description\":\"Professional-grade toothpaste for dental hygiene\",\"price\":12.99,\"originalPrice\":15.99,\"categoryId\":\"perio\",\"categoryName\":\"Perio\",\"brand\":\"Dental Materials Plus\",\"vendorId\":\"dental-materials-plus\",\"vendorName\":\"Dental Materials Plus\",\"stock\":200,\"sku\":\"TP-006\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"size\":\"100ml\",\"flavor\":\"Mint\",\"fluoride\":\"1450ppm\",\"type\":\"Anti-cavity\"},\"features\":[\"Fluoride protection\",\"Fresh breath\",\"Gentle on enamel\",\"Professional formula\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.5,\"reviewCount\":342,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":1,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "csrf:anon_c5baf06e823654391b72d670c62201b4",
-      "{\"token\":\"757c5b7d7f5014e759a1896996227fa237504e85aaaa3f8514dc6f063123efff\",\"timestamp\":1758875529600,\"expiresAt\":1758961929600}"
+      "products:getProducts:category:pedo|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "refresh_token:4ea1ca2d5864537b8fe029fc199f9857",
-      "{\"userId\":\"ErqZC0ulk28XuHhKzpps\",\"token\":\"8d341a71df9ccc5cdecdf84f92773aeee8fabcabf82d06c47a6faa3e86fb55492e49f9143e5fe4ae110b33bcf29a9a012b8552483d4a9c11327e16bcfc172088\",\"createdAt\":1758895288260,\"expiresAt\":1759500088260}"
+      "products:getProducts:category:ortho|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"R8EOoPXi5Tt1AxZVZHjF\",\"name\":\"Orthodontic Braces Kit\",\"description\":\"Complete orthodontic braces kit for professional dental practice\",\"price\":89.99,\"originalPrice\":119.99,\"categoryId\":\"ortho\",\"categoryName\":\"Ortho\",\"brand\":\"Ortho Solutions\",\"vendorId\":\"ortho-solutions\",\"vendorName\":\"Ortho Solutions\",\"stock\":100,\"sku\":\"OB-002\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"material\":\"Stainless Steel\",\"size\":\"Standard\",\"type\":\"Metal Braces\"},\"features\":[\"Durable construction\",\"Easy to apply\",\"Comfortable for patients\",\"Professional grade\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.6,\"reviewCount\":89,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":1,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "csrf:hSctL3R15BQFaLcbgbaH",
-      "{\"token\":\"511c6d185f25ff68ed554eda8e26bc4fefec09551656bc9c39d6ad4475370f47\",\"timestamp\":1758895299860,\"expiresAt\":1758981699860}"
+      "products:getProducts:category:operative|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"vCOa1sgpDJdmUHwf2qP2\",\"name\":\"Composite Resin Kit\",\"description\":\"Professional composite resin kit for dental restorations\",\"price\":79.99,\"originalPrice\":99.99,\"categoryId\":\"operative\",\"categoryName\":\"Operative\",\"brand\":\"Dental Materials Plus\",\"vendorId\":\"dental-materials-plus\",\"vendorName\":\"Dental Materials Plus\",\"stock\":75,\"sku\":\"CR-004\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"type\":\"Nanohybrid composite\",\"shade\":\"Universal\",\"opacity\":\"Dentin\",\"filler\":\"78% by weight\"},\"features\":[\"Excellent aesthetics\",\"High strength\",\"Easy handling\",\"Long-lasting results\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.7,\"reviewCount\":203,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":1,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "refresh_token:532e73dbb42609ffa452e6ccc261ad83",
-      "{\"userId\":\"hSctL3R15BQFaLcbgbaH\",\"token\":\"e4e18fd49e877b5e7963696cb8870d34f4a8e5623a2b4899e1beda65fa840394d4647078f2a0f5c687fe8e37bde7faaf57605aaa38192f1d1a30ff1389dc24ad\",\"createdAt\":1758895299890,\"expiresAt\":1759500099890}"
+      "products:getProducts:category:instruments|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"TgpoTZlnWCS9TmLNXOSf\",\"name\":\"Dental Handpiece Set\",\"description\":\"Professional dental handpiece set for various dental procedures\",\"price\":199.99,\"originalPrice\":249.99,\"categoryId\":\"instruments\",\"categoryName\":\"instruments\",\"brand\":\"DentalTech Pro\",\"vendorId\":\"dentaltech-pro\",\"vendorName\":\"DentalTech Pro\",\"stock\":25,\"sku\":\"DH-003\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"type\":\"High-speed handpiece\",\"speed\":\"400,000 RPM\",\"connection\":\"4-hole\",\"material\":\"Stainless Steel\"},\"features\":[\"High-speed performance\",\"Ergonomic design\",\"Easy maintenance\",\"Long service life\"],\"isActive\":true,\"isFeatured\":true,\"rating\":4.9,\"reviewCount\":156,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":1,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "csrf:tZf7Fstt9X8Sc1raCADM",
-      "{\"token\":\"8257f44cc47fb21f4bb92d2438d3270d79a55c200dbfa9bc2bd51223132a8f19\",\"timestamp\":1758916961145,\"expiresAt\":1759003361145}"
+      "products:getProducts:category:fixed-crown|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "refresh_token:97f911553d683cfcee31b6c04b9abae0",
-      "{\"userId\":\"tZf7Fstt9X8Sc1raCADM\",\"token\":\"e7940927b819cd24edabc978ae8f3360865ec9b36d33572676e14292c30f63ff36c78a58eae70c32b476f92244f544ede08d48b9ed1e08515bce3d03e00a5c71\",\"createdAt\":1758912994421,\"expiresAt\":1759517794421}"
+      "products:getProducts:category:endo|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ],
     [
-      "refresh_token:1e4340b9a898dd3776b5c57d8fd9ca3d",
-      "{\"userId\":\"tZf7Fstt9X8Sc1raCADM\",\"token\":\"f41a7bf6567fdb4f59dd317529cbdc1e25cf7073aa3047dec723d37f6abc36a2ffccf2a83f93569d325bb16b2ecaa8ac9dd14ca2eefd1d607a6ce9f5e67be69e\",\"createdAt\":1758916961172,\"expiresAt\":1759521761172}"
+      "products:getProducts:category:devices|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"PlBkJlm4h5N0ZLse06VO\",\"name\":\"Dental Chair Unit\",\"description\":\"Advanced dental chair unit with integrated equipment\",\"price\":2999.99,\"originalPrice\":3499.99,\"categoryId\":\"devices\",\"categoryName\":\"Devices\",\"brand\":\"DentalTech Pro\",\"vendorId\":\"dentaltech-pro\",\"vendorName\":\"DentalTech Pro\",\"stock\":10,\"sku\":\"DC-005\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"type\":\"Electric dental chair\",\"weight\":\"150kg\",\"dimensions\":\"1200x800x1800mm\",\"power\":\"110-240V\"},\"features\":[\"Electric operation\",\"Memory positions\",\"Integrated light\",\"Comfortable padding\"],\"isActive\":true,\"isFeatured\":true,\"rating\":4.8,\"reviewCount\":67,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"},{\"id\":\"smdJgdscoXUP6ru1CzBu\",\"name\":\"Premium Dental Implant System\",\"description\":\"High-quality titanium dental implant system for permanent tooth replacement\",\"price\":299.99,\"originalPrice\":399.99,\"categoryId\":\"devices\",\"categoryName\":\"Devices\",\"brand\":\"DentalTech Pro\",\"vendorId\":\"dentaltech-pro\",\"vendorName\":\"DentalTech Pro\",\"stock\":50,\"sku\":\"DI-001\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"material\":\"Titanium\",\"length\":\"10mm\",\"diameter\":\"4.2mm\",\"surface\":\"Acid-etched\"},\"features\":[\"High biocompatibility\",\"Excellent osseointegration\",\"Long-term stability\",\"FDA approved\"],\"isActive\":true,\"isFeatured\":true,\"rating\":4.8,\"reviewCount\":127,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":2,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
+    ],
+    [
+      "products:getProducts:category:dental-anatomy|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
+    ],
+    [
+      "packages:getPackages:isActive:true|limit:12|page:1|search:undefined|sortBy:createdAt|sortOrder:desc",
+      "{\"packages\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
+    ],
+    [
+      "products:getProducts:category:removable-prothesis|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
+    ],
+    [
+      "products:getProducts:category:perio|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"dYBwI0cgqasnqi2jel2R\",\"name\":\"Professional Toothpaste\",\"description\":\"Professional-grade toothpaste for dental hygiene\",\"price\":12.99,\"originalPrice\":15.99,\"categoryId\":\"perio\",\"categoryName\":\"Perio\",\"brand\":\"Dental Materials Plus\",\"vendorId\":\"dental-materials-plus\",\"vendorName\":\"Dental Materials Plus\",\"stock\":200,\"sku\":\"TP-006\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"size\":\"100ml\",\"flavor\":\"Mint\",\"fluoride\":\"1450ppm\",\"type\":\"Anti-cavity\"},\"features\":[\"Fluoride protection\",\"Fresh breath\",\"Gentle on enamel\",\"Professional formula\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.5,\"reviewCount\":342,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":1,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
+    ],
+    [
+      "products:getProducts:category:pedo|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[],\"total\":0,\"totalPages\":0,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
+    ],
+    [
+      "products:getProducts:category:ortho|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      "{\"products\":[{\"id\":\"R8EOoPXi5Tt1AxZVZHjF\",\"name\":\"Orthodontic Braces Kit\",\"description\":\"Complete orthodontic braces kit for professional dental practice\",\"price\":89.99,\"originalPrice\":119.99,\"categoryId\":\"ortho\",\"categoryName\":\"Ortho\",\"brand\":\"Ortho Solutions\",\"vendorId\":\"ortho-solutions\",\"vendorName\":\"Ortho Solutions\",\"stock\":100,\"sku\":\"OB-002\",\"images\":[\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\",\"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500\"],\"specifications\":{\"material\":\"Stainless Steel\",\"size\":\"Standard\",\"type\":\"Metal Braces\"},\"features\":[\"Durable construction\",\"Easy to apply\",\"Comfortable for patients\",\"Professional grade\"],\"isActive\":true,\"isFeatured\":false,\"rating\":4.6,\"reviewCount\":89,\"createdAt\":\"2025-10-13T20:02:47.881Z\",\"updatedAt\":\"2025-10-13T20:02:47.881Z\"}],\"total\":1,\"totalPages\":1,\"currentPage\":1,\"hasNextPage\":false,\"hasPrevPage\":false}"
     ]
   ],
   "ttl": [
     [
-      "csrf:anon_10d30804dbc33c5a12a567a19be581ba",
-      1758960860605
+      "csrf:anon_03805e3ba4f451816657aec5424ada83",
+      1760510626922
     ],
     [
-      "csrf:ErqZC0ulk28XuHhKzpps",
-      1758981688255
+      "csrf:anon_a8368e6bcc570d2ef941eb8f9fe7ecab",
+      1760511304839
     ],
     [
-      "refresh_token:b3bc4643a0fd28be8e4325dd3e40eb10",
-      1759479304511
+      "products:getProducts:category:undefined|inStock:undefined|limit:8|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426931527
     ],
     [
-      "refresh_token:ae8acf9aa11598fd0fa630972dcd37e4",
-      1759479509630
+      "products:getProducts:category:surgery|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426931851
     ],
     [
-      "csrf:anon_70f7d52135f6f912c5c752b2e45f7ad2",
-      1758961156177
+      "products:getProducts:category:removable-prothesis|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426932046
     ],
     [
-      "refresh_token:cd31bea800ca90b7d3aedba828cbd1cf",
-      1759479573308
+      "products:getProducts:category:perio|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426932380
     ],
     [
-      "csrf:anon_c5baf06e823654391b72d670c62201b4",
-      1758961929600
+      "products:getProducts:category:pedo|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426932607
     ],
     [
-      "refresh_token:4ea1ca2d5864537b8fe029fc199f9857",
-      1759500088260
+      "products:getProducts:category:ortho|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426933111
     ],
     [
-      "csrf:hSctL3R15BQFaLcbgbaH",
-      1758981699860
+      "products:getProducts:category:operative|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426933423
     ],
     [
-      "refresh_token:532e73dbb42609ffa452e6ccc261ad83",
-      1759500099890
+      "products:getProducts:category:instruments|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426933731
     ],
     [
-      "csrf:tZf7Fstt9X8Sc1raCADM",
-      1759003361145
+      "products:getProducts:category:fixed-crown|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426934039
     ],
     [
-      "refresh_token:97f911553d683cfcee31b6c04b9abae0",
-      1759517794421
+      "products:getProducts:category:endo|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426934236
     ],
     [
-      "refresh_token:1e4340b9a898dd3776b5c57d8fd9ca3d",
-      1759521761172
+      "products:getProducts:category:devices|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426934879
+    ],
+    [
+      "products:getProducts:category:dental-anatomy|inStock:undefined|limit:1000|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760426935112
+    ],
+    [
+      "packages:getPackages:isActive:true|limit:12|page:1|search:undefined|sortBy:createdAt|sortOrder:desc",
+      1760427003260
+    ],
+    [
+      "products:getProducts:category:removable-prothesis|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760427004376
+    ],
+    [
+      "products:getProducts:category:perio|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760427004879
+    ],
+    [
+      "products:getProducts:category:pedo|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760427005110
+    ],
+    [
+      "products:getProducts:category:ortho|inStock:undefined|limit:12|maxPrice:undefined|minPrice:undefined|page:1|search:undefined|sortBy:createdAt|sortOrder:desc|vendor:undefined",
+      1760427005163
     ]
   ],
-  "timestamp": 1758917800044
+  "timestamp": 1760426712332
 }

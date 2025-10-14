@@ -17,8 +17,8 @@ const sampleProducts = [
     description: 'High-quality titanium dental implant system for permanent tooth replacement',
     price: 299.99,
     originalPrice: 399.99,
-    categoryId: 'dental-implants',
-    categoryName: 'Dental Implants',
+    categoryId: 'devices',
+    categoryName: 'Devices',
     brand: 'DentalTech Pro',
     vendorId: 'dentaltech-pro',
     vendorName: 'DentalTech Pro',
@@ -52,8 +52,8 @@ const sampleProducts = [
     description: 'Complete orthodontic braces kit for professional dental practice',
     price: 89.99,
     originalPrice: 119.99,
-    categoryId: 'orthodontic-supplies',
-    categoryName: 'Orthodontic Supplies',
+    categoryId: 'ortho',
+    categoryName: 'Ortho',
     brand: 'Ortho Solutions',
     vendorId: 'ortho-solutions',
     vendorName: 'Ortho Solutions',
@@ -86,8 +86,8 @@ const sampleProducts = [
     description: 'Professional dental handpiece set for various dental procedures',
     price: 199.99,
     originalPrice: 249.99,
-    categoryId: 'dental-instruments',
-    categoryName: 'Dental Instruments',
+    categoryId: 'instruments',
+    categoryName: 'instruments',
     brand: 'DentalTech Pro',
     vendorId: 'dentaltech-pro',
     vendorName: 'DentalTech Pro',
@@ -121,8 +121,8 @@ const sampleProducts = [
     description: 'Professional composite resin kit for dental restorations',
     price: 79.99,
     originalPrice: 99.99,
-    categoryId: 'dental-materials',
-    categoryName: 'Dental Materials',
+    categoryId: 'operative',
+    categoryName: 'Operative',
     brand: 'Dental Materials Plus',
     vendorId: 'dental-materials-plus',
     vendorName: 'Dental Materials Plus',
@@ -156,8 +156,8 @@ const sampleProducts = [
     description: 'Advanced dental chair unit with integrated equipment',
     price: 2999.99,
     originalPrice: 3499.99,
-    categoryId: 'dental-equipment',
-    categoryName: 'Dental Equipment',
+    categoryId: 'devices',
+    categoryName: 'Devices',
     brand: 'DentalTech Pro',
     vendorId: 'dentaltech-pro',
     vendorName: 'DentalTech Pro',
@@ -191,8 +191,8 @@ const sampleProducts = [
     description: 'Professional-grade toothpaste for dental hygiene',
     price: 12.99,
     originalPrice: 15.99,
-    categoryId: 'hygiene-products',
-    categoryName: 'Hygiene Products',
+    categoryId: 'perio',
+    categoryName: 'Perio',
     brand: 'Dental Materials Plus',
     vendorId: 'dental-materials-plus',
     vendorName: 'Dental Materials Plus',
@@ -223,62 +223,19 @@ const sampleProducts = [
   }
 ];
 
-// Sample categories
+// Sample categories (new taxonomy)
 const sampleCategories = [
-  {
-    id: 'dental-implants',
-    name: 'Dental Implants',
-    description: 'High-quality dental implants for permanent tooth replacement solutions',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'orthodontic-supplies',
-    name: 'Orthodontic Supplies',
-    description: 'Comprehensive range of orthodontic materials and appliances',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'dental-instruments',
-    name: 'Dental Instruments',
-    description: 'Professional dental instruments for various procedures',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'dental-materials',
-    name: 'Dental Materials',
-    description: 'Restorative and preventive dental materials',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'dental-equipment',
-    name: 'Dental Equipment',
-    description: 'Advanced dental equipment and machinery',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'hygiene-products',
-    name: 'Hygiene Products',
-    description: 'Dental hygiene and preventive care products',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
+  { id: 'dental-anatomy', name: 'Dental anatomy', description: 'Anatomy-related study and reference materials', icon: 'academic-cap', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'operative', name: 'Operative', description: 'Restorative and operative dentistry supplies', icon: 'wrench', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'fixed-crown', name: 'Fixed (crown)', description: 'Fixed prosthodontics including crowns and bridges', icon: 'shield-check', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'removable-prothesis', name: 'Removable (prothesis)', description: 'Removable prosthesis materials and accessories', icon: 'puzzle-piece', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'endo', name: 'Endo', description: 'Endodontic instruments and materials', icon: 'beaker', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'surgery', name: 'Surgery', description: 'Surgical devices and consumables', icon: 'scissors', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'pedo', name: 'Pedo', description: 'Pediatric dentistry supplies', icon: 'face-smile', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'ortho', name: 'Ortho', description: 'Orthodontic appliances and materials', icon: 'sparkles', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'perio', name: 'Perio', description: 'Periodontics instruments and consumables', icon: 'leaf', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'devices', name: 'Devices', description: 'Dental devices and equipment', icon: 'cpu-chip', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'instruments', name: 'instruments', description: 'General dental instruments', icon: 'tool', isActive: true, createdAt: new Date(), updatedAt: new Date() }
 ];
 
 // Sample vendors

@@ -203,18 +203,21 @@ const ResetPasswordPage = () => {
   // Success state
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+      <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
         <Seo {...buildAuthSeo({ tSeo, kind: 'resetPassword', isDark, currentLanguage })} />
         
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex items-center justify-center px-3 sm:px-4 py-4">
+          <div className="relative w-full max-w-6xl">
+            <div className="absolute -inset-2 bg-gradient-to-br from-sky-400/25 via-sky-500/15 to-blue-600/15 rounded-[24px] blur-xl" aria-hidden="true"></div>
+            <div className="relative bg-white dark:bg-gray-900 rounded-[24px] shadow-xl ring-1 ring-black/5 overflow-hidden flex">
           {/* Left Section - Branding & Features */}
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600">
               <div className="absolute inset-0 bg-black/20"></div>
               
               {/* Animated Background Elements */}
               <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+              <div className="absolute bottom-20 right-10 w-96 h-96 bg-sky-300/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
               <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
@@ -261,6 +264,8 @@ const ResetPasswordPage = () => {
               </div>
               </AnimatedSection>
           </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Section - Success Message */}
@@ -268,7 +273,7 @@ const ResetPasswordPage = () => {
             <div className="w-full max-w-md xl:max-w-lg">
               {/* Mobile Logo */}
               <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
-                <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+                <div className="bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-2xl p-6 mb-6 shadow-xl">
               <img
                 src={getLogoPath()}
                     alt="DentalKit Logo"
@@ -324,7 +329,7 @@ const ResetPasswordPage = () => {
                   <Button
                     size="lg"
                     fullWidth
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                        className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
                   >
                         {t('resetPassword.success.loginNow')}
                   </Button>
@@ -342,18 +347,21 @@ const ResetPasswordPage = () => {
   // Invalid token/email state
   if (!token || !email) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+      <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
         <Seo {...buildAuthSeo({ tSeo, kind: 'resetPassword', isDark, currentLanguage })} />
         
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex items-center justify-center px-3 sm:px-4 py-4">
+          <div className="relative w-full max-w-6xl">
+            <div className="absolute -inset-2 bg-gradient-to-br from-sky-400/25 via-sky-500/15 to-blue-600/15 rounded-[24px] blur-xl" aria-hidden="true"></div>
+            <div className="relative bg-white dark:bg-gray-900 rounded-[24px] shadow-xl ring-1 ring-black/5 overflow-hidden flex">
           {/* Left Section - Branding & Features */}
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600">
               <div className="absolute inset-0 bg-black/20"></div>
               
               {/* Animated Background Elements */}
               <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+              <div className="absolute bottom-20 right-10 w-96 h-96 bg-sky-300/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
               <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
@@ -400,6 +408,8 @@ const ResetPasswordPage = () => {
               </div>
               </AnimatedSection>
           </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Section - Error Message */}
@@ -407,7 +417,7 @@ const ResetPasswordPage = () => {
             <div className="w-full max-w-md xl:max-w-lg">
               {/* Mobile Logo */}
               <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
-                <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+                <div className="bg-gradient-to-br from-sky-500 via-blue-500 to-sky-600 rounded-2xl p-6 mb-6 shadow-xl">
               <img
                 src={getLogoPath()}
                 alt="DentalKit Logo"
@@ -443,7 +453,7 @@ const ResetPasswordPage = () => {
                   <Button
                     size="lg"
                     fullWidth
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                        className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
                   >
                     {t('resetPassword.error.requestNewLink')}
                   </Button>
@@ -472,13 +482,13 @@ const ResetPasswordPage = () => {
 
   // Main reset password form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
       <Seo {...buildAuthSeo({ tSeo, kind: 'resetPassword', isDark, currentLanguage })} />
       
       <div className="min-h-screen flex">
         {/* Left Section - Branding & Features */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-blue-500 to-sky-600">
             <div className="absolute inset-0 bg-black/20"></div>
             
             {/* Animated Background Elements */}
@@ -537,7 +547,7 @@ const ResetPasswordPage = () => {
           <div className="w-full max-w-md xl:max-w-lg">
             {/* Mobile Logo */}
             <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
-              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+              <div className="bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-2xl p-6 mb-6 shadow-xl">
             <img
               src={getLogoPath()}
                   alt="DentalKit Logo"
@@ -579,10 +589,10 @@ const ResetPasswordPage = () => {
 
             {/* Reset Password Form Container */}
             <AnimatedSection animation="fadeInUp" delay={200}>
-              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
                 {/* Header */}
                 <div className="text-center mb-6 sm:mb-8">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <KeyIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                   </div>
                   <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
@@ -716,7 +726,7 @@ const ResetPasswordPage = () => {
                 loading={isSubmitting}
                 disabled={!isValid || isSubmitting || !canProceed || passwordStrength < 4}
                 aria-busy={isSubmitting}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                    className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">

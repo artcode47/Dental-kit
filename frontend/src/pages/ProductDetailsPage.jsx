@@ -77,7 +77,7 @@ const InfoInline = ({ product, quantity, setQuantity, addingToCart, onAddToCart,
             <span className="inline-flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full px-2.5 py-1 border border-blue-200 dark:border-blue-700">{t('products.details.category')}: {product.categoryName}</span>
           )}
           {product.vendorName && (
-            <span className="inline-flex items-center bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full px-2.5 py-1 border border-purple-200 dark:border-purple-700">{t('products.details.vendor')}: {product.vendorName}</span>
+            <span className="inline-flex items-center bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-300 rounded-full px-2.5 py-1 border border-sky-200 dark:border-sky-700">{t('products.details.vendor')}: {product.vendorName}</span>
           )}
         </div>
       </div>
@@ -91,7 +91,7 @@ const InfoInline = ({ product, quantity, setQuantity, addingToCart, onAddToCart,
       </div>
       <div className="space-y-2 text-center md:text-left">
         <div className="flex items-center justify-center md:justify-start gap-3">
-          <span className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">{formatPrice(product.price)}</span>
+          <span className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-blue-600">{formatPrice(product.price)}</span>
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-base sm:text-lg text-gray-500 dark:text-gray-400 line-through">{formatPrice(product.originalPrice)}</span>
           )}

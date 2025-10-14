@@ -331,7 +331,7 @@ const ProductsPage = () => {
   // Loading state
   if (isLoading && products.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" className="mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-300">Loading products...</p>
@@ -343,7 +343,7 @@ const ProductsPage = () => {
   // Error state
   if (error && products.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">❌</div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -359,7 +359,7 @@ const ProductsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Seo
         title={tSeo('seo.products.title', 'Products')}
         description={tSeo('seo.products.description', 'Browse our premium dental products')}
@@ -650,7 +650,7 @@ const ProductsPage = () => {
                               onClick={() => handlePageChange(page)}
                               className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
                                 isCurrentPage
-                                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                                  ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
                                   : 'text-gray-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700'
                               }`}
                             >
@@ -812,7 +812,7 @@ const ProductCard = ({
         <Button
           onClick={handleAddToCartClick}
           disabled={addingToCart || !product.inStock}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
           loading={addingToCart}
         >
           {addingToCart ? (
@@ -948,7 +948,7 @@ const ProductListItem = ({
             disabled={addingToCart || !product.inStock}
             size="lg"
             loading={addingToCart}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
+            className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
           >
             {addingToCart ? (
               <LoadingSpinner size="sm" />

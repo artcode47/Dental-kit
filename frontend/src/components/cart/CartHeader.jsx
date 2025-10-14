@@ -6,7 +6,7 @@ const CartHeader = ({ title, subtitle, showBadge = true }) => {
   const { t } = useTranslation('ecommerce');
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white py-12 sm:py-16 lg:py-20">
+    <div className="relative overflow-hidden bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600 text-white py-12 sm:py-16 lg:py-20">
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-white/10 rounded-full blur-3xl"></div>

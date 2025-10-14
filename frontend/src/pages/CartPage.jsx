@@ -90,7 +90,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen relative overflow-x-hidden bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Seo
         title={t('seo.cart.title', 'Cart')}
         description={t('seo.cart.description', 'View items in your cart and proceed to checkout')}
@@ -100,9 +100,9 @@ const CartPage = () => {
       />
       {/* Animated background blobs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-indigo-500/20 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-sky-400/15 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-sky-300/25 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500" />
       </div>
 
       {/* Header Section */}

@@ -127,7 +127,7 @@ const OrderConfirmationPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <LoadingSpinner size="lg" />
@@ -139,7 +139,7 @@ const OrderConfirmationPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center">
             <ExclamationTriangleIcon className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -160,7 +160,7 @@ const OrderConfirmationPage = () => {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center">
             <ExclamationTriangleIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -186,9 +186,9 @@ const OrderConfirmationPage = () => {
   const shippingMethodLabel = t(`orderConfirmation.shippingMethods.${order?.shippingMethod || 'standard'}`);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-sky-400 via-sky-500 to-blue-600 text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="absolute top-0 left-0 w-full h-full">
             <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full"></div>
@@ -214,7 +214,7 @@ const OrderConfirmationPage = () => {
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Order Confirmation Card */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 text-center border border-white/20 dark:border-gray-700/20">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-800/30 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg animate-fadeIn">
+              <div className="w-24 h-24 bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg animate-fadeIn">
                 <CheckIcon className="w-12 h-12 text-blue-600 dark:text-blue-400" />
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -223,10 +223,10 @@ const OrderConfirmationPage = () => {
               <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto">
                 {t('orderConfirmation.orderPlaced', { number: order.orderNumber })}
               </p>
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl p-6 max-w-md mx-auto border border-indigo-200/50 dark:border-indigo-700/30">
+              <div className="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-6 max-w-md mx-auto border border-sky-200/50 dark:border-sky-700/30">
                 <div className="flex items-center justify-center space-x-2">
-                  <SparklesIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  <p className="text-indigo-800 dark:text-indigo-200 text-sm font-medium">
+                  <SparklesIcon className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                    <p className="text-sky-800 dark:text-sky-200 text-sm font-medium">
                     {t('orderConfirmation.confirmationEmail')}
                   </p>
                 </div>
@@ -239,7 +239,7 @@ const OrderConfirmationPage = () => {
                 {/* Order Summary */}
                 <div>
                   <div className="flex items-center mb-8">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-800/30 rounded-xl flex items-center justify-center mr-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/30 dark:to-blue-800/30 rounded-xl flex items-center justify-center mr-4">
                       <ShoppingBagIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -314,7 +314,7 @@ const OrderConfirmationPage = () => {
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between text-xl font-bold border-t-2 border-indigo-200 dark:border-indigo-700 pt-4">
+                    <div className="flex justify-between text-xl font-bold border-t-2 border-sky-200 dark:border-sky-700 pt-4">
                       <span className="text-gray-900 dark:text-white">
                         {t('orderConfirmation.orderSummary.total')}
                       </span>
@@ -328,7 +328,7 @@ const OrderConfirmationPage = () => {
                 {/* Delivery Information */}
                 <div>
                   <div className="flex items-center mb-8">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-800/30 rounded-xl flex items-center justify-center mr-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/30 dark:to-blue-800/30 rounded-xl flex items-center justify-center mr-4">
                       <TruckIcon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -361,7 +361,7 @@ const OrderConfirmationPage = () => {
                     </div>
 
                     {/* Estimated Delivery */}
-                    <div className="p-6 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl border border-indigo-200/50 dark:border-indigo-700/30">
+                    <div className="p-6 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl border border-sky-200/50 dark:border-sky-700/30">
                       <div className="flex items-center mb-3">
                         <FireIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mr-2" />
                         <h4 className="font-bold text-indigo-900 dark:text-indigo-100 text-lg">
@@ -442,7 +442,7 @@ const OrderConfirmationPage = () => {
                 <Button
                   onClick={() => navigate(`/orders/${order._id}/track`)}
                   variant="primary"
-                  className="flex items-center justify-center p-4 sm:p-6 h-auto text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800"
+                  className="flex items-center justify-center p-4 sm:p-6 h-auto text-base sm:text-lg font-semibold bg-gradient-to-r from-sky-500 via-sky-600 to-blue-700 hover:from-sky-600 hover:via-sky-700 hover:to-blue-800"
                 >
                                       <TruckIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
                   {t('orderConfirmation.trackOrder')}
@@ -477,7 +477,7 @@ const OrderConfirmationPage = () => {
                 </Button>
               </div>
               
-              <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200/50 dark:border-blue-700/30 animate-fadeIn">
+              <div className="mt-8 p-6 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl border border-sky-200/50 dark:border-sky-700/30 animate-fadeIn">
                 <div className="flex items-center justify-center space-x-2">
                   <ShieldCheckIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   <p className="text-blue-800 dark:text-blue-200 text-sm font-medium">

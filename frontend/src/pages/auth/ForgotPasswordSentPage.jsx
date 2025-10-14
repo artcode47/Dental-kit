@@ -19,7 +19,7 @@ const ForgotPasswordSentPage = () => {
   const getLogoPath = () => (isDark ? '/Logo Darkmode.png' : '/Logo Lightmode.png');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
       <Seo
         title={tSeo('seo.forgotPasswordSent.title', 'Email Sent - DentalKit')}
         description={tSeo('seo.forgotPasswordSent.description', 'Password reset email has been sent to your inbox')}
@@ -28,9 +28,12 @@ const ForgotPasswordSentPage = () => {
         themeColor={isDark ? '#0B1220' : '#FFFFFF'}
       />
 
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex items-center justify-center px-3 sm:px-4 py-4">
+        <div className="relative w-full max-w-6xl">
+          <div className="absolute -inset-2 bg-gradient-to-br from-sky-400/25 via-sky-500/15 to-blue-600/15 rounded-[24px] blur-xl" aria-hidden="true"></div>
+          <div className="relative bg-white dark:bg-gray-900 rounded-[24px] shadow-xl ring-1 ring-black/5 overflow-hidden flex">
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600">
             <div className="absolute inset-0 bg-black/20"></div>
             <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -82,10 +85,10 @@ const ForgotPasswordSentPage = () => {
           </div>
         </div>
 
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-7 xl:p-10">
           <div className="w-full max-w-md xl:max-w-lg">
             <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
-              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+              <div className="bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-2xl p-6 mb-6 shadow-xl">
                 <img
                   src={getLogoPath()}
                   alt="DentalKit Logo"
@@ -102,7 +105,7 @@ const ForgotPasswordSentPage = () => {
             </AnimatedSection>
 
             <AnimatedSection animation="fadeInUp" delay={200}>
-              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-5 sm:p-7 xl:p-9 border border-white/20 dark:border-gray-700/50">
                 <div className="text-center mb-6 sm:mb-8">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <CheckCircleIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
@@ -166,6 +169,8 @@ const ForgotPasswordSentPage = () => {
                 </div>
               </div>
             </AnimatedSection>
+          </div>
+        </div>
           </div>
         </div>
       </div>

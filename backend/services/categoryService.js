@@ -115,6 +115,23 @@ class CategoryService extends FirebaseService {
     }
   }
 
+  // Get category by slug
+  async getCategoryBySlug(slug) {
+    try {
+      const categories = await this.getAll({
+        filters: [{ field: 'isActive', operator: '==', value: true }]
+      });
+      
+      const category = categories.find(cat => cat.id === slug || cat.slug === slug);
+      if (!category) {
+        throw new Error('Category not found');
+      }
+      return category;
+    } catch (error) {
+      throw new Error(`Error getting category by slug: ${error.message}`);
+    }
+  }
+
   // Update category
   async updateCategory(id, updateData) {
     try {

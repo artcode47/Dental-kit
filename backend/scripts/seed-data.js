@@ -27,30 +27,17 @@ const adminUsers = [
 ];
 
 const categories = [
-  {
-    name: 'Dental Implants',
-    description: 'High-quality dental implants for permanent tooth replacement solutions'
-  },
-  {
-    name: 'Orthodontic Supplies',
-    description: 'Comprehensive range of orthodontic materials and appliances'
-  },
-  {
-    name: 'Dental Instruments',
-    description: 'Professional dental instruments for various procedures'
-  },
-  {
-    name: 'Dental Materials',
-    description: 'Restorative and preventive dental materials'
-  },
-  {
-    name: 'Dental Equipment',
-    description: 'Advanced dental equipment and machinery'
-  },
-  {
-    name: 'Hygiene Products',
-    description: 'Dental hygiene and preventive care products'
-  }
+  { name: 'Dental anatomy', description: 'Anatomy-related study and reference materials', icon: 'academic-cap' },
+  { name: 'Operative', description: 'Restorative and operative dentistry supplies', icon: 'wrench' },
+  { name: 'Fixed (crown)', description: 'Fixed prosthodontics including crowns and bridges', icon: 'shield-check' },
+  { name: 'Removable (prothesis)', description: 'Removable prosthesis materials and accessories', icon: 'puzzle-piece' },
+  { name: 'Endo', description: 'Endodontic instruments and materials', icon: 'beaker' },
+  { name: 'Surgery', description: 'Surgical devices and consumables', icon: 'scissors' },
+  { name: 'Pedo', description: 'Pediatric dentistry supplies', icon: 'face-smile' },
+  { name: 'Ortho', description: 'Orthodontic appliances and materials', icon: 'sparkles' },
+  { name: 'Perio', description: 'Periodontics instruments and consumables', icon: 'leaf' },
+  { name: 'Devices', description: 'Dental devices and equipment', icon: 'cpu-chip' },
+  { name: 'instruments', description: 'General dental instruments', icon: 'tool' }
 ];
 
 const vendors = [

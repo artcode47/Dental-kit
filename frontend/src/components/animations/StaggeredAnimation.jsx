@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
 
 const StaggeredAnimation = ({ 
@@ -9,6 +9,10 @@ const StaggeredAnimation = ({
   threshold = 0.1
 }) => {
   const [ref, isVisible] = useScrollAnimation(threshold);
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768; // always visible on mobile
+  }, []);
 
   const animations = {
     fadeInUp: 'opacity-0 translate-y-8',
@@ -27,7 +31,7 @@ const StaggeredAnimation = ({
         <div
           key={child?.key ?? index}
           className={`transition-all duration-600 ease-out ${
-            isVisible ? visibleClass : animationClass
+            (isVisible || isMobile) ? visibleClass : animationClass
           }`}
           style={{
             transitionDelay: isVisible ? `${index * staggerDelay}ms` : '0ms'

@@ -74,7 +74,7 @@ const QuickActions = () => {
       },
       purple: {
         bg: 'bg-purple-100 dark:bg-purple-900',
-        text: 'text-purple-600 dark:text-purple-300',
+        text: 'text-sky-600 dark:text-sky-300',
         hover: 'hover:bg-purple-200 dark:hover:bg-purple-800'
       },
       yellow: {
@@ -89,7 +89,7 @@ const QuickActions = () => {
       },
       indigo: {
         bg: 'bg-indigo-100 dark:bg-indigo-900',
-        text: 'text-indigo-600 dark:text-indigo-300',
+        text: 'text-blue-600 dark:text-blue-300',
         hover: 'hover:bg-indigo-200 dark:hover:bg-indigo-800'
       }
     };

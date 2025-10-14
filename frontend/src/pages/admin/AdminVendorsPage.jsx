@@ -424,7 +424,7 @@ const AdminVendorsPage = () => {
       <div className="space-y-6">
         {/* Page Header */}
         <div className="mb-6">
-          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
+          <div className="bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               <div className="flex-1">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
@@ -492,7 +492,7 @@ const AdminVendorsPage = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <CubeIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <CubeIcon className="h-6 w-6 text-sky-600 dark:text-sky-400" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Products</p>
@@ -905,7 +905,7 @@ const AdminVendorsPage = () => {
                       className="w-full h-32 object-cover"
                     />
                   ) : (
-                    <div className="w-full h-32 flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900">
+                    <div className="w-full h-32 flex items-center justify-center bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900">
                       <BuildingOfficeIcon className="h-12 w-12 text-blue-500 dark:text-blue-400" />
             </div>
           )}

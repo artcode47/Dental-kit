@@ -517,6 +517,43 @@ export const getAllReviews = async (params = {}) => {
   }
 };
 
+// Packages Management
+export const getAllPackages = async (params = {}) => {
+  try {
+    const response = await api.get('/packages', { params });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch packages');
+  }
+};
+
+export const createPackage = async (payload) => {
+  try {
+    const response = await api.post('/packages', payload);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to create package');
+  }
+};
+
+export const updatePackage = async (id, payload) => {
+  try {
+    const response = await api.put(`/packages/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update package');
+  }
+};
+
+export const deletePackage = async (id) => {
+  try {
+    const response = await api.delete(`/packages/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to delete package');
+  }
+};
+
 // Coupon Management
 export const getAllCoupons = async (params = {}) => {
   try {

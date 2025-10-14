@@ -299,6 +299,18 @@ export const endpoints = {
     compare: '/products/compare',
     wishlist: '/products/wishlist'
   },
+
+  // Packages
+  packages: {
+    list: '/packages',
+    get: (id) => `/packages/${id}`,
+    admin: {
+      create: '/packages',
+      update: (id) => `/packages/${id}`,
+      delete: (id) => `/packages/${id}`
+    },
+    combined: '/packages/combined/list'
+  },
   
   // Cart
   cart: {

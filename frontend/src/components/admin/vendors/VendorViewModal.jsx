@@ -72,7 +72,7 @@ const VendorViewModal = ({ isOpen, vendor, onClose }) => {
                   alt={vendor.name}
                 />
               ) : (
-                <div className="h-20 w-20 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                <div className="h-20 w-20 rounded-lg bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
                   <BuildingOfficeIcon className="h-10 w-10 text-blue-500 dark:text-blue-400" />
                 </div>
               )}

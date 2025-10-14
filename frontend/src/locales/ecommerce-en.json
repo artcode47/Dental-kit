@@ -27,8 +27,20 @@
     "newArrivals": "New Arrivals",
     "sale": "On Sale",
     "menu": "Menu",
+    "packages": "Packages",
+    "packagesDescription": "Bundles and discounted products",
     "switchToLight": "Switch to Light Mode",
     "switchToDark": "Switch to Dark Mode"
+  },
+  "packages": {
+    "title": "Packages and Discounts",
+    "subtitle": "Save with bundles and special offers",
+    "packages": "Packages",
+    "discountedProducts": "Discounted Products",
+    "discountsSubtitle": "Limited time offers and special deals",
+    "viewPackage": "View Package",
+    "noPackages": "No packages available.",
+    "noDiscounted": "No discounted products right now."
   },
   "orders": {
     "title": "Orders",
@@ -448,17 +460,61 @@
   "profile": {
     "changesSaved": "Changes saved",
     "title": "My Profile",
+    "subtitle": "Manage your account settings and preferences",
+    "personalInfo": "Personal Information",
     "firstName": "First Name",
     "lastName": "Last Name",
     "email": "Email",
+    "emailNote": "Email cannot be changed. Contact support if needed.",
     "phone": "Phone",
     "company": "Company",
     "university": "University",
     "country": "Country",
     "governorate": "Governorate",
     "timezone": "Timezone",
+    "selectTimezone": "Select Timezone",
     "language": "Language",
-    "changePassword": "Change Password"
+    "changePassword": "Change Password",
+    "passwordDescription": "Update your password to keep your account secure",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordWarning": "Make sure to use a strong password with at least 8 characters",
+    "updatePassword": "Update Password",
+    "security": "Security",
+    "preferences": "Preferences",
+    "preferencesDescription": "Customize your experience and notification settings",
+    "notifications": "Notifications",
+    "emailNotifications": "Email Notifications",
+    "emailNotificationsDesc": "Receive updates about your orders and account",
+    "smsNotifications": "SMS Notifications",
+    "smsNotificationsDesc": "Get text messages for important updates",
+    "marketingEmails": "Marketing Emails",
+    "marketingEmailsDesc": "Receive promotional offers and product updates",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme",
+    "systemTheme": "System Theme",
+    "savePreferences": "Save Preferences",
+    "activity": "Activity",
+    "activityDescription": "View your account activity and statistics",
+    "totalOrders": "Total Orders",
+    "wishlistItems": "Wishlist Items",
+    "memberSince": "Member Since",
+    "recentOrders": "Recent Orders",
+    "recentOrdersDesc": "View your latest order history",
+    "wishlist": "Wishlist",
+    "wishlistDesc": "Manage your saved products",
+    "accountStats": "Account Statistics",
+    "accountStatsDesc": "Overview of your account activity",
+    "viewAll": "View All",
+    "viewDetails": "View Details",
+    "updated": "Profile updated successfully",
+    "imageUpdated": "Profile image updated successfully",
+    "error": {
+      "update": "Failed to update profile"
+    }
   },
   "orderConfirmation": {
     "title": "Order Confirmed",
@@ -521,28 +577,6 @@
     "viewOrders": "View Orders",
     "retry": "Retry"
   },
-  "profile": {
-    "title": "My Profile",
-    "updated": "Profile updated successfully",
-    "imageUpdated": "Profile image updated",
-    "cancel": "Cancel",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "email": "Email",
-    "phone": "Phone",
-    "company": "Company",
-    "university": "University",
-    "country": "Country",
-    "governorate": "Governorate",
-    "selectGovernorate": "Select Governorate",
-    "timezone": "Timezone",
-    "language": "Language",
-    "edit": "Edit Profile",
-    "error": {
-      "update": "Failed to update profile",
-      "imageUpload": "Failed to upload image"
-    }
-  },
   "dashboard": {
     "welcome": "Welcome",
     "subtitle": "Manage your account and view your orders",
@@ -599,7 +633,12 @@
     "title": "Categories",
     "description": "Browse categories and featured products",
     "subtitle": "Explore our catalog by category",
-    "untitled": "Untitled"
+    "viewAll": "View All",
+    "untitled": "Untitled",
+    "noProductsInCategory": "No products found in this category",
+    "error": {
+      "loading": "Something went wrong while loading the page. Please try again."
+    }
   },
   "seo": {
     "home": {

@@ -61,14 +61,14 @@ const StatsCard = ({
       },
       purple: {
         bg: 'bg-purple-500',
-        text: 'text-purple-600',
+        text: 'text-sky-600',
         light: 'bg-purple-100',
         dark: 'dark:bg-purple-900',
         darkText: 'dark:text-purple-300'
       },
       indigo: {
         bg: 'bg-indigo-500',
-        text: 'text-indigo-600',
+        text: 'text-blue-600',
         light: 'bg-indigo-100',
         dark: 'dark:bg-indigo-900',
         darkText: 'dark:text-indigo-300'

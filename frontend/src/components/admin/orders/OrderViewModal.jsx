@@ -79,7 +79,7 @@ const OrderViewModal = ({ isOpen, order, onClose, formatCurrency, formatDate, ge
           {/* Order Header */}
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0">
-              <div className="h-16 w-16 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+              <div className="h-16 w-16 rounded-lg bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900 dark:to-blue-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
                 <ShoppingCartIcon className="h-8 w-8 text-blue-500 dark:text-blue-400" />
               </div>
             </div>

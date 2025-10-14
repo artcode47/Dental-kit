@@ -65,14 +65,44 @@ exports.getProductsByCategorySlug = async (req, res) => {
   try {
     const { slug } = req.params;
     const { limit = 12 } = req.query;
+    
+    console.log(`Fetching products for category slug: ${slug}`);
+    
     const category = await categoryService.getCategoryBySlug(slug);
     if (!category) {
+      console.log(`Category not found for slug: ${slug}`);
       return res.status(404).json({ message: 'Category not found' });
     }
-    const productsResult = await productService.getProducts({ category: category.id, limit: parseInt(limit) });
-    res.json(productsResult.products || productsResult || []);
+    
+    console.log(`Found category: ${category.name} with ID: ${category.id}`);
+    
+    const productsResult = await productService.getProducts({ 
+      category: category.id, 
+      limit: parseInt(limit) 
+    });
+    
+    console.log(`Products result:`, productsResult);
+    
+    // Handle different response formats
+    const products = productsResult?.products || productsResult || [];
+    
+    res.json({
+      products: Array.isArray(products) ? products : [],
+      category: {
+        id: category.id,
+        name: category.name,
+        slug: category.slug
+      },
+      total: Array.isArray(products) ? products.length : 0
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching category products', error: error.message });
+    console.error(`Error fetching products for category ${req.params.slug}:`, error);
+    res.status(500).json({ 
+      message: 'Error fetching category products', 
+      error: error.message,
+      products: [],
+      total: 0
+    });
   }
 };
 

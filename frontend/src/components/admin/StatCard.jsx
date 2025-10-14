@@ -5,9 +5,9 @@ const StatCard = ({ icon: Icon, label, value, color, trend }) => {
   const colorMap = {
     blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
     green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
-    purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+    purple: 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400',
     yellow: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400',
-    indigo: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400',
+    indigo: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
     red: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
   };
 

@@ -74,7 +74,8 @@ const Header = () => {
 
   const navItems = [
     { label: t('nav.home'), to: '/' },
-    { label: t('nav.products'), to: '/products' }
+    { label: t('nav.products'), to: '/products' },
+    { label: t('nav.categories'), to: '/categories' }
   ];
 
   return (
@@ -122,7 +123,7 @@ const Header = () => {
 
                   <CartBadge />
 
-                  <span className="max-[425px]:hidden">
+                  <span className="hidden lg:inline">
                     <LanguageSwitcher variant="button" />
                   </span>
 
@@ -133,7 +134,7 @@ const Header = () => {
                 {isAuthenticated ? (
                   <div className="relative hidden md:block" ref={userMenuRef}>
                     <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center">
                         <UserIcon className="h-4 w-4 text-white" />
                       </div>
                       <ChevronDownIcon className={`h-4 w-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
@@ -180,7 +181,7 @@ const Header = () => {
                 ) : (
                   <div className="hidden md:flex items-center gap-2">
                     <Link to="/login" className="px-3 py-2 text-sm rounded-md text-gray-700 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700/60">{t('nav.login')}</Link>
-                    <Link to="/register" className="px-3 py-2 text-sm text-white rounded-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow">
+                    <Link to="/register" className="px-3 py-2 text-sm text-white rounded-md bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow">
                       {t('nav.register')}
                     </Link>
                   </div>
@@ -207,14 +208,14 @@ const Header = () => {
         <div id="mobile-menu" ref={mobileMenuRef} className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
           <div className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsMobileMenuOpen(false)} />
           <div className={`absolute right-0 top-0 h-full w-[88vw] max-w-[380px] bg-white dark:bg-gray-800 shadow-2xl transform transition-transform duration-300 ease-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-sky-500 to-blue-600 text-white">
               <span className="text-sm font-semibold">{t('nav.menu')}</span>
               <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 rounded-md hover:bg-white/10">
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
 
-            <div className="min-[426px]:hidden p-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-3 border-b border-gray-200 dark:border-gray-700">
               <div className="text-xs mb-2 text-gray-500 dark:text-gray-400">{t('language') || 'Language'}</div>
               <LanguageSwitcher variant="button" />
             </div>
@@ -260,7 +261,7 @@ const Header = () => {
               ) : (
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   <Link to="/login" className="px-3 py-2 rounded-md text-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.login')}</Link>
-                  <Link to="/register" className="px-3 py-2 rounded-md text-center text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.register')}</Link>
+                  <Link to="/register" className="px-3 py-2 rounded-md text-center text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-sm" onClick={() => setIsMobileMenuOpen(false)}>{t('nav.register')}</Link>
                 </div>
               )}
             </nav>

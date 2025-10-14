@@ -37,7 +37,7 @@ const OrdersPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Seo
         title={t('seo.orders.title', 'Orders')}
         description={t('seo.orders.description', 'View your orders and track statuses')}
@@ -47,7 +47,7 @@ const OrdersPage = () => {
       />
 
       {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white">
+      <div className="relative overflow-hidden bg-gradient-to-r from-sky-400 via-sky-500 to-blue-600 text-white">
         <div className="absolute inset-0 bg-black/10" />
         <div className="container mx-auto px-4 py-14 relative">
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">{t('orders.title')}</h1>

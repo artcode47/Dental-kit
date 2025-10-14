@@ -44,7 +44,7 @@ const VendorDashboardPage = () => {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             {t('vendor.dashboard.revenue')}
           </h3>
-          <p className="text-3xl font-bold text-purple-600">{loading ? '...' : `$${(stats?.totals?.totalSales || 0).toFixed(2)}`}</p>
+          <p className="text-3xl font-bold text-sky-600">{loading ? '...' : `$${(stats?.totals?.totalSales || 0).toFixed(2)}`}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">

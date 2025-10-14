@@ -35,7 +35,9 @@
     "reports": "Reports",
     "reportsDesc": "Generate and view reports",
     "settings": "Settings",
-    "settingsDesc": "System configuration and preferences"
+    "settingsDesc": "System configuration and preferences",
+    "packages": "Packages",
+    "packagesDesc": "Manage product bundles and discounts"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -602,6 +604,73 @@
     "orders": {
       "title": "My Orders",
       "comingSoon": "Coming soon"
+    }
+  }
+  ,
+    "packages": {
+    "title": "Packages Management",
+    "subtitle": "Create bundles with discounted prices",
+    "addNew": "Add New Package",
+    "exportCSV": "Export CSV",
+    "searchPlaceholder": "Search packages...",
+    "allStatuses": "All Statuses",
+    "active": "Active",
+    "inactive": "Inactive",
+    "name": "Name",
+    "items": "Items",
+    "original": "Original",
+    "packagePrice": "Package Price",
+    "discountPct": "Discount %",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "noPackages": "No packages available",
+    "create": "Create Package",
+    "update": "Update Package",
+    "description": "Description",
+    "startsAt": "Starts At",
+    "endsAt": "Ends At",
+    "isActive": "Active",
+    "selectProduct": "Select product",
+    "quantity": "Quantity",
+    "addItem": "Add Item",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "totalPackages": "Total Packages",
+    "activePackages": "Active Packages",
+    "avgDiscount": "Avg Discount",
+    "totalRevenue": "Total Revenue",
+    "avgValue": "Avg Value",
+    "created": "Created",
+    "packageDetails": "Package Details",
+    "close": "Close",
+    "confirmDeleteTitle": "Delete Package",
+    "confirmDeleteMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "createSuccess": "Package created successfully",
+    "updateSuccess": "Package updated successfully",
+    "deleteSuccess": "Package deleted successfully",
+    "errorLoading": "Error loading packages",
+    "retry": "Retry",
+    "showing": "Showing",
+    "of": "of",
+    "packages": "packages",
+    "results": "results",
+    "previous": "Previous",
+    "next": "Next",
+    "to": "to",
+    "selected": "selected",
+    "filters": {
+      "title": "Filters",
+      "dateRange": "Date Range"
+    },
+    "from": "From",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "sort": {
+      "newest": "Newest First",
+      "oldest": "Oldest First"
     }
   }
 } 

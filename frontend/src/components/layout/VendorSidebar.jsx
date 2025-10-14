@@ -40,9 +40,9 @@ const VendorSidebar = () => {
         w-64 bg-white/95 dark:bg-gray-900/95 border-r border-gray-200/50 dark:border-gray-700/50 backdrop-blur-md
         ${isRTL ? 'lg:border-l lg:border-r-0' : ''}
       `}>
-        <div className="flex items-center justify-center p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10">
+        <div className="flex items-center justify-center p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/10 dark:to-blue-900/10">
           <div className="text-center">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Vendor</h2>
+            <h2 className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">Vendor</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('panel.subtitle')}</p>
           </div>
         </div>
@@ -57,7 +57,7 @@ const VendorSidebar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
                   isActive(item.path)
-                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600 dark:border-blue-400 shadow-sm'
+                    ? 'bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 text-sky-700 dark:text-sky-300 border-r-2 border-sky-600 dark:border-sky-400 shadow-sm'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >

@@ -178,7 +178,7 @@ const AdminDashboardPage = () => {
         {/* Header Section */}
         <div className="mb-6">
           {/* Enhanced Mobile-Responsive Header */}
-          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
+          <div className="bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               <div className="flex-1">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
@@ -419,7 +419,7 @@ const AdminDashboardPage = () => {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-all duration-200 sm:col-span-2 lg:col-span-1">
               <div className="flex items-center">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <StarIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <StarIcon className="h-6 w-6 text-sky-600 dark:text-sky-400" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">

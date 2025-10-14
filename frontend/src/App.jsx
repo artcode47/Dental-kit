@@ -49,6 +49,7 @@ import ReturnsPage from './pages/ReturnsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import WarrantyPage from './pages/WarrantyPage';
+import PackagesAndDiscountsPage from './pages/PackagesAndDiscountsPage';
 
 // Import new error pages from the errors index
 import { 
@@ -67,6 +68,7 @@ import AdminVendorsPage from './pages/admin/AdminVendorsPage';
 import AdminReviewsPage from './pages/admin/AdminReviewsPage';
 import AdminCouponsPage from './pages/admin/AdminCouponsPage';
 import AdminGiftCardsPage from './pages/admin/AdminGiftCardsPage';
+import AdminPackagesPage from './pages/admin/AdminPackagesPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
@@ -129,6 +131,12 @@ function App() {
                         <Route path="/categories" element={
                           <Layout>
                             <CategoriesPage />
+                          </Layout>
+                        } />
+
+                        <Route path="/packages" element={
+                          <Layout>
+                            <PackagesAndDiscountsPage />
                           </Layout>
                         } />
                         
@@ -339,6 +347,12 @@ function App() {
                         <Route path="/admin/gift-cards" element={
                           <AdminRoute>
                             <AdminGiftCardsPage />
+                          </AdminRoute>
+                        } />
+                        
+                        <Route path="/admin/packages" element={
+                          <AdminRoute>
+                            <AdminPackagesPage />
                           </AdminRoute>
                         } />
                         

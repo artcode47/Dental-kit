@@ -232,34 +232,37 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
       <Seo {...buildAuthSeo({ tSeo, kind: 'login', isDark, currentLanguage })} />
       
-      <div className="min-h-screen flex">
+      <div className="min-h-screen flex items-center justify-center px-3 sm:px-4 py-4">
+        <div className="relative w-full max-w-6xl">
+          <div className="absolute -inset-2 bg-gradient-to-br from-sky-400/25 via-sky-500/15 to-blue-600/15 rounded-[24px] blur-xl" aria-hidden="true"></div>
+          <div className="relative bg-white dark:bg-gray-900 rounded-[24px] shadow-xl ring-1 ring-black/5 overflow-hidden flex">
         {/* Left Section - Branding & Features */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600">
             <div className="absolute inset-0 bg-black/20"></div>
             
             {/* Animated Background Elements */}
             <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-sky-300/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
             <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
-          <div className="relative z-10 w-full flex flex-col justify-center items-center text-center p-8 xl:p-12 text-white">
+          <div className="relative z-10 w-full flex flex-col justify-center items-center text-center p-5 lg:p-6 text-white">
             <AnimatedSection animation="fadeInUp" delay={0}>
-              <div className="mb-8 max-w-lg">
+              <div className="mb-6 max-w-lg">
                 <img
                   src={getLogoPath()}
                   alt="DentalKit Logo"
                   className="w-24 h-24 mx-auto mb-6 drop-shadow-2xl"
                   loading="eager"
                 />
-                <h1 className="text-4xl xl:text-5xl font-bold mb-4 leading-tight">
+                <h1 className="text-3xl lg:text-4xl font-bold mb-2 leading-tight">
                   {t('brand.name')}
                 </h1>
-                <p className="text-xl xl:text-2xl text-blue-100 leading-relaxed">
+                <p className="text-base lg:text-lg text-blue-100 leading-relaxed">
                   {t('brand.tagline')}
                 </p>
               </div>
@@ -293,11 +296,11 @@ const LoginPage = () => {
         </div>
 
         {/* Right Section - Login Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-12">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-7">
           <div className="w-full max-w-md xl:max-w-lg">
             {/* Mobile Logo */}
             <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
-              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+              <div className="bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-2xl p-5 mb-5 shadow-xl">
                 <img
                   src={getLogoPath()}
                   alt="DentalKit Logo"
@@ -313,23 +316,23 @@ const LoginPage = () => {
               </div>
               
               {/* Mobile Stats */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                <div className="text-center p-3 bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-white/10 dark:border-white/20">
                   <ShieldCheckIcon className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
                   <div className="text-lg font-bold text-gray-900 dark:text-white">100%</div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">Secure</div>
                 </div>
-                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                <div className="text-center p-3 bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-white/10 dark:border-white/20">
                   <TruckIcon className="w-6 h-6 mx-auto mb-2 text-green-400" />
                   <div className="text-lg font-bold text-gray-900 dark:text-white">24/7</div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">Support</div>
                 </div>
-                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                <div className="text-center p-3 bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-white/10 dark:border-white/20">
                   <StarIcon className="w-6 h-6 mx-auto mb-2 text-purple-400" />
                   <div className="text-lg font-bold text-gray-900 dark:text-white">5★</div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">Rating</div>
                 </div>
-                <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                <div className="text-center p-3 bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-white/10 dark:border-white/20">
                   <UserGroupIcon className="w-6 h-6 mx-auto mb-2 text-pink-400" />
                   <div className="text-lg font-bold text-gray-900 dark:text-white">10K+</div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">Users</div>
@@ -339,16 +342,16 @@ const LoginPage = () => {
 
             {/* Login Form Container */}
             <AnimatedSection animation="fadeInUp" delay={200}>
-              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50">
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-5 lg:p-6 border border-white/20 dark:border-gray-700/50 overflow-hidden">
                 {/* Header */}
                 <div className="text-center mb-6 sm:mb-8">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <LockClosedIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {t('login.title')}
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                     {t('login.tagline')}
                   </p>
                 </div>
@@ -506,7 +509,7 @@ const LoginPage = () => {
                     loading={isSubmitting}
                     disabled={!isValid || isAccountLocked || isSubmitting || !canProceed}
                     aria-busy={isSubmitting}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                  className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold py-3 sm:py-3.5 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 shadow-lg hover:shadow-xl text-sm"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center justify-center">
@@ -547,6 +550,8 @@ const LoginPage = () => {
                 </div>
               </div>
             </AnimatedSection>
+          </div>
+        </div>
           </div>
         </div>
       </div>

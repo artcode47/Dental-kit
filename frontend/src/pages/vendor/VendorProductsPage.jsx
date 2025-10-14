@@ -339,7 +339,7 @@ const VendorProductsPage = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 lg:p-6">
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <CurrencyDollarIcon className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600 dark:text-purple-400" />
+                <CurrencyDollarIcon className="h-5 w-5 lg:h-6 lg:w-6 text-sky-600 dark:text-sky-400" />
               </div>
               <div className="ml-3 lg:ml-4">
                 <p className="text-xs lg:text-sm font-medium text-gray-600 dark:text-gray-400">{t('products.totalValue')}</p>

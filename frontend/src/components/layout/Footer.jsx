@@ -35,7 +35,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+    <footer className="relative bg-gradient-to-br from-sky-600 via-sky-700 to-blue-800 dark:from-sky-900 dark:via-blue-900 dark:to-blue-950 overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -76,7 +76,7 @@ const Footer = () => {
               <StaggeredAnimation staggerDelay={50} className="space-y-4">
                 <Link 
                   to="/products" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -85,7 +85,7 @@ const Footer = () => {
                 </Link>
                 <Link 
                   to="/categories" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -94,7 +94,7 @@ const Footer = () => {
                 </Link>
                 <Link 
                   to="/about" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -103,7 +103,7 @@ const Footer = () => {
                 </Link>
                 <Link 
                   to="/contact" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -124,7 +124,7 @@ const Footer = () => {
               <StaggeredAnimation staggerDelay={50} className="space-y-4">
                 <Link 
                   to="/help" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -133,7 +133,7 @@ const Footer = () => {
                 </Link>
                 <Link 
                   to="/contact" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -142,7 +142,7 @@ const Footer = () => {
                 </Link>
                 <Link 
                   to="/shipping" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -151,7 +151,7 @@ const Footer = () => {
                 </Link>
                 <Link 
                   to="/returns" 
-                  className="block text-blue-200 hover:text-white transition-colors duration-200 group"
+                  className="block text-blue-100 hover:text-white transition-colors duration-200 group"
                 >
                   <span className="flex items-center group-hover:translate-x-2 transition-transform">
                     <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 group-hover:bg-white transition-colors"></span>
@@ -166,7 +166,7 @@ const Footer = () => {
           <AnimatedSection animation="fadeInUp" delay={300}>
             <div>
               <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
-                <span className="w-5 h-5 mr-2 text-teal-400">⚖️</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5 mr-2 text-teal-200"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 3v18m0-14l7 4-7 4-7-4 7-4z"/></svg>
                 {t('footer.legal')}
               </h4>
               <StaggeredAnimation staggerDelay={50} className="space-y-4">
@@ -205,21 +205,21 @@ const Footer = () => {
           <AnimatedSection animation="fadeInUp" delay={400}>
             <div>
               <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
-                <span className="w-5 h-5 mr-2 text-pink-400">🌐</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5 mr-2 text-pink-200"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 3a9 9 0 100 18 9 9 0 000-18zm0 0c2.5 2.5 2.5 13 0 15m0-15c-2.5 2.5-2.5 13 0 15M3 12h18"/></svg>
                 {t('footer.connect')}
               </h4>
               <div className="space-y-4 mb-6">
-                <div className="flex items-center text-blue-200">
+                <div className="flex items-center text-blue-100">
                   <PhoneIcon className="w-4 h-4 mr-3 text-pink-400" />
-                  <span className="text-sm">{t('footer.phone')}</span>
+                  <a href="tel:+201111194483" className="text-sm hover:text-white transition-colors">+20 111 119 4483</a>
                 </div>
-                <div className="flex items-center text-blue-200">
+                <div className="flex items-center text-blue-100">
                   <EnvelopeIcon className="w-4 h-4 mr-3 text-pink-400" />
                   <span className="text-sm">{t('footer.email')}</span>
                 </div>
-                <div className="flex items-center text-blue-200">
+                <div className="flex items-center text-blue-100">
                   <MapPinIcon className="w-4 h-4 mr-3 text-pink-400" />
-                  <span className="text-sm">{t('footer.address')}</span>
+                  <span className="text-sm">Suez, Egypt</span>
                 </div>
               </div>
               <div className="flex space-x-3">
@@ -251,7 +251,7 @@ const Footer = () => {
                   href="https://linkedin.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl flex items-center justify-center hover:from-indigo-600 hover:to-indigo-700 transition-all duration-200 group hover:scale-110"
+                  className="w-10 h-10 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-xl flex items-center justify-center hover:from-sky-600 hover:to-sky-700 transition-all duration-200 group hover:scale-110"
                 >
                   <FaLinkedin className="w-5 h-5" />
                 </a>
@@ -265,13 +265,9 @@ const Footer = () => {
           <div className="border-t border-blue-800/30 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-6">
-                <p className="text-blue-200 text-sm">
+                <p className="text-blue-100 text-sm">
                   © {new Date().getFullYear()} {t('brand.name')}. {t('footer.allRightsReserved')}
                 </p>
-                <div className="flex items-center space-x-4">
-                  <LanguageSwitcher variant="dropdown" size="sm" showFlags={true} showNames={false} />
-                  <ThemeToggle variant="toggle" size="sm" />
-                </div>
               </div>
               <div className="flex items-center space-x-6">
                 <a 

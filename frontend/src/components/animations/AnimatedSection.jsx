@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
 
 const AnimatedSection = ({ 
@@ -10,6 +10,10 @@ const AnimatedSection = ({
   threshold = 0.1
 }) => {
   const [ref, isVisible] = useScrollAnimation(threshold);
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768; // treat small screens as always visible
+  }, []);
 
   const animations = {
     fadeInUp: 'opacity-0 translate-y-8',
@@ -29,7 +33,7 @@ const AnimatedSection = ({
     <div
       ref={ref}
       className={`transition-all duration-${duration} ease-out ${
-        isVisible ? visibleClasses : animationClasses
+        (isVisible || isMobile) ? visibleClasses : animationClasses
       } ${className}`}
       style={{
         transitionDelay: isVisible ? `${delay}ms` : '0ms'

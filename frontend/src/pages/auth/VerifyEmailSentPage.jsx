@@ -63,13 +63,13 @@ const VerifyEmailSentPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
       <Seo {...buildAuthSeo({ tSeo, kind: 'verifyEmail', isDark, currentLanguage })} />
       
       <div className="min-h-screen flex">
         {/* Left Section - Branding & Features */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-blue-500 to-sky-600">
             <div className="absolute inset-0 bg-black/20"></div>
             
             {/* Animated Background Elements */}
@@ -128,7 +128,7 @@ const VerifyEmailSentPage = () => {
           <div className="w-full max-w-md xl:max-w-lg">
             {/* Mobile Logo */}
             <AnimatedSection animation="fadeInDown" delay={0} className="lg:hidden text-center mb-6 sm:mb-8">
-              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-6 mb-6 shadow-xl">
+              <div className="bg-gradient-to-br from-sky-500 via-blue-500 to-sky-600 rounded-2xl p-6 mb-6 shadow-xl">
                 <img
                   src={getLogoPath()}
                   alt="DentalKit Logo"
@@ -173,7 +173,7 @@ const VerifyEmailSentPage = () => {
               <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-2xl p-6 sm:p-8 xl:p-10 border border-white/20 dark:border-gray-700/50" role="status" aria-live="polite">
                 {/* Header */}
                 <div className="text-center mb-6 sm:mb-8">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <EnvelopeIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
                   <h2 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-2">
@@ -247,7 +247,7 @@ const VerifyEmailSentPage = () => {
                       onClick={() => navigate('/login')}
                       size="lg"
                       fullWidth
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                      className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold py-3 sm:py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
                     >
                       {t('verifyEmailSent.backToLogin')}
                     </Button>
