@@ -15,6 +15,7 @@ import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import Button from '../components/ui/Button';
 import AnimatedSection from '../components/animations/AnimatedSection';
 import StaggeredAnimation from '../components/animations/StaggeredAnimation';
+import Banner from '../components/common/Banner';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
 import { getFirstImageUrl } from '../utils/imageUtils';
@@ -54,13 +55,7 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  // Smooth scroll behavior
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = 'smooth';
-    return () => {
-      document.documentElement.style.scrollBehavior = 'auto';
-    };
-  }, []);
+  // Note: avoid forcing global smooth scroll on mobile to prevent compositor glitches
 
   const handleAddToCart = async (productId) => {
     try {
@@ -137,7 +132,7 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+    <div className="relative z-10 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
       <Seo
         title={t('seo.home.title', 'DentalKit - Premium Dental Supplies')}
         description={t('seo.home.description', 'Discover cutting-edge dental equipment and supplies')}
@@ -146,19 +141,24 @@ const HomePage = () => {
         themeColor={currentTheme === 'dark' ? '#0B1220' : '#FFFFFF'}
       />
       
+      {/* Banner */}
+      <div className="relative z-0 opacity-100">
+        <Banner />
+      </div>
+
       {/* Features Section - Why Choose Dental Kit */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-800">
+      <section className="relative z-[1] opacity-100 py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <AnimatedSection animation="fadeInUp" className="text-center mb-8 sm:mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
               {t('home.features.title')}
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
               {t('home.features.subtitle')}
             </p>
-          </AnimatedSection>
+          </div>
           
-          <StaggeredAnimation staggerDelay={200} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {features.map((feature) => (
               <div key={feature.title} className="text-center group">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -172,21 +172,21 @@ const HomePage = () => {
                 </p>
               </div>
             ))}
-          </StaggeredAnimation>
+          </div>
         </div>
       </section>
 
       {/* Categories Section */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      <section className="relative z-[1] opacity-100 py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4">
-          <AnimatedSection animation="fadeInUp" className="text-center mb-8 sm:mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
               {t('home.categories.title')}
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-4">
               {t('home.categories.subtitle')}
             </p>
-          </AnimatedSection>
+          </div>
           
           <div className="relative">
             <div ref={categoriesRef} className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
@@ -224,16 +224,16 @@ const HomePage = () => {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-800">
+      <section className="relative z-[1] opacity-100 py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
-          <AnimatedSection animation="fadeInUp" className="text-center mb-8 sm:mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
               {t('home.featured.title')}
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-4">
               {t('home.featured.subtitle')}
             </p>
-          </AnimatedSection>
+          </div>
           
           {/* Featured Products Grid */}
           <div className="relative">
@@ -299,7 +299,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          <AnimatedSection animation="fadeInUp" delay={300} className="text-center mt-6 sm:mt-8">
+          <div className="text-center mt-6 sm:mt-8">
             <Button
               size="lg"
               className="bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4"
@@ -308,23 +308,23 @@ const HomePage = () => {
               {t('home.featured.viewAll')}
               <ArrowRightIcon className="w-5 h-5 ml-2" />
             </Button>
-          </AnimatedSection>
+          </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      <section className="relative z-[1] opacity-100 py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4">
-          <AnimatedSection animation="fadeInUp" className="text-center mb-8 sm:mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
               {t('home.testimonials.title')}
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-4">
               {t('home.testimonials.subtitle')}
             </p>
-          </AnimatedSection>
+          </div>
           
-          <StaggeredAnimation staggerDelay={200} className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {testimonials.map((testimonial) => (
               <div key={testimonial.name} className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg">
                 <div className="flex items-center mb-6">
@@ -354,14 +354,14 @@ const HomePage = () => {
                 </p>
               </div>
             ))}
-          </StaggeredAnimation>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="pt-8 pb-4 sm:pt-12 sm:pb-6 lg:pt-16 lg:pb-8 bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600">
+      <section className="relative z-[1] opacity-100 pt-8 pb-4 sm:pt-12 sm:pb-6 lg:pt-16 lg:pb-8 bg-gradient-to-r from-sky-500 via-blue-500 to-sky-600">
         <div className="container mx-auto px-4 text-center">
-          <AnimatedSection animation="fadeInUp" className="text-center">
+          <div className="text-center">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
               {t('home.cta.title')}
             </h2>
@@ -385,7 +385,7 @@ const HomePage = () => {
                 {t('home.cta.contactSales')}
               </Button>
             </div>
-          </AnimatedSection>
+          </div>
         </div>
       </section>
     </div>
