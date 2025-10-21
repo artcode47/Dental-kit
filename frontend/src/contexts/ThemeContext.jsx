@@ -292,7 +292,8 @@ export const ThemeProvider = ({ children }) => {
     setCurrentTheme(theme);
     setIsSystemTheme(false);
     applyTheme(theme);
-    syncParam('theme', theme);
+    // Avoid URL param mutations that can trigger reloads on mobile
+    // syncParam('theme', theme);
     
     // Save preferences
     Cookies.set('theme', theme, { expires: 365 });
@@ -308,7 +309,8 @@ export const ThemeProvider = ({ children }) => {
     setIsSystemTheme(true);
     setCurrentTheme(systemTheme);
     applyTheme(systemTheme);
-    syncParam('theme', systemTheme);
+    // Avoid URL param mutations that can trigger reloads on mobile
+    // syncParam('theme', systemTheme);
     
     // Save preferences
     Cookies.remove('theme');

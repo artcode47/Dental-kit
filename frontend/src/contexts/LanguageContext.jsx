@@ -67,8 +67,8 @@ export const LanguageProvider = ({ children }) => {
   // Apply language changes
   useEffect(() => {
     if (currentLanguage) {
-      // Sync URL param
-      syncParam('lang', currentLanguage);
+      // Avoid URL param mutations that can cause reloads or repaints on mobile
+      // syncParam('lang', currentLanguage);
       // Change i18n language
       i18n.changeLanguage(currentLanguage);
       
@@ -80,7 +80,7 @@ export const LanguageProvider = ({ children }) => {
       document.documentElement.dir = languages[currentLanguage].direction;
       document.documentElement.lang = currentLanguage;
       
-      // Update body classes
+      // Keep body classes stable to avoid CLS on mobile
       document.body.className = document.body.className.replace(/lang-\w+/g, '');
       document.body.classList.add(`lang-${currentLanguage}`);
       

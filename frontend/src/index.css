@@ -183,7 +183,11 @@ html, body {
 /* Base styles */
 @layer base {
   html {
-    scroll-behavior: smooth;
+    /* Avoid smooth scroll on mobile to prevent rendering glitches */
+    scroll-behavior: auto;
+  }
+  @media (min-width: 768px) {
+    html { scroll-behavior: smooth; }
   }
   
   body {

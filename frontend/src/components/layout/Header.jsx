@@ -19,7 +19,6 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import SearchBar from '../common/SearchBar';
 import CartBadge from '../cart/CartBadge';
 // NotificationBell removed per requirement to stop notification calls
-import AnimatedSection from '../animations/AnimatedSection';
 
 const Header = () => {
   const { t } = useTranslation('ecommerce');
@@ -87,29 +86,28 @@ const Header = () => {
         <div className="w-full px-3 xs:px-3 sm:px-4">
           <div className="mx-auto w-full max-w-[100%] sm:max-w-7xl">
             <div className="flex h-14 sm:h-16 items-center justify-between gap-2">
-              <AnimatedSection animation="fadeInLeft" delay={0}>
+              <div>
                 <Link to="/" className="flex items-center min-w-0 gap-2 group">
                   <img src={logoSrc} alt="Dental Kit" className="h-8 w-auto sm:h-10 group-hover:scale-105 transition-transform duration-200" />
                   <span className="hidden sm:inline text-xs text-gray-500 dark:text-gray-400 truncate">{t('brand.tagline')}</span>
                 </Link>
-              </AnimatedSection>
+              </div>
 
-              <AnimatedSection animation="fadeInDown" delay={100} className="hidden lg:flex">
+              <div className="hidden lg:flex">
                 <nav className="flex items-center gap-1">
-                  {navItems.map((item, index) => (
+                  {navItems.map((item) => (
                     <Link 
                       key={item.to} 
                       to={item.to} 
                       className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/70 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
-                      style={{ animationDelay: `${index * 50}ms` }}
                     >
                       {item.label}
                     </Link>
                   ))}
                 </nav>
-              </AnimatedSection>
+              </div>
 
-              <AnimatedSection animation="fadeInRight" delay={200}>
+              <div>
                 <div className="flex items-center gap-1 sm:gap-2">
                   <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 transition-all duration-200" aria-label={t('nav.search')}>
                     <MagnifyingGlassIcon className="h-5 w-5" />
@@ -191,7 +189,7 @@ const Header = () => {
                     {isMobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
                   </button>
                 </div>
-              </AnimatedSection>
+              </div>
             </div>
           </div>
           {isSearchOpen && (
@@ -204,7 +202,7 @@ const Header = () => {
         </div>
       </header>
 
-      {(
+      {isMobileMenuOpen && (
         <div id="mobile-menu" ref={mobileMenuRef} className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
           <div className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsMobileMenuOpen(false)} />
           <div className={`absolute right-0 top-0 h-full w-[88vw] max-w-[380px] bg-white dark:bg-gray-800 shadow-2xl transform transition-transform duration-300 ease-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
