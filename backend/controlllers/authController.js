@@ -373,6 +373,24 @@ exports.login = async (req, res) => {
       });
     }
     
+    // Handle specific authentication errors
+    if (err.message.includes('User not found')) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    
+    if (err.message.includes('Invalid password')) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    
+    if (err.message.includes('Account is deactivated')) {
+      return res.status(403).json({ message: 'Account is deactivated' });
+    }
+    
+    if (err.message.includes('Account is temporarily locked')) {
+      return res.status(423).json({ message: 'Account locked. Try again later.' });
+    }
+    
+    // For any other errors, return generic server error
     res.status(500).json({ message: 'Server error' });
   }
 };

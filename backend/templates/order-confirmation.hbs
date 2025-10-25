@@ -84,7 +84,7 @@
             {{#each items}}
             <div class="item">
                 <span>{{name}} (Qty: {{quantity}})</span>
-                <span>${{price}}</span>
+                <span>{{price}} EGP</span>
             </div>
             {{/each}}
             
@@ -92,19 +92,19 @@
             
             <div class="item">
                 <span>Subtotal:</span>
-                <span>${{subtotal}}</span>
+                <span>{{subtotal}} EGP</span>
             </div>
             <div class="item">
                 <span>Shipping:</span>
-                <span>${{shipping}}</span>
+                <span>{{shipping}} EGP</span>
             </div>
             <div class="item">
                 <span>Tax:</span>
-                <span>${{tax}}</span>
+                <span>{{tax}} EGP</span>
             </div>
             <div class="item total">
                 <span>Total:</span>
-                <span>${{total}}</span>
+                <span>{{total}} EGP</span>
             </div>
         </div>
         

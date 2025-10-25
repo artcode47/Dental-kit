@@ -385,7 +385,8 @@ exports.getAllProducts = async (req, res) => {
       limit: parseInt(limit),
       search,
       sortBy,
-      sortOrder
+      sortOrder,
+      includeInactive: true // Admin should see all products including inactive ones
     };
 
     if (category) {

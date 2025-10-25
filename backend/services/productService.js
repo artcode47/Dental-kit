@@ -76,12 +76,13 @@ class ProductService extends FirebaseService {
         inStock,
         search,
         sortBy = 'createdAt',
-        sortOrder = 'desc'
+        sortOrder = 'desc',
+        includeInactive = false
       } = options;
 
       // Generate cache key
       const cacheKey = await this.getCacheKey('getProducts', {
-        page, limit, category, vendor, minPrice, maxPrice, inStock, search, sortBy, sortOrder
+        page, limit, category, vendor, minPrice, maxPrice, inStock, search, sortBy, sortOrder, includeInactive
       });
 
       // Try cache first
@@ -124,12 +125,16 @@ class ProductService extends FirebaseService {
       inStock,
       search,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
+      includeInactive = false
     } = options;
 
     try {
-      // Start with basic query - only use simple equality filters
-      let query = this.collectionRef.where('isActive', '==', true);
+      // Start with basic query - conditionally apply isActive filter
+      let query = this.collectionRef;
+      if (!includeInactive) {
+        query = query.where('isActive', '==', true);
+      }
       
       // Apply only one equality filter to avoid composite index requirements
       if (category) {
@@ -139,7 +144,10 @@ class ProductService extends FirebaseService {
       }
 
       // Get a reasonable number of documents for in-memory processing
-      const maxFetch = Math.min(limit * 3, 500); // Fetch up to 3x the limit, max 500
+      // For admin requests with includeInactive, fetch more documents
+      const maxFetch = includeInactive 
+        ? Math.min(limit * 20, 5000) // Fetch up to 20x the limit, max 5000 for admin
+        : Math.min(limit * 3, 500);  // Fetch up to 3x the limit, max 500 for regular users
       query = query.limit(maxFetch);
 
       const querySnapshot = await query.get();

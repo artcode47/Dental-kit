@@ -65,7 +65,7 @@ router.put('/orders/:orderId/status', adminController.updateOrderStatus);
 // Products management
 router.get('/products', [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('limit').optional().isInt({ min: 1, max: 1000 }).withMessage('Limit must be between 1 and 1000'),
   query('category').optional().notEmpty().withMessage('Valid category ID is required'),
   query('vendor').optional().notEmpty().withMessage('Valid vendor ID is required'),
   query('status').optional().isIn(['active', 'inactive', 'out_of_stock']).withMessage('Valid status is required'),

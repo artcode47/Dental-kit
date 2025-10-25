@@ -21,10 +21,11 @@ function sanitizePrivateKey(rawKey) {
 try {
   // Check if app is already initialized
   if (admin.apps.length === 0) {
-    // Quiet init logs in production
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Initializing Firebase Admin SDK');
-    }
+    // Debug logging for Firebase initialization
+    console.log('🔥 FIREBASE DEBUG: Initializing Firebase Admin SDK');
+    console.log('🔥 FIREBASE DEBUG: Project ID from env:', process.env.FIREBASE_ADMIN_PROJECT_ID);
+    console.log('🔥 FIREBASE DEBUG: Client Email from env:', process.env.FIREBASE_ADMIN_CLIENT_EMAIL);
+    console.log('🔥 FIREBASE DEBUG: All Firebase env vars:', Object.keys(process.env).filter(key => key.startsWith('FIREBASE')));
 
     // Allow two modes:
     // 1) Full JSON via FIREBASE_ADMIN_CREDENTIALS or FIREBASE_ADMIN_CREDENTIALS_BASE64
@@ -94,6 +95,11 @@ try {
     };
 
     app = admin.initializeApp(firebaseConfig);
+    
+    // Debug logging after initialization
+    console.log('🔥 FIREBASE DEBUG: Firebase initialized successfully');
+    console.log('🔥 FIREBASE DEBUG: Final Project ID:', app.options.projectId);
+    console.log('🔥 FIREBASE DEBUG: Final Storage Bucket:', app.options.storageBucket);
     
     // Set custom claims for enhanced security
     admin.auth().setCustomUserClaims = async (uid, claims) => {

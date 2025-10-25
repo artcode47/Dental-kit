@@ -9,7 +9,7 @@ router.get('/image', async (req, res) => {
     const {
       title = 'DentalKit',
       subtitle = '',
-      image = 'https://res.cloudinary.com/demo/image/upload/v1690000000/sample.jpg',
+      image = 'https://dentalkit.com/Logo Lightmode.png',
       theme = 'light'
     } = req.query;
 
