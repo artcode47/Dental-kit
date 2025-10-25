@@ -108,6 +108,21 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Handle 400 Bad Request (including invalid login credentials)
+    if (error.response?.status === 400) {
+      // Don't redirect for login/register endpoints - let the components handle the error
+      const authEndpoints = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password'];
+      const isAuthEndpoint = authEndpoints.some(endpoint => 
+        originalRequest.url.includes(endpoint)
+      );
+      
+      if (!isAuthEndpoint) {
+        toast.error('Invalid request. Please check your input.');
+      }
+      
+      return Promise.reject(error);
+    }
+
     // Handle 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -141,6 +156,17 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       const errorData = error.response?.data;
       
+      // Don't redirect for auth endpoints - let components handle the error
+      const authEndpoints = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password'];
+      const isAuthEndpoint = authEndpoints.some(endpoint => 
+        originalRequest.url.includes(endpoint)
+      );
+      
+      if (isAuthEndpoint) {
+        // For auth endpoints, just reject the promise so components can handle it
+        return Promise.reject(error);
+      }
+      
       // Handle CSRF token errors specifically
       if (errorData?.error === 'CSRF_TOKEN_MISSING' || errorData?.error === 'CSRF_TOKEN_INVALID') {
         // Attempt to refresh CSRF token then retry once without logging out
@@ -169,6 +195,23 @@ api.interceptors.response.use(
         handleApiErrorNavigation(error);
       }
       
+      return Promise.reject(error);
+    }
+    
+    // Handle 423 Locked (account locked)
+    if (error.response?.status === 423) {
+      // Don't redirect for auth endpoints - let components handle the error
+      const authEndpoints = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password'];
+      const isAuthEndpoint = authEndpoints.some(endpoint => 
+        originalRequest.url.includes(endpoint)
+      );
+      
+      if (isAuthEndpoint) {
+        // For auth endpoints, just reject the promise so components can handle it
+        return Promise.reject(error);
+      }
+      
+      toast.error('Account is locked. Please try again later.');
       return Promise.reject(error);
     }
     
@@ -225,6 +268,17 @@ api.interceptors.response.use(
     
     // Handle 500 Server Error and other server errors
     if (error.response?.status >= 500) {
+      // Don't redirect for auth endpoints - let components handle the error
+      const authEndpoints = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password'];
+      const isAuthEndpoint = authEndpoints.some(endpoint => 
+        originalRequest.url.includes(endpoint)
+      );
+      
+      if (isAuthEndpoint) {
+        // For auth endpoints, just reject the promise so components can handle it
+        return Promise.reject(error);
+      }
+      
       toast.error('Server error. Please try again later.');
       // Navigate to server error page
       handleApiErrorNavigation(error);

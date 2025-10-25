@@ -58,7 +58,7 @@ const GalleryInline = ({ images, productName, onOpen }) => {
 
 const InfoInline = ({ product, quantity, setQuantity, addingToCart, onAddToCart, onToggleWishlist, isInWishlist, t, currentLanguage }) => {
   const locale = currentLanguage === 'ar' ? 'ar-EG' : 'en-US';
-  const currency = product?.currency || 'USD';
+  const currency = product?.currency || 'EGP';
   const formatPrice = (price) => new Intl.NumberFormat(locale, { style: 'currency', currency }).format(price);
   return (
     <div className="space-y-4">

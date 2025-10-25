@@ -93,7 +93,24 @@ const HomePage = () => {
 	];
 
 	return (
-		<div className="relative z-10 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
+		<div className="relative z-10 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-sky-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+			<style jsx>{`
+				@media (max-width: 1024px) {
+					* {
+						max-width: 100vw !important;
+						overflow-x: hidden !important;
+					}
+					.container {
+						max-width: 100vw !important;
+						padding-left: 1rem !important;
+						padding-right: 1rem !important;
+					}
+					section {
+						max-width: 100vw !important;
+						overflow-x: hidden !important;
+					}
+				}
+			`}</style>
 			<Seo
 				title={t('seo.home.title', 'DentalKit - Premium Dental Supplies')}
 				description={t('seo.home.description', 'Discover cutting-edge dental equipment and supplies')}
@@ -132,18 +149,18 @@ const HomePage = () => {
 			</section>
 
 			{/* Categories */}
-			<section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-				<div className="container mx-auto px-4">
+			<section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+				<div className="container mx-auto px-4 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-6xl xl:max-w-7xl" style={{ maxWidth: '1500px', maxWidth: '100vw' }}>
 					<div className="text-center mb-8 sm:mb-12">
 						<h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('home.categories.title')}</h2>
 						<p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-4">{t('home.categories.subtitle')}</p>
 					</div>
-					<div className="relative">
-						<div ref={categoriesRef} className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+					<div className="w-full overflow-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+						<div ref={categoriesRef} className="flex gap-3 sm:gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{ scrollbarWidth: 'thin', maxWidth: '100%', overflowX: 'auto' }}>
 							{categories.map((category) => {
 								const Icon = getCategoryIcon(category);
 								return (
-									<Link key={category._id || category.id} to={`/products?category=${category._id || category.id}`} className="group block snap-start w-[280px] sm:w-[300px] min-w-[280px] sm:min-w-[300px] max-w-[280px] sm:max-w-[300px]">
+									<Link key={category._id || category.id} to={`/products?category=${category._id || category.id}`} className="group block snap-start w-[200px] sm:w-[240px] md:w-[280px] lg:w-[300px] min-w-[200px] sm:min-w-[240px] md:min-w-[280px] lg:min-w-[300px] max-w-[200px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[300px]">
 										<div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 shadow-lg h-[240px] sm:h-[260px] flex flex-col">
 											<div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-sky-400 to-blue-600 rounded-xl flex items-center justify-center mb-3 sm:mb-4 shrink-0">
 												{Icon ? <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" /> : <span className="text-xl font-bold text-white">{(category.name || '?').charAt(0).toUpperCase()}</span>}
@@ -164,18 +181,18 @@ const HomePage = () => {
 			</section>
 
 			{/* Featured Products */}
-			<section className="py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-800">
-				<div className="container mx-auto px-4">
+			<section className="py-8 sm:py-12 lg:py-16 bg-white dark:bg-gray-800 overflow-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+				<div className="container mx-auto px-4 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-6xl xl:max-w-7xl" style={{ maxWidth: '1500px', maxWidth: '100vw' }}>
 					<div className="text-center mb-8 sm:mb-12">
 						<h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">{t('home.featured.title')}</h2>
 						<p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-4">{t('home.featured.subtitle')}</p>
 					</div>
-					<div className="relative">
-						<div ref={featuredRef} className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+					<div className="w-full overflow-hidden" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+						<div ref={featuredRef} className="flex gap-3 sm:gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{ scrollbarWidth: 'thin', maxWidth: '100%', overflowX: 'auto' }}>
 							{featuredProducts.map((product) => (
-								<div key={product.id || product._id} className="group snap-start w-[280px] sm:w-[300px] min-w-[280px] sm:min-w-[300px] max-w-[280px] sm:max-w-[300px]">
-									<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-										<div className="relative aspect-square overflow-hidden">
+								<div key={product.id || product._id} className="group snap-start w-[200px] sm:w-[240px] md:w-[280px] lg:w-[300px] min-w-[200px] sm:min-w-[240px] md:min-w-[280px] lg:min-w-[300px] max-w-[200px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[300px]">
+									<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden h-[400px] sm:h-[420px] flex flex-col">
+										<div className="relative h-[200px] sm:h-[220px] overflow-hidden">
 											<img src={getFirstImageUrl(product.images)} alt={product.name} className="w-full h-full object-cover" />
 											{product.originalPrice && product.originalPrice > product.price && (
 												<div className="absolute top-4 left-4">
@@ -183,7 +200,7 @@ const HomePage = () => {
 												</div>
 											)}
 										</div>
-										<div className="p-4 sm:p-6">
+										<div className="p-4 sm:p-6 flex flex-col flex-grow">
 											<h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 cursor-pointer" onClick={() => (window.location.href = `/products/${product.id || product._id}`)}>{product.name}</h3>
 											{product.brand && <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2 sm:mb-3">{product.brand}</p>}
 											<div className="flex items-center mb-3">
@@ -194,10 +211,10 @@ const HomePage = () => {
 												</div>
 												<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 ml-2">({product.reviewCount || 0})</span>
 											</div>
-											<div className="flex items-center space-x-2">
-												<span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">${product.price?.toFixed(2)}</span>
+											<div className="mt-auto flex items-center space-x-2">
+												<span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">EGP {product.price?.toFixed(2)}</span>
 												{product.originalPrice && product.originalPrice > product.price && (
-													<span className="text-xs sm:text-sm line-through text-gray-400">${product.originalPrice?.toFixed(2)}</span>
+													<span className="text-xs sm:text-sm line-through text-gray-400">EGP {product.originalPrice?.toFixed(2)}</span>
 												)}
 											</div>
 										</div>
@@ -266,4 +283,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-

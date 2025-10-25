@@ -9,6 +9,8 @@ import authEnTranslations from './locales/auth-en.json';
 import authArTranslations from './locales/auth-ar.json';
 import ecommerceEnTranslations from './locales/ecommerce-en.json';
 import ecommerceArTranslations from './locales/ecommerce-ar.json';
+import commonEnTranslations from './locales/common-en.json';
+import commonArTranslations from './locales/common-ar.json';
 
 // Some locale files (like auth-*.json) are wrapped under a top-level "auth" key.
 // Normalize resources so the namespace points to the inner object when present.
@@ -16,12 +18,14 @@ const resources = {
   en: {
     admin: adminEnTranslations?.admin || adminEnTranslations,
     auth: authEnTranslations?.auth || authEnTranslations,
-    ecommerce: ecommerceEnTranslations
+    ecommerce: ecommerceEnTranslations,
+    common: commonEnTranslations
   },
   ar: {
     admin: adminArTranslations?.admin || adminArTranslations,
     auth: authArTranslations?.auth || authArTranslations,
-    ecommerce: ecommerceArTranslations
+    ecommerce: ecommerceArTranslations,
+    common: commonArTranslations
   }
 };
 
@@ -63,7 +67,7 @@ i18n
     
     // Default namespace
     defaultNS: 'ecommerce',
-    ns: ['admin', 'auth', 'ecommerce'],
+    ns: ['admin', 'auth', 'ecommerce', 'common'],
     
     // Missing key handling
     saveMissing: import.meta.env.DEV,

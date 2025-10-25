@@ -151,7 +151,7 @@ const AdminOrdersPage = () => {
   
   const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { 
     style: 'currency', 
-    currency: 'USD' 
+    currency: 'EGP' 
   }).format(amount || 0);
 
   const paginate = (page) => setCurrentPage(page);

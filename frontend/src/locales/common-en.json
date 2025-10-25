@@ -1,0 +1,13 @@
+{
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "previousPage": "Previous Page",
+    "nextPage": "Next Page",
+    "firstPage": "First Page",
+    "lastPage": "Last Page",
+    "showing": "Showing {{start}} to {{end}} of {{total}} items",
+    "page": "Page {{current}} of {{total}}",
+    "itemsPerPage": "Items per page"
+  }
+}

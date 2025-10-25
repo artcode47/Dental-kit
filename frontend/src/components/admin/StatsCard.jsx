@@ -9,7 +9,7 @@ const StatsCard = ({
   icon: Icon, 
   color = 'blue',
   format = 'number',
-  currency = 'USD'
+  currency = 'EGP'
 }) => {
   const { t } = useTranslation('admin');
 

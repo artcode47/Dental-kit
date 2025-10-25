@@ -234,6 +234,8 @@
     },
     "filters": {
       "title": "Filters",
+      "show": "Show Filters",
+      "hide": "Hide Filters",
       "clear": "Clear All",
       "categories": "Categories",
       "brands": "Brands",
@@ -766,7 +768,7 @@
       "subtitle": "Flexible delivery options",
       "standard": "Standard Shipping (2–5 business days)",
       "express": "Express Shipping (1–2 business days)",
-      "freeOver": "Free shipping on orders over $200"
+      "freeOver": "Free shipping on orders over 200 EGP"
     },
     "returns": {
       "title": "Returns & Refunds",

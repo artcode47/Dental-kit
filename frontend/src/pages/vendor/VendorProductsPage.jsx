@@ -343,7 +343,7 @@ const VendorProductsPage = () => {
               </div>
               <div className="ml-3 lg:ml-4">
                 <p className="text-xs lg:text-sm font-medium text-gray-600 dark:text-gray-400">{t('products.totalValue')}</p>
-                <p className="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">${stats.totalValue.toLocaleString()}</p>
+                <p className="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">{stats.totalValue.toLocaleString()} EGP</p>
               </div>
             </div>
           </div>
@@ -566,7 +566,7 @@ const ProductsGridView = ({ products, selectedProducts, onSelectProduct, onToggl
                 </div>
                 <div className="flex items-center gap-1">
                   <CurrencyDollarIcon className="h-3 w-3" />
-                  <span className="font-semibold text-gray-900 dark:text-white">${product.price}</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{product.price} EGP</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <ShoppingBagIcon className="h-3 w-3" />
@@ -639,7 +639,7 @@ const ProductsTableView = ({ products, selectedProducts, onSelectAll, onSelectPr
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${product.price}</td>
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{product.price} EGP</td>
                   <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.stock > 10 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : product.stock > 0 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>{product.stock}</span>
                   </td>

@@ -187,16 +187,32 @@ const LoginPage = () => {
       // Record failed attempt
       recordFailedAttempt();
       
-      // Handle specific error cases
-      if (error.message?.includes('email') || error.message?.includes('password')) {
+      // Handle specific error cases based on status codes
+      if (error.response?.status === 400) {
+        // Invalid credentials
         const msg = t('login.invalidCredentials');
         setError('root', { message: msg });
         toast.error(msg);
+      } else if (error.response?.status === 403) {
+        // Email not verified
+        const msg = t('login.emailNotVerified');
+        setError('root', { message: msg });
+        toast.error(msg);
+      } else if (error.response?.status === 423) {
+        // Account locked
+        const msg = t('login.accountLocked');
+        setError('root', { message: msg });
+        toast.error(msg);
       } else if (error.response?.status === 429) {
+        // Rate limit exceeded
         const retryAfter = error.response?.headers?.['retry-after'];
         const msg = retryAfter
           ? t('common.tooManyRequestsRetryIn', { seconds: retryAfter })
           : t('common.tooManyRequests');
+        setError('root', { message: msg });
+        toast.error(msg);
+      } else if (error.message?.includes('email') || error.message?.includes('password')) {
+        const msg = t('login.invalidCredentials');
         setError('root', { message: msg });
         toast.error(msg);
       } else if (error.message?.includes('verified')) {

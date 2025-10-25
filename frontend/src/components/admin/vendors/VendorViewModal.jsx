@@ -29,7 +29,7 @@ const VendorViewModal = ({ isOpen, vendor, onClose }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'EGP'
     }).format(amount || 0);
   };
 

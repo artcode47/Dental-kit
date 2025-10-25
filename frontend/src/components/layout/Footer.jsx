@@ -65,15 +65,15 @@ const Footer = () => {
           </p>
         </AnimatedSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12 mb-16">
           {/* Quick Links */}
           <AnimatedSection animation="fadeInUp" delay={100}>
             <div>
-              <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
+              <h4 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6 flex items-center">
                 <SparklesIcon className="w-5 h-5 mr-2 text-blue-400" />
                 {t('footer.quickLinks')}
               </h4>
-              <StaggeredAnimation staggerDelay={50} className="space-y-4">
+              <StaggeredAnimation staggerDelay={50} className="space-y-3 md:space-y-4">
                 <Link 
                   to="/products" 
                   className="block text-blue-100 hover:text-white transition-colors duration-200 group"
@@ -117,11 +117,11 @@ const Footer = () => {
           {/* Support */}
           <AnimatedSection animation="fadeInUp" delay={200}>
             <div>
-              <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
+              <h4 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6 flex items-center">
                 <HeartIcon className="w-5 h-5 mr-2 text-purple-400" />
                 {t('footer.support')}
               </h4>
-              <StaggeredAnimation staggerDelay={50} className="space-y-4">
+              <StaggeredAnimation staggerDelay={50} className="space-y-3 md:space-y-4">
                 <Link 
                   to="/help" 
                   className="block text-blue-100 hover:text-white transition-colors duration-200 group"
@@ -165,11 +165,11 @@ const Footer = () => {
           {/* Legal */}
           <AnimatedSection animation="fadeInUp" delay={300}>
             <div>
-              <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
+              <h4 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5 mr-2 text-teal-200"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 3v18m0-14l7 4-7 4-7-4 7-4z"/></svg>
                 {t('footer.legal')}
               </h4>
-              <StaggeredAnimation staggerDelay={50} className="space-y-4">
+              <StaggeredAnimation staggerDelay={50} className="space-y-3 md:space-y-4">
                 <Link 
                   to="/privacy" 
                   className="block text-blue-200 hover:text-white transition-colors duration-200 group"
@@ -204,11 +204,11 @@ const Footer = () => {
           {/* Social & Contact */}
           <AnimatedSection animation="fadeInUp" delay={400}>
             <div>
-              <h4 className="text-xl font-semibold text-white mb-6 flex items-center">
+              <h4 className="text-lg md:text-xl font-semibold text-white mb-4 md:mb-6 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-5 h-5 mr-2 text-pink-200"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 3a9 9 0 100 18 9 9 0 000-18zm0 0c2.5 2.5 2.5 13 0 15m0-15c-2.5 2.5-2.5 13 0 15M3 12h18"/></svg>
                 {t('footer.connect')}
               </h4>
-              <div className="space-y-4 mb-6">
+              <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                 <div className="flex items-center text-blue-100">
                   <PhoneIcon className="w-4 h-4 mr-3 text-pink-400" />
                   <a href="tel:+201111194483" className="text-sm hover:text-white transition-colors">+20 111 119 4483</a>
@@ -222,14 +222,14 @@ const Footer = () => {
                   <span className="text-sm">Suez, Egypt</span>
                 </div>
               </div>
-              <div className="flex space-x-3">
+              <div className="flex space-x-2 md:space-x-3">
                 <a 
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all duration-200 group hover:scale-110"
+                  className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all duration-200 group hover:scale-110"
                 >
-                  <FaFacebook className="w-5 h-5" />
+                  <FaFacebook className="w-4 h-4 md:w-5 md:h-5" />
                 </a>
                 <a 
                   href="https://twitter.com" 
@@ -237,7 +237,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-xl flex items-center justify-center hover:from-sky-600 hover:to-sky-700 transition-all duration-200 group hover:scale-110"
                 >
-                  <FaTwitter className="w-5 h-5" />
+                  <FaTwitter className="w-4 h-4 md:w-5 md:h-5" />
                 </a>
                 <a 
                   href="https://instagram.com" 
@@ -245,7 +245,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-xl flex items-center justify-center hover:from-pink-600 hover:to-pink-700 transition-all duration-200 group hover:scale-110"
                 >
-                  <FaInstagram className="w-5 h-5" />
+                  <FaInstagram className="w-4 h-4 md:w-5 md:h-5" />
                 </a>
                 <a 
                   href="https://linkedin.com" 
@@ -253,7 +253,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-xl flex items-center justify-center hover:from-sky-600 hover:to-sky-700 transition-all duration-200 group hover:scale-110"
                 >
-                  <FaLinkedin className="w-5 h-5" />
+                  <FaLinkedin className="w-4 h-4 md:w-5 md:h-5" />
                 </a>
               </div>
             </div>

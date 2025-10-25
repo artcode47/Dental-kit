@@ -1235,7 +1235,11 @@ const AdminUsersPage = () => {
                
                <div className="mt-2">
                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                   {t('users.confirmDeleteMessage', { name: `${selectedUser.firstName} ${selectedUser.lastName}` })}
+                   {t('users.confirmDeleteMessage', { 
+                     name: selectedUser.firstName && selectedUser.lastName 
+                       ? `${selectedUser.firstName} ${selectedUser.lastName}` 
+                       : selectedUser.firstName || selectedUser.lastName || selectedUser.email || 'this user'
+                   })}
                  </p>
                </div>
                

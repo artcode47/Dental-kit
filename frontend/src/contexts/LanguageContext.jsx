@@ -14,8 +14,8 @@ const languages = {
     direction: 'ltr',
     dateFormat: 'MM/DD/YYYY',
     timeFormat: '12',
-    currency: 'USD',
-    currencySymbol: '$',
+    currency: 'EGP',
+    currencySymbol: 'EGP',
     numberFormat: {
       decimal: '.',
       thousands: ',',
@@ -30,8 +30,8 @@ const languages = {
     direction: 'rtl',
     dateFormat: 'DD/MM/YYYY',
     timeFormat: '24',
-    currency: 'SAR',
-    currencySymbol: 'ر.س',
+    currency: 'EGP',
+    currencySymbol: 'ج.م',
     numberFormat: {
       decimal: ',',
       thousands: '.',

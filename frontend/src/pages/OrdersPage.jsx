@@ -104,7 +104,7 @@ const OrdersPage = () => {
                           <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.name}</p>
                           <p className="text-xs text-gray-500">{t('orders.quantity')}: {item.quantity}</p>
                         </div>
-                        <div className="ml-auto text-sm font-semibold text-gray-900 dark:text-white">${(item.price || 0).toFixed(2)}</div>
+                        <div className="ml-auto text-sm font-semibold text-gray-900 dark:text-white">{(item.price || 0).toFixed(2)} EGP</div>
                       </div>
                     ))}
                     {order.items?.length > 2 && (
@@ -114,7 +114,7 @@ const OrdersPage = () => {
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="text-sm text-gray-600 dark:text-gray-300">{t('orders.orderTotal') || t('orders.orderSummary.total', 'Total')}</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">${(order.total || 0).toFixed(2)}</div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{(order.total || 0).toFixed(2)} EGP</div>
                   </div>
                 </div>
                 <div className="p-4 bg-gray-50/60 dark:bg-gray-900/40 rounded-b-2xl flex items-center gap-3">

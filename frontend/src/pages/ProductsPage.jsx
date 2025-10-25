@@ -59,6 +59,7 @@ const ProductsPage = () => {
   const [availability, setAvailability] = useState('all');
   const [sortBy, setSortBy] = useState('popularity');
   const [viewMode, setViewMode] = useState('grid');
+  const [showFilters, setShowFilters] = useState(false); // New state for filter toggle
   // Rating filter state (unused for now but kept for future implementation)
   const [ratingFilter, setRatingFilter] = useState(0);
   const [searchHistory, setSearchHistory] = useState([]);
@@ -318,7 +319,7 @@ const ProductsPage = () => {
   const formatPrice = useCallback((price) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'EGP',
     }).format(price);
   }, []);
 
@@ -420,9 +421,24 @@ const ProductsPage = () => {
       </AnimatedSection>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Mobile Filter Toggle Button */}
+        <div className="lg:hidden mb-6">
+          <Button
+            onClick={() => setShowFilters(!showFilters)}
+            className="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center"
+          >
+            <FunnelIcon className="h-5 w-5 mr-2" />
+            {showFilters ? t('products.filters.hide') : t('products.filters.show')}
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
-          <AnimatedSection animation="fadeInLeft" delay={100} className="lg:col-span-1">
+          <AnimatedSection 
+            animation="fadeInLeft" 
+            delay={100} 
+            className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden lg:block'}`}
+          >
             <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 p-6 sticky top-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
@@ -578,10 +594,10 @@ const ProductsPage = () => {
 
             {/* Products Grid/List */}
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
                 {[...Array(6)].map((_, index) => (
-                  <div key={index} className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 p-6 animate-pulse">
-                    <div className="bg-gray-200 dark:bg-gray-700 h-48 rounded-xl mb-4"></div>
+                  <div key={index} className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 p-4 sm:p-6 animate-pulse h-80 sm:h-96">
+                    <div className="bg-gray-200 dark:bg-gray-700 h-32 sm:h-48 rounded-xl mb-4"></div>
                     <div className="space-y-3">
                       <div className="bg-gray-200 dark:bg-gray-700 h-4 rounded-lg"></div>
                       <div className="bg-gray-200 dark:bg-gray-700 h-4 rounded-lg w-3/4"></div>
@@ -592,7 +608,7 @@ const ProductsPage = () => {
             ) : (
               <>
                 {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
                     {products.map((product, index) => (
                       <AnimatedSection key={product.id} animation="fadeInUp" delay={index * 100}>
                         <ProductCard
@@ -637,7 +653,7 @@ const ProductsPage = () => {
                           disabled={currentPage === 1}
                           className="px-4 py-2 text-sm font-medium text-gray-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
-                          {t('pagination.previous')}
+                          {t('products.pagination.previous')}
                         </button>
                         
                         {[...Array(totalPages)].map((_, index) => {
@@ -664,7 +680,7 @@ const ProductsPage = () => {
                           disabled={currentPage === totalPages}
                           className="px-4 py-2 text-sm font-medium text-gray-500 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
-                          {t('pagination.next')}
+                          {t('products.pagination.next')}
                         </button>
                       </nav>
                     </div>
@@ -727,15 +743,15 @@ const ProductCard = ({
 
   return (
     <div 
-      className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+      className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer h-80 sm:h-96 flex flex-col"
       onClick={handleCardClick}
     >
       {/* Product Image */}
-      <div className="relative" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <div className="relative flex-shrink-0" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         <img
           src={getImageUrl(images[index] || images[0])}
           alt={displayName}
-          className="w-full h-48 object-cover cursor-pointer"
+          className="w-full h-32 sm:h-48 object-cover cursor-pointer"
           onClick={handleImageClick}
         />
         
@@ -772,18 +788,18 @@ const ProductCard = ({
       </div>
 
       {/* Product Info */}
-      <div className="p-6">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2 text-lg">
+      <div className="p-4 sm:p-6 flex flex-col flex-grow">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 sm:mb-3 line-clamp-2 text-sm sm:text-lg flex-grow">
           {displayName}
         </h3>
         
         {/* Rating */}
-        <div className="flex items-center mb-3">
+        <div className="flex items-center mb-2 sm:mb-3">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <StarIconSolid
                 key={i}
-                className={`h-4 w-4 ${
+                className={`h-3 w-3 sm:h-4 sm:w-4 ${
                   i < Math.floor(product.averageRating || 0)
                     ? 'text-yellow-400'
                     : 'text-gray-300'
@@ -791,14 +807,14 @@ const ProductCard = ({
               />
             ))}
           </div>
-          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+          <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 sm:ml-2">
             ({product.totalReviews || 0})
           </span>
         </div>
 
         {/* Price */}
-        <div className="flex items-center space-x-2 mb-4">
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
+        <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+          <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
             {formatPrice(product.price)}
           </span>
           {product.originalPrice && product.originalPrice > product.price && (
@@ -812,7 +828,7 @@ const ProductCard = ({
         <Button
           onClick={handleAddToCartClick}
           disabled={addingToCart || !product.inStock}
-          className="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-semibold py-2 sm:py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 text-sm sm:text-base"
           loading={addingToCart}
         >
           {addingToCart ? (
@@ -821,7 +837,7 @@ const ProductCard = ({
             t('products.outOfStock')
           ) : (
             <>
-              <ShoppingCartIcon className="h-4 w-4 mr-2" />
+              <ShoppingCartIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               {t('products.addToCart')}
             </>
           )}

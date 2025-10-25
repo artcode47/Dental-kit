@@ -54,7 +54,7 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50 relative z-10">
+    <header className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50 relative z-50">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left side */}
@@ -116,7 +116,7 @@ const AdminHeader = () => {
 
               {/* Notifications dropdown */}
               {isNotificationsOpen && (
-                <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50 backdrop-blur-sm">
+                <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-[9999] backdrop-blur-sm">
                   <div className="py-2">
                     <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
                       <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -157,7 +157,7 @@ const AdminHeader = () => {
 
               {/* Profile dropdown menu */}
               {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-50 backdrop-blur-sm">
+                <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 z-[9999] backdrop-blur-sm">
                   <div className="py-2">
                     <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">

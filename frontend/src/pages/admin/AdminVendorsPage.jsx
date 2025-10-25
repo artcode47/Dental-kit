@@ -387,7 +387,7 @@ const AdminVendorsPage = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'EGP'
     }).format(amount || 0);
   };
 
@@ -1083,7 +1083,9 @@ const AdminVendorsPage = () => {
                   </h3>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      This action cannot be undone.
+                      {t('vendors.confirmDeleteMessage', { 
+                        name: selectedVendor?.name || selectedVendor?.nameAr || selectedVendor?.email || 'this vendor'
+                      })}
                     </p>
                   </div>
                 </div>

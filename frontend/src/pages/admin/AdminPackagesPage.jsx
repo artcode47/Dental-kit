@@ -325,7 +325,7 @@ const AdminPackagesPage = () => {
   // Helper functions
   const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { 
     style: 'currency', 
-    currency: 'USD' 
+    currency: 'EGP' 
   }).format(amount || 0);
 
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { 

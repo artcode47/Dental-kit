@@ -166,7 +166,7 @@ const AdminDashboardPage = () => {
   const recentActivities = dashboardData?.recentOrders?.map(order => ({
     type: 'order',
     title: `Order ${order.id}`,
-    description: `$${order.total}`,
+    description: `${order.total} EGP`,
     timestamp: order.createdAt,
     status: order.status
   })) || [];
@@ -328,7 +328,7 @@ const AdminDashboardPage = () => {
                     </div>
                     <div className="text-right ml-4 flex-shrink-0">
                       <p className="font-semibold text-green-600 dark:text-green-400">
-                        ${product.totalRevenue || 0}
+                        {product.totalRevenue || 0} EGP
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {((product.totalRevenue / (dashboardData?.overview?.totalRevenue || 1)) * 100).toFixed(1)}%
@@ -370,7 +370,7 @@ const AdminDashboardPage = () => {
                     </div>
                     <div className="text-right ml-4 flex-shrink-0">
                       <p className="font-semibold text-gray-900 dark:text-white">
-                        ${product.price}
+                        {product.price} EGP
                       </p>
                       <p className="text-xs text-red-500 dark:text-red-400">
                         {product.stock <= 5 ? 'Critical' : 'Low'}
@@ -394,7 +394,7 @@ const AdminDashboardPage = () => {
                     {t('dashboard.avgOrderValue')}
                   </p>
                   <p className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
-                    ${((dashboardData?.overview?.totalRevenue || 0) / (dashboardData?.overview?.totalOrders || 1)).toFixed(2)}
+                    {((dashboardData?.overview?.totalRevenue || 0) / (dashboardData?.overview?.totalOrders || 1)).toFixed(2)} EGP
                   </p>
                 </div>
               </div>
