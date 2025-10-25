@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for dental-website-backend on 2025-09-18T23:25:49+03:00
+# fly.toml app configuration file generated for dental-website-backend-v2 on 2025-10-25T20:25:20+03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -6,12 +6,10 @@
 app = 'dental-website-backend-v2'
 primary_region = 'iad'
 
-[experimental]
-  enable_consul = true
-
 [build]
 
 [deploy]
+  release_command = "echo 'Starting deployment...'"
 
 [env]
   NODE_ENV = 'production'
@@ -27,16 +25,12 @@ primary_region = 'iad'
 
   [[http_service.checks]]
     interval = '30s'
-    timeout = '5s'
-    grace_period = '10s'
+    timeout = '15s'
+    grace_period = '60s'
     method = 'GET'
     path = '/health'
 
 [[vm]]
-  memory = '2gb'
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-[[metrics]]
-  port = 9091
-  path = '/metrics'
