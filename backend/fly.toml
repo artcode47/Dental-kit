@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for dental-website-backend-v2 on 2025-10-25T20:25:20+03:00
+# fly.toml app configuration file generated for dental-website-backend-v2 on 2025-10-25T20:32:17+03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -26,7 +26,7 @@ primary_region = 'iad'
   [[http_service.checks]]
     interval = '30s'
     timeout = '15s'
-    grace_period = '60s'
+    grace_period = '1m0s'
     method = 'GET'
     path = '/health'
 
